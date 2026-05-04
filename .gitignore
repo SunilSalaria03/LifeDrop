@@ -1,0 +1,11 @@
+test.txt
+node_modules/
+.next/
+dist/
+.env
+.env.local
+.npm-cache/
+.npm-cache-*/
+tsconfig.tsbuildinfo
+coverage/
+*.log
