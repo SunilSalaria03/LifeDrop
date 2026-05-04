@@ -27,3 +27,5 @@
 - Added auth guest-route protection so logged-in users cannot visit login or OTP pages.
 - Added user roles, OTP validity metadata, 10-minute OTP expiry, 60-second resend cooldown, failed-attempt tracking, and frontend OTP resend timer.
 - Handled Twilio max-send-attempt and provider errors as clean HTTP responses so the server and unrelated APIs keep working.
+- Reviewed auth flow and applied safe hardening: prevented recursive refresh-token retries, protected onboarding with an auth guard, and added guest protection to the Google auth page.
+- Added future regression-prevention guidance to skills and agents for auth, OTP, route guards, provider errors, sensitive fields, and Mongoose indexes.

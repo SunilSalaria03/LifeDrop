@@ -169,6 +169,7 @@ Implemented foundation:
 - `/auth/login` accepts phone numbers, calls the backend Twilio OTP send flow, and routes to `/auth/otp`.
 - `/auth/otp` verifies OTP with the backend, shows a resend timer, stores returned tokens, and redirects to onboarding when `isProfileCompleted` is false.
 - Auth guest pages redirect already logged-in users to onboarding or dashboard.
+- Onboarding is protected by a frontend auth guard and redirects unauthenticated users to login.
 - `/auth/google` provides a focused Google auth entry point using Google Identity Services.
 - `/onboarding` is the redirect target when `isProfileCompleted` is false.
 - Auth mutations live in `features/auth/hooks/useAuth.ts`.
@@ -176,7 +177,7 @@ Implemented foundation:
 - Auth validation lives in `features/auth/validations/auth.validation.ts`.
 - Auth types live in `features/auth/types/auth.types.ts`.
 - Tokens are stored through `lib/auth/token-storage.ts`.
-- Axios attaches access tokens automatically and prepares refresh-token retry handling.
+- Axios attaches access tokens automatically, refreshes expired access tokens once, and avoids recursive refresh calls on `/auth/refresh`.
 
 ## Deployment Shape
 - Frontend and backend deploy independently.

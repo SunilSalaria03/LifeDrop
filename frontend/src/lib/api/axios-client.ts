@@ -1,6 +1,13 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { tokenStorage } from '@/lib/auth/token-storage';
 
+type TokenRefreshResponse = {
+  data?: {
+    accessToken?: string;
+    refreshToken?: string;
+  };
+};
+
 export const axiosClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   withCredentials: true,
@@ -25,8 +32,9 @@ axiosClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
+    const requestUrl = originalRequest?.url ?? '';
 
-    if (error.response?.status !== 401 || !originalRequest || originalRequest._retry) {
+    if (error.response?.status !== 401 || !originalRequest || originalRequest._retry || requestUrl.includes('/auth/refresh')) {
       return Promise.reject(error);
     }
 
@@ -43,8 +51,14 @@ axiosClient.interceptors.response.use(
       axiosClient
         .post('/auth/refresh', { refreshToken })
         .then((response) => {
-          const nextAccessToken = response.data.data.accessToken as string;
-          const nextRefreshToken = response.data.data.refreshToken as string;
+          const refreshResponse = response.data as TokenRefreshResponse;
+          const nextAccessToken = refreshResponse.data?.accessToken;
+          const nextRefreshToken = refreshResponse.data?.refreshToken;
+
+          if (!nextAccessToken || !nextRefreshToken) {
+            throw new Error('Refresh response did not include tokens.');
+          }
+
           tokenStorage.setTokens(nextAccessToken, nextRefreshToken);
           return nextAccessToken;
         })
@@ -66,4 +80,3 @@ axiosClient.interceptors.response.use(
     return axiosClient(originalRequest);
   }
 );
-
