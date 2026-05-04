@@ -14,7 +14,7 @@ LifeDrop is a location-based blood donation platform that connects donors with p
 - React Hook Form or Formik with `useFormik`
 - Yup validation
 
-### Backend
+### Backend 
 - NestJS
 - TypeScript
 - MongoDB Atlas
