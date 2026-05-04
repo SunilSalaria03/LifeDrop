@@ -29,3 +29,7 @@
 - Handled Twilio max-send-attempt and provider errors as clean HTTP responses so the server and unrelated APIs keep working.
 - Reviewed auth flow and applied safe hardening: prevented recursive refresh-token retries, protected onboarding with an auth guard, and added guest protection to the Google auth page.
 - Added future regression-prevention guidance to skills and agents for auth, OTP, route guards, provider errors, sensitive fields, and Mongoose indexes.
+- Created responsive LifeDrop landing page with sticky header, hero search, quick chips, action cards, donor preview, how-it-works steps, impact stats, and footer.
+- Refined landing page spacing, typography, card treatments, hero hierarchy, search bar, header, and stats presentation for a more modern SaaS visual style.
+- Applied Roboto as the global frontend font family.
+- Updated landing page navbar to use a transparent sticky style.

@@ -128,6 +128,7 @@ frontend/
       ui/
       common/
       forms/
+      landing/
       layout/
     features/
       auth/
@@ -161,6 +162,7 @@ Implemented foundation:
 - `app` contains routes and route layouts.
 - `features` contains feature-specific API hooks, components, and state helpers when needed.
 - `components` contains reusable UI, layout, common, and form components.
+- `components/landing` contains reusable landing-page sections for the home page.
 - `lib/api` contains shared API clients and low-level request helpers.
 - `lib/validations` contains Yup schemas only.
 - `types` contains shared TypeScript interfaces and API models.
@@ -178,6 +180,13 @@ Implemented foundation:
 - Auth types live in `features/auth/types/auth.types.ts`.
 - Tokens are stored through `lib/auth/token-storage.ts`.
 - Axios attaches access tokens automatically, refreshes expired access tokens once, and avoids recursive refresh calls on `/auth/refresh`.
+
+## Frontend Landing Page
+- `/` renders the public LifeDrop landing page.
+- Landing sections live under `components/landing`.
+- The landing page includes sticky header, Pixabay-inspired hero search, action cards, donor preview, how-it-works steps, impact stats, and footer.
+- Landing CTA buttons route to `/request-blood` and `/become-donor`.
+- Landing search is local UI state only until donor/request search APIs are implemented.
 
 ## Deployment Shape
 - Frontend and backend deploy independently.
