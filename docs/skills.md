@@ -8,11 +8,14 @@ Act as an AI-first senior full-stack engineer for LifeDrop.
 - Tailwind CSS and shadcn/ui
 - TanStack Query for server state
 - Axios for HTTP clients
-- React Hook Form or Formik `useFormik` for forms
+- Formik `useFormik` for frontend auth forms
 - Yup validation schemas stored outside form and component files
 - NestJS with TypeScript
 - MongoDB Atlas with Mongoose
 - JWT authentication
+- Passport JWT strategy and guards
+- Twilio SMS OTP delivery
+- Google ID token verification
 
 ## Engineering Skills
 - Keep frontend and backend as separate projects with separate `package.json` files and `node_modules`.
@@ -44,5 +47,5 @@ Act as an AI-first senior full-stack engineer for LifeDrop.
 - Keep docs, feature status, and changelog updated with every feature change.
 
 ## Current Implementation Skills
-- Backend scaffold supports NestJS build, global prefix, CORS, ConfigModule, MongoDB connection setup, response interception, exception filtering, and auth module health readiness.
-- Frontend scaffold supports Next.js App Router, Tailwind CSS, shadcn/ui conventions, Axios API client, TanStack Query provider, and typed utility structure.
+- Backend scaffold supports NestJS build, global prefix, CORS, ConfigModule, MongoDB connection setup, response interception, exception filtering, Twilio phone OTP signup/login, Google auth, access tokens, refresh tokens, protected current-user lookup, and logout.
+- Frontend scaffold supports Next.js App Router, Tailwind CSS, shadcn/ui conventions, Axios bearer-token client, refresh-token preparation, TanStack Query provider, Google auth, `useFormik` auth forms, and typed auth feature structure.

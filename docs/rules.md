@@ -47,6 +47,7 @@ Whenever adding, updating, or removing a feature:
 - Use clean responsive UI.
 - Do not hardcode API URLs; use environment variables.
 - Do not place Yup schemas inside page, form, or component files.
+- Auth forms must use Formik `useFormik`; do not use the Formik component or React Hook Form for auth.
 - Protected frontend routes must check authenticated state.
 - API errors must be shown through reusable UI patterns.
 - Loading, empty, and error states are required for server-state screens.

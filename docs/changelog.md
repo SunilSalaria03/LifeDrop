@@ -12,3 +12,16 @@
 - Expanded core AI-first docs with security, data design, geospatial search, notification readiness, testing, deployment, and MVP acceptance guidance.
 - Ignored generated log files.
 - Updated README with tech stack and local frontend/backend run commands.
+- Implemented complete auth module foundation with phone OTP verification, Google auth, access tokens, refresh tokens, logout, current-user endpoint, JWT guard, and Passport JWT strategy.
+- Added user schema and users service for phone and Google auth.
+- Added frontend auth login, OTP, Google, and onboarding pages with `useFormik`, Firebase client auth, TanStack Query mutations, Axios bearer-token attachment, refresh-token preparation, and token storage.
+- Updated auth API contracts, database design, feature status, architecture, skills, and rules.
+- Fixed Google login by sending the Firebase user ID token from the frontend and allowing the backend Google endpoint to verify Firebase Google tokens before falling back to direct Google OAuth token verification.
+- Updated Google login frontend to use Google Identity Services directly with `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, and added local frontend env defaults for Google login.
+- Fixed Google auth user creation by preventing incomplete default GeoJSON location values from being indexed.
+- Improved backend database error responses for duplicate account conflicts.
+- Made user `location` fully optional during auth user creation and exposed Mongoose validation errors as 400 responses.
+- Replaced Firebase phone verification with a Twilio phone signup flow that creates/fetches the minimal phone user and sends OTP SMS.
+- Removed frontend Firebase dependency and Firebase phone OTP client flow.
+- Fixed phone OTP routing so `/auth/otp/send` sends Twilio OTP and routes to verification, while tokens are issued only after `/auth/otp/verify` succeeds.
+- Added auth guest-route protection so logged-in users cannot visit login or OTP pages.

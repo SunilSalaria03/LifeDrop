@@ -14,8 +14,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = context.getResponse<Response>();
     const request = context.getRequest<{ url: string }>();
     const isHttpException = exception instanceof HttpException;
-    const status = isHttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
-    const errorResponse = isHttpException ? exception.getResponse() : 'Internal server error';
+    const status = isHttpException ? exception.getStatus() : this.getStatus(exception);
+    const errorResponse = isHttpException ? exception.getResponse() : this.getUnhandledMessage(exception);
+
+    if (!isHttpException && process.env.NODE_ENV !== 'production') {
+      console.error(exception);
+    }
 
     response.status(status).json({
       success: false,
@@ -36,6 +40,42 @@ export class AllExceptionsFilter implements ExceptionFilter {
     }
 
     return 'Unexpected error';
+  }
+
+  private getStatus(exception: unknown): HttpStatus {
+    if (this.isMongoDuplicateError(exception)) {
+      return HttpStatus.CONFLICT;
+    }
+
+    if (this.isMongooseValidationError(exception)) {
+      return HttpStatus.BAD_REQUEST;
+    }
+
+    return HttpStatus.INTERNAL_SERVER_ERROR;
+  }
+
+  private getUnhandledMessage(exception: unknown): string {
+    if (this.isMongoDuplicateError(exception)) {
+      return 'Account already exists with the same phone, email, or Google account.';
+    }
+
+    if (this.isMongooseValidationError(exception)) {
+      return exception.message;
+    }
+
+    if (exception instanceof Error && exception.name === 'MongoServerError') {
+      return exception.message;
+    }
+
+    return 'Internal server error';
+  }
+
+  private isMongoDuplicateError(exception: unknown): exception is { code: number } {
+    return typeof exception === 'object' && exception !== null && 'code' in exception && exception.code === 11000;
+  }
+
+  private isMongooseValidationError(exception: unknown): exception is Error {
+    return exception instanceof Error && exception.name === 'ValidationError';
   }
 }
 

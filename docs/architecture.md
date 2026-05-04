@@ -56,7 +56,8 @@ Backend responsibilities:
 Implemented foundation:
 - `main.ts` configures `/api/v1`, CORS, validation pipe, response interceptor, and global exception filter.
 - `app.module.ts` configures global environment variables and MongoDB through `MongooseModule`.
-- `modules/auth` contains the initial auth controller and service skeleton.
+- `modules/auth` contains OTP send/verify, Google auth, token refresh, logout, current-user auth, JWT guard, and JWT strategy.
+- `modules/users` contains the Mongoose user schema and user persistence service used by auth.
 
 ## Backend Module Responsibilities
 - `auth`: registration, login, JWT issuing, current-user auth flow, password hashing, and auth guards.
@@ -68,7 +69,14 @@ Implemented foundation:
 - `location`: geospatial helpers, distance calculations, and reusable location validation.
 
 ## Auth And Access Flow
-- Public users can register and login.
+- Public users can signup/login using phone OTP or Google only.
+- Email/password login is not part of the MVP auth architecture.
+- Phone signup/login starts on the frontend with a phone number. The backend creates or finds a minimal phone user, sends OTP through Twilio, and the frontend routes to OTP verification. Tokens are returned only after OTP verification succeeds.
+- Google signup/login starts on the frontend through Google Identity Services using `NEXT_PUBLIC_GOOGLE_CLIENT_ID` and is verified on the backend with `GOOGLE_CLIENT_ID`. The backend also supports Firebase Google sign-in tokens.
+- Successful auth returns an access token, refresh token, and safe user object.
+- Access tokens protect `/auth/me`, `/auth/logout`, and future private endpoints through Passport JWT.
+- Refresh tokens are hashed before storing in the user document and are never exposed in user responses.
+- Blocked users cannot login or refresh tokens.
 - Authenticated users can manage their own profile, donor profile, and blood requests.
 - Donor search must reveal only approved and safe donor information.
 - Admin routes must require an admin role.
@@ -154,6 +162,19 @@ Implemented foundation:
 - `lib/api` contains shared API clients and low-level request helpers.
 - `lib/validations` contains Yup schemas only.
 - `types` contains shared TypeScript interfaces and API models.
+
+## Frontend Auth Flow
+- `/auth/login` accepts phone numbers, calls the backend Twilio OTP send flow, and routes to `/auth/otp`.
+- `/auth/otp` verifies OTP with the backend, stores returned tokens, and redirects to onboarding when `isProfileCompleted` is false.
+- Auth guest pages redirect already logged-in users to onboarding or dashboard.
+- `/auth/google` provides a focused Google auth entry point using Google Identity Services.
+- `/onboarding` is the redirect target when `isProfileCompleted` is false.
+- Auth mutations live in `features/auth/hooks/useAuth.ts`.
+- Auth API calls live in `features/auth/api/auth.api.ts`.
+- Auth validation lives in `features/auth/validations/auth.validation.ts`.
+- Auth types live in `features/auth/types/auth.types.ts`.
+- Tokens are stored through `lib/auth/token-storage.ts`.
+- Axios attaches access tokens automatically and prepares refresh-token retry handling.
 
 ## Deployment Shape
 - Frontend and backend deploy independently.

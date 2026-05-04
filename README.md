@@ -11,8 +11,9 @@ LifeDrop is a location-based blood donation platform that connects donors with p
 - shadcn/ui
 - TanStack Query
 - Axios
-- React Hook Form or Formik with `useFormik`
+- Formik with `useFormik`
 - Yup validation
+- Google Identity Services
 
 ### Backend 
 - NestJS
@@ -20,6 +21,10 @@ LifeDrop is a location-based blood donation platform that connects donors with p
 - MongoDB Atlas
 - Mongoose
 - JWT authentication
+- Passport JWT
+- Twilio SMS OTP
+- Firebase Admin for optional Firebase Google token fallback
+- Google ID token verification
 - class-validator
 
 ## Project Structure
@@ -59,7 +64,18 @@ Update `backend/.env` with your real values:
 NODE_ENV=development
 PORT=5000
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/lifedrop
-JWT_SECRET=replace-with-secure-secret
+JWT_ACCESS_SECRET=replace-with-secure-access-secret
+JWT_REFRESH_SECRET=replace-with-secure-refresh-secret
+JWT_ACCESS_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+FIREBASE_PROJECT_ID=your-firebase-project-id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk@example.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nreplace-with-private-key\n-----END PRIVATE KEY-----\n"
+GOOGLE_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
+TWILIO_ACCOUNT_SID=your-twilio-account-sid
+TWILIO_AUTH_TOKEN=your-twilio-auth-token
+TWILIO_PHONE_NUMBER=+10000000000
+TWILIO_VERIFY_SERVICE_SID=your-twilio-verify-service-sid
 FRONTEND_ORIGIN=http://localhost:3000
 ```
 
@@ -117,6 +133,7 @@ Update `frontend/.env.local` if needed:
 
 ```env
 NEXT_PUBLIC_API_BASE_URL=http://localhost:5000/api/v1
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
 ```
 
 Run frontend in development mode:
@@ -166,4 +183,6 @@ npm run build
 - Keep real `.env` files out of Git.
 - Backend must have a valid `MONGODB_URI` before it can connect to MongoDB Atlas.
 - Frontend reads the backend URL from `NEXT_PUBLIC_API_BASE_URL`.
+- Phone OTP sends SMS through Twilio from the backend.
+- Google auth requires `NEXT_PUBLIC_GOOGLE_CLIENT_ID` in the frontend and `GOOGLE_CLIENT_ID` in the backend.
 - If PowerShell blocks `npm`, use `npm.cmd` instead.

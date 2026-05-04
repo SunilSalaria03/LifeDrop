@@ -5,7 +5,7 @@
 | Documentation structure | Complete | Initial AI-first docs created. |
 | Backend project setup | Complete | NestJS project, ConfigModule, MongoDB connection, CORS, global prefix, response interceptor, and exception filter created. |
 | Frontend project setup | Complete | Next.js project, Tailwind CSS, shadcn/ui-ready setup, Axios client, TanStack Query provider, and app layout created. |
-| User authentication setup | In progress | Auth module skeleton and health endpoint created. |
+| User authentication setup | In progress | Twilio phone OTP send/verify, Google signup/login, refresh, logout, current-user endpoint, and auth guest-route protection implemented. Profile completion and full protected app routing remain future work. |
 | User profile/onboarding | Planned | Future MVP phase. |
 | Donor profile creation | Planned | Future MVP phase. |
 | Blood request creation | Planned | Future MVP phase. |
