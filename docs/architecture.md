@@ -72,6 +72,8 @@ Implemented foundation:
 - Public users can signup/login using phone OTP or Google only.
 - Email/password login is not part of the MVP auth architecture.
 - Phone signup/login starts on the frontend with a phone number. The backend creates or finds a minimal phone user, sends OTP through Twilio, and the frontend routes to OTP verification. Tokens are returned only after OTP verification succeeds.
+- Phone OTP remains valid for 10 minutes and resend is throttled to one request every 60 seconds.
+- User roles are `user`, `donor`, and `admin`; new auth users start as `user`.
 - Google signup/login starts on the frontend through Google Identity Services using `NEXT_PUBLIC_GOOGLE_CLIENT_ID` and is verified on the backend with `GOOGLE_CLIENT_ID`. The backend also supports Firebase Google sign-in tokens.
 - Successful auth returns an access token, refresh token, and safe user object.
 - Access tokens protect `/auth/me`, `/auth/logout`, and future private endpoints through Passport JWT.
@@ -165,7 +167,7 @@ Implemented foundation:
 
 ## Frontend Auth Flow
 - `/auth/login` accepts phone numbers, calls the backend Twilio OTP send flow, and routes to `/auth/otp`.
-- `/auth/otp` verifies OTP with the backend, stores returned tokens, and redirects to onboarding when `isProfileCompleted` is false.
+- `/auth/otp` verifies OTP with the backend, shows a resend timer, stores returned tokens, and redirects to onboarding when `isProfileCompleted` is false.
 - Auth guest pages redirect already logged-in users to onboarding or dashboard.
 - `/auth/google` provides a focused Google auth entry point using Google Identity Services.
 - `/onboarding` is the redirect target when `isProfileCompleted` is false.

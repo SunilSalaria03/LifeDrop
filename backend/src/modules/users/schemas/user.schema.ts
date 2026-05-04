@@ -8,6 +8,12 @@ export enum AuthProvider {
   Google = 'google'
 }
 
+export enum UserRole {
+  User = 'user',
+  Donor = 'donor',
+  Admin = 'admin'
+}
+
 export type GeoPoint = {
   type: 'Point';
   coordinates: [number, number];
@@ -42,6 +48,9 @@ export class User {
   @Prop({ type: String, enum: AuthProvider, required: true })
   authProvider: AuthProvider;
 
+  @Prop({ type: String, enum: UserRole, default: UserRole.User })
+  role: UserRole;
+
   @Prop({ select: false })
   googleId?: string;
 
@@ -73,7 +82,13 @@ export class User {
   otpHash?: string;
 
   @Prop({ select: false })
-  otpExpiresAt?: Date;
+  otpValidUntil?: Date;
+
+  @Prop({ select: false })
+  otpLastSentAt?: Date;
+
+  @Prop({ select: false, default: 0 })
+  otpFailedAttempts: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
@@ -82,6 +97,7 @@ UserSchema.index({ phone: 1 }, { unique: true, sparse: true });
 UserSchema.index({ email: 1 }, { unique: true, sparse: true });
 UserSchema.index({ googleId: 1 }, { unique: true, sparse: true });
 UserSchema.index({ isBlocked: 1 });
+UserSchema.index({ role: 1 });
 UserSchema.index(
   { location: '2dsphere' },
   {

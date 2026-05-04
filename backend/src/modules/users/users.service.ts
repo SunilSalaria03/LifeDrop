@@ -74,12 +74,26 @@ export class UsersService {
     await this.userModel.updateOne({ _id: userId }, { $unset: { refreshToken: '' } }).exec();
   }
 
-  async saveOtp(userId: string, otpHash: string, otpExpiresAt: Date): Promise<void> {
-    await this.userModel.updateOne({ _id: userId }, { otpHash, otpExpiresAt }).exec();
+  async saveOtp(userId: string, otpValidUntil: Date, otpHash?: string): Promise<void> {
+    await this.userModel
+      .updateOne(
+        { _id: userId },
+        {
+          otpHash,
+          otpValidUntil,
+          otpLastSentAt: new Date(),
+          otpFailedAttempts: 0
+        }
+      )
+      .exec();
   }
 
   findByPhoneWithOtp(phone: string): Promise<UserDocument | null> {
-    return this.userModel.findOne({ phone }).select('+otpHash +otpExpiresAt').exec();
+    return this.userModel.findOne({ phone }).select('+otpHash +otpValidUntil +otpLastSentAt +otpFailedAttempts').exec();
+  }
+
+  async incrementOtpFailedAttempts(userId: string): Promise<void> {
+    await this.userModel.updateOne({ _id: userId }, { $inc: { otpFailedAttempts: 1 } }).exec();
   }
 
   async markPhoneVerified(userId: string): Promise<UserDocument | null> {
@@ -90,8 +104,10 @@ export class UsersService {
           isPhoneVerified: true,
           $unset: {
             otpHash: '',
-            otpExpiresAt: ''
-          }
+            otpValidUntil: '',
+            otpLastSentAt: ''
+          },
+          otpFailedAttempts: 0
         },
         { new: true }
       )

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useFormik } from 'formik';
 import { Button } from '@/components/ui/button';
@@ -17,12 +17,33 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
   const router = useRouter();
   const phoneFromQuery = searchParams.get('phone') ?? '';
   const { sendOtpMutation, verifyOtpMutation } = useAuth();
+  const [resendSeconds, setResendSeconds] = useState(60);
 
   useEffect(() => {
     if (mode === 'verify' && !phoneFromQuery) {
       router.replace('/auth/login');
     }
   }, [mode, phoneFromQuery, router]);
+
+  useEffect(() => {
+    if (mode !== 'verify') {
+      return;
+    }
+
+    setResendSeconds(60);
+  }, [mode, phoneFromQuery]);
+
+  useEffect(() => {
+    if (mode !== 'verify' || resendSeconds <= 0) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      setResendSeconds((currentSeconds) => Math.max(currentSeconds - 1, 0));
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [mode, resendSeconds]);
 
   const sendFormik = useFormik({
     initialValues: {
@@ -49,6 +70,17 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
       });
     }
   });
+
+  async function handleResendOtp() {
+    if (!phoneFromQuery || resendSeconds > 0) {
+      return;
+    }
+
+    await sendOtpMutation.mutateAsync({
+      phone: phoneFromQuery
+    });
+    setResendSeconds(60);
+  }
 
   if (mode === 'verify') {
     return (
@@ -80,6 +112,25 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
         <Button type="submit" disabled={verifyOtpMutation.isPending || !phoneFromQuery}>
           {verifyOtpMutation.isPending ? 'Verifying...' : 'Verify OTP'}
         </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          disabled={sendOtpMutation.isPending || resendSeconds > 0 || !phoneFromQuery}
+          onClick={handleResendOtp}
+        >
+          {sendOtpMutation.isPending
+            ? 'Resending...'
+            : resendSeconds > 0
+              ? `Resend OTP in ${resendSeconds}s`
+              : 'Resend OTP'}
+        </Button>
+
+        {sendOtpMutation.isError ? (
+          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800">
+            Could not resend OTP yet. Please wait and try again.
+          </p>
+        ) : null}
       </form>
     );
   }

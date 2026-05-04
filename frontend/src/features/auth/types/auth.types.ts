@@ -1,4 +1,5 @@
 export type AuthProvider = 'phone' | 'google';
+export type UserRole = 'user' | 'donor' | 'admin';
 
 export type LocationPoint = {
   type: 'Point';
@@ -12,6 +13,7 @@ export type AuthUser = {
   phone?: string;
   profileImage?: string;
   authProvider: AuthProvider;
+  role: UserRole;
   isPhoneVerified: boolean;
   isProfileCompleted: boolean;
   isBlocked: boolean;

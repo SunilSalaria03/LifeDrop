@@ -1,4 +1,12 @@
-import { BadRequestException, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  HttpException,
+  Injectable,
+  HttpStatus,
+  ServiceUnavailableException,
+  UnauthorizedException
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { cert, getApps, initializeApp } from 'firebase-admin/app';
@@ -12,8 +20,13 @@ import { PhoneOtpVerifyDto } from './dto/phone-otp-verify.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthResponse, AuthUser } from './interfaces/auth-response.interface';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
-import { UserDocument } from '../users/schemas/user.schema';
+import { UserDocument, UserRole } from '../users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
+
+const OTP_VALIDITY_MS = 10 * 60 * 1000;
+const OTP_RESEND_COOLDOWN_MS = 60 * 1000;
+const OTP_MAX_FAILED_ATTEMPTS = 5;
+const TWILIO_MAX_SEND_ATTEMPTS_CODE = 60203;
 
 @Injectable()
 export class AuthService {
@@ -37,13 +50,14 @@ export class AuthService {
   }
 
   async sendPhoneOtp(phoneOtpSendDto: PhoneOtpSendDto) {
-    let user = await this.usersService.findByPhone(phoneOtpSendDto.phone);
+    let user = await this.usersService.findByPhoneWithOtp(phoneOtpSendDto.phone);
 
     if (!user) {
       user = await this.usersService.createPhoneUser({ phone: phoneOtpSendDto.phone });
     }
 
     this.assertCanLogin(user);
+    this.assertCanResendOtp(user);
     await this.sendOtpSms(user.id, phoneOtpSendDto.phone);
 
     return {
@@ -196,7 +210,8 @@ export class AuthService {
 
   private async createAuthResponse(user: UserDocument): Promise<AuthResponse> {
     const payload: JwtPayload = {
-      sub: user.id
+      sub: user.id,
+      role: user.role ?? UserRole.User
     };
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.getRequiredConfig('JWT_ACCESS_SECRET'),
@@ -224,6 +239,7 @@ export class AuthService {
       phone: user.phone,
       profileImage: user.profileImage,
       authProvider: user.authProvider,
+      role: user.role ?? UserRole.User,
       isPhoneVerified: user.isPhoneVerified,
       isProfileCompleted: user.isProfileCompleted,
       isBlocked: user.isBlocked,
@@ -285,10 +301,16 @@ export class AuthService {
     const verifyServiceSid = this.configService.get<string>('TWILIO_VERIFY_SERVICE_SID');
 
     if (this.twilioClient && verifyServiceSid) {
-      await this.twilioClient.verify.v2.services(verifyServiceSid).verifications.create({
-        to: phone,
-        channel: 'sms'
-      });
+      await this.twilioClient.verify.v2
+        .services(verifyServiceSid)
+        .verifications.create({
+          to: phone,
+          channel: 'sms'
+        })
+        .catch((error: unknown) => {
+          this.handleTwilioError(error);
+        });
+      await this.usersService.saveOtp(userId, this.getOtpValidUntil());
       return;
     }
 
@@ -297,46 +319,61 @@ export class AuthService {
     if (!this.twilioClient || !fromPhone) {
       if (this.configService.get<string>('NODE_ENV') !== 'production') {
         console.warn(`Twilio is not configured. Development OTP for ${phone}: ${otp}`);
-        await this.usersService.saveOtp(userId, this.hashToken(otp), this.getOtpExpiryDate());
+        await this.usersService.saveOtp(userId, this.getOtpValidUntil(), this.hashToken(otp));
         return;
       }
 
       throw new BadRequestException('Twilio OTP service is not configured.');
     }
 
-    await this.twilioClient.messages.create({
-      to: phone,
-      from: fromPhone,
-      body: `Your LifeDrop OTP is ${otp}.`
-    });
-    await this.usersService.saveOtp(userId, this.hashToken(otp), this.getOtpExpiryDate());
+    await this.twilioClient.messages
+      .create({
+        to: phone,
+        from: fromPhone,
+        body: `Your LifeDrop OTP is ${otp}.`
+      })
+      .catch((error: unknown) => {
+        this.handleTwilioError(error);
+      });
+    await this.usersService.saveOtp(userId, this.getOtpValidUntil(), this.hashToken(otp));
   }
 
   private async verifyTwilioOtp(user: UserDocument, otp: string): Promise<void> {
     const verifyServiceSid = this.configService.get<string>('TWILIO_VERIFY_SERVICE_SID');
 
+    if (!user.otpValidUntil || user.otpValidUntil.getTime() < Date.now()) {
+      throw new UnauthorizedException('OTP expired. Please request a new OTP.');
+    }
+
+    if (user.otpFailedAttempts >= OTP_MAX_FAILED_ATTEMPTS) {
+      throw new UnauthorizedException('Too many invalid OTP attempts. Please request a new OTP.');
+    }
+
     if (this.twilioClient && verifyServiceSid && user.phone) {
-      const verificationCheck = await this.twilioClient.verify.v2.services(verifyServiceSid).verificationChecks.create({
-        to: user.phone,
-        code: otp
-      });
+      const verificationCheck = await this.twilioClient.verify.v2
+        .services(verifyServiceSid)
+        .verificationChecks.create({
+          to: user.phone,
+          code: otp
+        })
+        .catch((error: unknown) => {
+          this.handleTwilioError(error);
+        });
 
       if (verificationCheck.status !== 'approved') {
+        await this.usersService.incrementOtpFailedAttempts(user.id);
         throw new UnauthorizedException('Invalid or expired OTP.');
       }
 
       return;
     }
 
-    if (!user.otpHash || !user.otpExpiresAt) {
+    if (!user.otpHash) {
       throw new UnauthorizedException('OTP session expired. Please request a new OTP.');
     }
 
-    if (user.otpExpiresAt.getTime() < Date.now()) {
-      throw new UnauthorizedException('OTP expired. Please request a new OTP.');
-    }
-
     if (this.hashToken(otp) !== user.otpHash) {
+      await this.usersService.incrementOtpFailedAttempts(user.id);
       throw new UnauthorizedException('Invalid OTP.');
     }
   }
@@ -345,8 +382,39 @@ export class AuthService {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  private getOtpExpiryDate(): Date {
-    return new Date(Date.now() + 10 * 60 * 1000);
+  private getOtpValidUntil(): Date {
+    return new Date(Date.now() + OTP_VALIDITY_MS);
+  }
+
+  private handleTwilioError(error: unknown): never {
+    const twilioError = error as {
+      status?: number;
+      code?: number;
+      message?: string;
+    };
+
+    if (twilioError.status === 429 || twilioError.code === TWILIO_MAX_SEND_ATTEMPTS_CODE) {
+      throw new HttpException('Maximum OTP send attempts reached. Please wait before requesting another OTP.', HttpStatus.TOO_MANY_REQUESTS);
+    }
+
+    if (twilioError.status && twilioError.status >= 400 && twilioError.status < 500) {
+      throw new BadRequestException(twilioError.message ?? 'Twilio rejected the OTP request.');
+    }
+
+    throw new ServiceUnavailableException('OTP service is temporarily unavailable. Please try again later.');
+  }
+
+  private assertCanResendOtp(user: UserDocument): void {
+    if (!user.otpLastSentAt) {
+      return;
+    }
+
+    const elapsedMs = Date.now() - user.otpLastSentAt.getTime();
+
+    if (elapsedMs < OTP_RESEND_COOLDOWN_MS) {
+      const waitSeconds = Math.ceil((OTP_RESEND_COOLDOWN_MS - elapsedMs) / 1000);
+      throw new BadRequestException(`Please wait ${waitSeconds} seconds before requesting another OTP.`);
+    }
   }
 
   private getRequiredConfig(key: string): string {

@@ -59,6 +59,9 @@ Behavior:
 - Send OTP SMS through Twilio.
 - Do not return tokens until OTP verification succeeds.
 - Frontend redirects to `/auth/otp?phone=...`.
+- OTP is valid for 10 minutes.
+- Resend is limited to once every 60 seconds.
+- Twilio max-send-attempt errors return `429` and do not affect other API routes.
 
 ### Verify Phone OTP
 
@@ -78,6 +81,8 @@ Request:
 Behavior:
 - Verify OTP through Twilio Verify when configured.
 - Verify locally stored development OTP only when Twilio Verify is not configured and the app is not production.
+- Reject expired OTPs after 10 minutes.
+- Reject verification after repeated invalid attempts.
 - Return safe user, access token, and refresh token.
 - Frontend redirects to onboarding when `isProfileCompleted` is false.
 
@@ -162,6 +167,7 @@ Response data is the logged-in safe user object. It never includes `refreshToken
       "phone": "+919999999999",
       "profileImage": "https://example.com/image.png",
       "authProvider": "phone",
+      "role": "user",
       "isPhoneVerified": true,
       "isProfileCompleted": false,
       "isBlocked": false

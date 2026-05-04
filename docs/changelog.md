@@ -25,3 +25,5 @@
 - Removed frontend Firebase dependency and Firebase phone OTP client flow.
 - Fixed phone OTP routing so `/auth/otp/send` sends Twilio OTP and routes to verification, while tokens are issued only after `/auth/otp/verify` succeeds.
 - Added auth guest-route protection so logged-in users cannot visit login or OTP pages.
+- Added user roles, OTP validity metadata, 10-minute OTP expiry, 60-second resend cooldown, failed-attempt tracking, and frontend OTP resend timer.
+- Handled Twilio max-send-attempt and provider errors as clean HTTP responses so the server and unrelated APIs keep working.

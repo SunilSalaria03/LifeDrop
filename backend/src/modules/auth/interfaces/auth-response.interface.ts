@@ -1,4 +1,4 @@
-import { AuthProvider, GeoPoint } from '../../users/schemas/user.schema';
+import { AuthProvider, GeoPoint, UserRole } from '../../users/schemas/user.schema';
 
 export interface AuthUser {
   id: string;
@@ -7,6 +7,7 @@ export interface AuthUser {
   phone?: string;
   profileImage?: string;
   authProvider: AuthProvider;
+  role: UserRole;
   isPhoneVerified: boolean;
   isProfileCompleted: boolean;
   isBlocked: boolean;
@@ -20,4 +21,3 @@ export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
 }
-
