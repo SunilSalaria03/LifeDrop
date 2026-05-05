@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,17 +13,25 @@ type PhoneOtpFormProps = {
 };
 
 export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const phoneFromQuery = searchParams.get('phone') ?? '';
+  const [phoneFromQuery, setPhoneFromQuery] = useState('');
+  const [redirect, setRedirect] = useState<string | null>(null);
+  const [hasLoadedQuery, setHasLoadedQuery] = useState(false);
   const { sendOtpMutation, verifyOtpMutation } = useAuth();
   const [resendSeconds, setResendSeconds] = useState(60);
 
   useEffect(() => {
-    if (mode === 'verify' && !phoneFromQuery) {
+    const params = new URLSearchParams(window.location.search);
+    setPhoneFromQuery(params.get('phone') ?? '');
+    setRedirect(params.get('redirect'));
+    setHasLoadedQuery(true);
+  }, []);
+
+  useEffect(() => {
+    if (hasLoadedQuery && mode === 'verify' && !phoneFromQuery) {
       router.replace('/auth/login');
     }
-  }, [mode, phoneFromQuery, router]);
+  }, [hasLoadedQuery, mode, phoneFromQuery, router]);
 
   useEffect(() => {
     if (mode !== 'verify') {
@@ -50,11 +58,16 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
       phone: phoneFromQuery
     },
     validationSchema: phoneOtpSendSchema,
+    enableReinitialize: true,
     onSubmit: async (values) => {
       await sendOtpMutation.mutateAsync({
         phone: values.phone
       });
-      router.push(`/auth/otp?phone=${encodeURIComponent(values.phone)}`);
+      router.push(
+        `/auth/otp?phone=${encodeURIComponent(values.phone)}${
+          redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''
+        }`,
+      );
     }
   });
 
@@ -86,7 +99,7 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
     return (
       <form className="grid gap-4" onSubmit={verifyFormik.handleSubmit}>
         <div className="grid gap-2">
-          <label className="text-sm font-medium text-neutral-900" htmlFor="otp">
+          <label className="text-sm font-semibold text-neutral-900" htmlFor="otp">
             OTP
           </label>
           <Input
@@ -99,22 +112,27 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
             onChange={verifyFormik.handleChange}
           />
           {verifyFormik.touched.otp && verifyFormik.errors.otp ? (
-            <p className="text-sm text-red-700">{verifyFormik.errors.otp}</p>
+            <p className="text-sm font-medium text-red-700">{verifyFormik.errors.otp}</p>
           ) : null}
         </div>
 
         {verifyOtpMutation.isError ? (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800">
+          <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
             OTP verification failed. Check the code or request a new OTP.
           </p>
         ) : null}
 
-        <Button type="submit" disabled={verifyOtpMutation.isPending || !phoneFromQuery}>
+        <Button
+          className="h-12 rounded-full bg-red-600 text-white hover:bg-red-700"
+          type="submit"
+          disabled={verifyOtpMutation.isPending || !phoneFromQuery}
+        >
           {verifyOtpMutation.isPending ? 'Verifying...' : 'Verify OTP'}
         </Button>
 
         <Button
           type="button"
+          className="h-12 rounded-full"
           variant="outline"
           disabled={sendOtpMutation.isPending || resendSeconds > 0 || !phoneFromQuery}
           onClick={handleResendOtp}
@@ -127,7 +145,7 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
         </Button>
 
         {sendOtpMutation.isError ? (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800">
+          <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
             Could not resend OTP yet. Please wait and try again.
           </p>
         ) : null}
@@ -138,29 +156,34 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
   return (
     <form className="grid gap-4" onSubmit={sendFormik.handleSubmit}>
       <div className="grid gap-2">
-        <label className="text-sm font-medium text-neutral-900" htmlFor="phone">
+        <label className="text-sm font-semibold text-neutral-900" htmlFor="phone">
           Phone number
         </label>
         <Input
           id="phone"
           name="phone"
           placeholder="+919999999999"
+          className="h-12 rounded-2xl bg-white"
           value={sendFormik.values.phone}
           onBlur={sendFormik.handleBlur}
           onChange={sendFormik.handleChange}
         />
         {sendFormik.touched.phone && sendFormik.errors.phone ? (
-          <p className="text-sm text-red-700">{sendFormik.errors.phone}</p>
+          <p className="text-sm font-medium text-red-700">{sendFormik.errors.phone}</p>
         ) : null}
       </div>
 
       {sendOtpMutation.isError ? (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800">
+        <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
           Could not send OTP. Check the number and Twilio setup.
         </p>
       ) : null}
 
-      <Button type="submit" disabled={sendOtpMutation.isPending}>
+      <Button
+        className="h-12 rounded-full bg-red-600 text-white shadow-lg shadow-red-600/20 hover:bg-red-700"
+        type="submit"
+        disabled={sendOtpMutation.isPending}
+      >
         {sendOtpMutation.isPending ? 'Sending OTP...' : 'Send OTP'}
       </Button>
     </form>

@@ -3,8 +3,10 @@ import { axiosClient } from '@/lib/api/axios-client';
 import { ApiResponse } from '@/types/api';
 import {
   DonorDetail,
+  DonorProfilePayload,
   DonorSearchFilters,
   DonorSearchResponse,
+  MyDonorProfile,
 } from '../types/donor.types';
 
 function getApiErrorMessage(error: unknown, fallback: string) {
@@ -53,4 +55,39 @@ export async function getDonorById(id: string) {
       ),
     );
   }
+}
+
+export async function createDonorProfile(payload: DonorProfilePayload) {
+  const response = await axiosClient.post<ApiResponse<MyDonorProfile>>(
+    '/donors/profile',
+    payload,
+  );
+
+  if (!response.data.data) {
+    throw new Error('Donor profile response was empty.');
+  }
+
+  return response.data.data;
+}
+
+export async function getMyDonorProfile() {
+  const response =
+    await axiosClient.get<ApiResponse<MyDonorProfile | null>>(
+      '/donors/profile/me',
+    );
+
+  return response.data.data ?? null;
+}
+
+export async function updateDonorProfile(payload: Partial<DonorProfilePayload>) {
+  const response = await axiosClient.put<ApiResponse<MyDonorProfile>>(
+    '/donors/profile',
+    payload,
+  );
+
+  if (!response.data.data) {
+    throw new Error('Donor profile response was empty.');
+  }
+
+  return response.data.data;
 }

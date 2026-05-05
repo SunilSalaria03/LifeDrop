@@ -63,6 +63,28 @@ Behavior:
 - Resend is limited to once every 60 seconds.
 - Twilio max-send-attempt errors return `429` and do not affect other API routes.
 
+### Verify Profile Phone OTP
+
+```http
+POST /api/v1/auth/otp/verify-profile-phone
+Authorization: Bearer access_token
+```
+
+Request:
+
+```json
+{
+  "phone": "+919999999999",
+  "otp": "123456"
+}
+```
+
+Behavior:
+- Protected route for logged-in Google users who need a verified phone number.
+- Verifies the OTP and attaches the phone to the current user.
+- Prevents using a phone number that belongs to another account.
+- Marks `isPhoneVerified` true and returns the safe current user.
+
 ### Verify Phone OTP
 
 ```http
@@ -84,7 +106,7 @@ Behavior:
 - Reject expired OTPs after 10 minutes.
 - Reject verification after repeated invalid attempts.
 - Return safe user, access token, and refresh token.
-- Frontend redirects to onboarding when `isProfileCompleted` is false.
+- Frontend redirects to `/profile/setup` when `isProfileCompleted` is false.
 
 ### Google Auth
 
@@ -170,6 +192,8 @@ Authorization: Bearer access_token
 
 Updates the logged-in user's real profile fields in the `users` collection, including name, contact fields, address text, state, city, district, and optional GeoJSON location. Coordinates must be supplied together as `lat` and `lng` and are stored as `[lng, lat]`. The response never includes `refreshToken`, OTP fields, or hidden provider identifiers.
 
+Profile completion is set only when required safe fields are present: `name`, `phone`, `isPhoneVerified`, `state`, and `city`. Blocked users cannot update their profile.
+
 ### Location States
 
 ```http
@@ -227,7 +251,7 @@ POST /api/v1/donors/profile
 Authorization: Bearer access_token
 ```
 
-Creates the logged-in user's donor profile in `donorprofiles`, stores location as GeoJSON `[lng, lat]`, calculates `nextEligibleDate` from `lastDonationDate + 90 days`, and syncs safe profile/location fields back to the linked user. Blocked users cannot create donor profiles.
+Creates the logged-in user's donor profile in `donorprofiles`, stores location as GeoJSON `[lng, lat]`, calculates `nextEligibleDate` from `lastDonationDate + 90 days`, and syncs safe profile/location fields back to the linked user. Blocked users and users with incomplete profiles cannot create donor profiles. A user can have only one donor profile.
 
 ### Update Donor Profile
 

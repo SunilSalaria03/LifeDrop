@@ -37,6 +37,9 @@ Sensitive fields:
 - `googleId` is selected out by default and never returned in user responses.
 - OTP fields are selected out by default and never returned in user responses.
 
+Profile completion rule:
+- `isProfileCompleted` is true only when the user has `name`, `phone`, `isPhoneVerified`, `state`, and `city`.
+
 ### donorprofiles
 
 Stores one donor profile per user.
@@ -58,6 +61,9 @@ Indexes:
 - unique `userId`
 - `location` 2dsphere
 - `bloodGroup`, `state`, `city`, `district`, `isAvailable`, `isActive`, `isVerified`
+
+Creation rule:
+- Donor profiles can be created or updated only by the owning logged-in user after their user profile is complete and the account is not blocked.
 
 ### locations
 

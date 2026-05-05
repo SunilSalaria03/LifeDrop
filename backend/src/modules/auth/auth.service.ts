@@ -98,6 +98,46 @@ export class AuthService {
     return this.createAuthResponse(verifiedUser);
   }
 
+  async verifyProfilePhoneOtp(
+    currentUser: UserDocument,
+    phoneOtpVerifyDto: PhoneOtpVerifyDto,
+  ) {
+    this.assertCanLogin(currentUser);
+
+    const existingPhoneUser = await this.usersService.findByPhone(
+      phoneOtpVerifyDto.phone,
+    );
+
+    if (existingPhoneUser && existingPhoneUser.id !== currentUser.id) {
+      throw new BadRequestException(
+        'Phone number is already used by another account.',
+      );
+    }
+
+    const userWithOtp = await this.usersService.findByIdWithOtp(currentUser.id);
+
+    if (!userWithOtp) {
+      throw new UnauthorizedException('User does not exist.');
+    }
+
+    if (userWithOtp.phone !== phoneOtpVerifyDto.phone) {
+      throw new BadRequestException(
+        'Please save this phone number in your profile before verifying OTP.',
+      );
+    }
+
+    await this.verifyTwilioOtp(userWithOtp, phoneOtpVerifyDto.otp);
+    const verifiedUser = await this.usersService.markPhoneVerified(
+      userWithOtp.id,
+    );
+
+    if (!verifiedUser) {
+      throw new UnauthorizedException('User does not exist.');
+    }
+
+    return this.usersService.toSafeUser(verifiedUser);
+  }
+
   async authenticateWithGoogle(
     googleAuthDto: GoogleAuthDto,
   ): Promise<AuthResponse> {
@@ -269,6 +309,10 @@ export class AuthService {
       isPhoneVerified: user.isPhoneVerified,
       isProfileCompleted: user.isProfileCompleted,
       isBlocked: user.isBlocked,
+      addressText: user.addressText,
+      state: user.state,
+      city: user.city,
+      district: user.district,
       location: user.location,
       createdAt: user.get('createdAt') as Date | undefined,
       updatedAt: user.get('updatedAt') as Date | undefined,

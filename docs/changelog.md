@@ -1,6 +1,12 @@
 # LifeDrop Changelog
 
 ## 2026-05-05
+- Added the profile setup flow at `/profile/setup`, including Google-user phone OTP verification and required profile completion before dashboard access.
+- Added the protected Become Donor flow at `/become-donor`; guests are redirected to login, incomplete users complete profile setup first, and completed users can save real donor profiles in MongoDB.
+- Added protected profile-phone verification with `POST /api/v1/auth/otp/verify-profile-phone` and tightened donor profile APIs so blocked or incomplete users cannot manage donor profiles.
+- Refined the login page/card UI with LifeDrop branding, cleaner phone OTP styling, Google login treatment, and trust helper text.
+- Added a static landing impact metrics section for registered donors, lives saved, blood requests, and cities covered.
+- Added landing page How It Works, Success Stories, and final Join Community CTA sections.
 - Fixed donor geo-search default radius metadata so omitted `radiusKm` searches up to 50 km.
 - Split frontend location behavior: header now auto-detects GPS location with OpenStreetMap Nominatim, while hero donor search uses manual state/city dropdowns from `country-state-city` and sends selected city coordinates to the MongoDB-backed donor search API.
 - Improved the available donor card UI with avatars, badges, dates, donation stats, and profile links.

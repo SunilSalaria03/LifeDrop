@@ -18,6 +18,20 @@ export type DonorSearchFilters = {
   radiusKm?: number;
 };
 
+export type DonorProfilePayload = {
+  bloodGroup: string;
+  phone: string;
+  alternatePhone?: string;
+  state: string;
+  city: string;
+  district?: string;
+  addressText?: string;
+  lat: number;
+  lng: number;
+  lastDonationDate?: string;
+  isAvailable?: boolean;
+};
+
 export type DonorListItem = {
   id: string;
   userId?: string;
@@ -38,6 +52,12 @@ export type DonorListItem = {
 };
 
 export type DonorDetail = DonorListItem;
+
+export type MyDonorProfile = DonorListItem & {
+  phone?: string;
+  alternatePhone?: string;
+  addressText?: string;
+};
 
 export type DonorSearchResponse = {
   items: DonorListItem[];

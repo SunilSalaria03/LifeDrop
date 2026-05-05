@@ -11,6 +11,10 @@ export interface AuthUser {
   isPhoneVerified: boolean;
   isProfileCompleted: boolean;
   isBlocked: boolean;
+  addressText?: string;
+  state?: string;
+  city?: string;
+  district?: string;
   location?: GeoPoint;
   createdAt?: Date;
   updatedAt?: Date;

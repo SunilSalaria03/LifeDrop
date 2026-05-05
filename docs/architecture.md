@@ -78,6 +78,8 @@ Implemented foundation:
 - Phone OTP remains valid for 10 minutes and resend is throttled to one request every 60 seconds.
 - User roles are `user`, `donor`, and `admin`; new auth users start as `user`.
 - Google signup/login starts on the frontend through Google Identity Services using `NEXT_PUBLIC_GOOGLE_CLIENT_ID` and is verified on the backend with `GOOGLE_CLIENT_ID`. The backend also supports Firebase Google sign-in tokens.
+- Google users without a verified phone are sent to `/profile/setup` to add and verify a phone number before completing required profile details.
+- Phone users skip Google login and go directly to `/profile/setup` when profile fields are incomplete.
 - Successful auth returns an access token, refresh token, and safe user object.
 - Access tokens protect `/auth/me`, `/auth/logout`, and future private endpoints through Passport JWT.
 - Refresh tokens are hashed before storing in the user document and are never exposed in user responses.
@@ -176,11 +178,12 @@ Implemented foundation:
 
 ## Frontend Auth Flow
 - `/auth/login` accepts phone numbers, calls the backend Twilio OTP send flow, and routes to `/auth/otp`.
-- `/auth/otp` verifies OTP with the backend, shows a resend timer, stores returned tokens, and redirects to onboarding when `isProfileCompleted` is false.
-- Auth guest pages redirect already logged-in users to onboarding or dashboard.
-- Onboarding is protected by a frontend auth guard and redirects unauthenticated users to login.
+- `/auth/otp` verifies OTP with the backend, shows a resend timer, stores returned tokens, and redirects to `/profile/setup` when `isProfileCompleted` is false.
+- Auth guest pages redirect already logged-in users to `/profile/setup`, the requested redirect target, or dashboard depending on profile state.
+- `/profile/setup` is protected by a frontend auth guard and redirects unauthenticated users to login.
+- `/become-donor` redirects guests to `/auth/login?redirect=/become-donor`, sends incomplete users to `/profile/setup?redirect=/become-donor`, and shows the donor form only after profile completion.
 - `/auth/google` provides a focused Google auth entry point using Google Identity Services.
-- `/onboarding` is the redirect target when `isProfileCompleted` is false.
+- `/profile/setup` is the redirect target when `isProfileCompleted` is false.
 - Auth mutations live in `features/auth/hooks/useAuth.ts`.
 - Auth API calls live in `features/auth/api/auth.api.ts`.
 - Auth validation lives in `features/auth/validations/auth.validation.ts`.

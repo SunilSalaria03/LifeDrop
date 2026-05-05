@@ -1,0 +1,124 @@
+'use client';
+
+import { useFormik } from 'formik';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { AuthUser } from '@/features/auth/types/auth.types';
+import { useProfile } from '../hooks/useProfile';
+import { profilePhoneSchema } from '../validations/profile.validation';
+
+type PhoneVerificationFormProps = {
+  user: AuthUser;
+};
+
+export function PhoneVerificationForm({ user }: PhoneVerificationFormProps) {
+  const {
+    updateProfileMutation,
+    sendProfileOtpMutation,
+    verifyProfilePhoneMutation,
+  } = useProfile();
+
+  const formik = useFormik({
+    initialValues: {
+      phone: user.phone ?? '',
+      otp: '',
+    },
+    validationSchema: profilePhoneSchema,
+    onSubmit: async (values) => {
+      await verifyProfilePhoneMutation.mutateAsync({
+        phone: values.phone,
+        otp: values.otp ?? '',
+      });
+    },
+  });
+
+  const handleSendOtp = async () => {
+    const isPhoneValid = await profilePhoneSchema
+      .pick(['phone'])
+      .isValid({ phone: formik.values.phone });
+
+    if (!isPhoneValid) {
+      await formik.setFieldTouched('phone', true);
+      return;
+    }
+
+    await updateProfileMutation.mutateAsync({
+      phone: formik.values.phone,
+    });
+    await sendProfileOtpMutation.mutateAsync({
+      phone: formik.values.phone,
+    });
+  };
+
+  return (
+    <form className="grid gap-4 rounded-2xl border border-blue-100 bg-blue-50/60 p-4" onSubmit={formik.handleSubmit}>
+      <div>
+        <h2 className="text-lg font-bold text-neutral-950">Verify your phone</h2>
+        <p className="mt-1 text-sm leading-6 text-neutral-600">
+          Google users must verify a phone number before completing their profile.
+        </p>
+      </div>
+
+      <div className="grid gap-2">
+        <label className="text-sm font-semibold text-neutral-900" htmlFor="phone">
+          Phone number
+        </label>
+        <Input
+          className="h-12 rounded-2xl"
+          id="phone"
+          name="phone"
+          onBlur={formik.handleBlur}
+          onChange={formik.handleChange}
+          placeholder="+919999999999"
+          value={formik.values.phone}
+        />
+        {formik.touched.phone && formik.errors.phone ? (
+          <p className="text-sm font-medium text-red-700">{formik.errors.phone}</p>
+        ) : null}
+      </div>
+
+      <Button
+        className="h-11 rounded-full"
+        disabled={updateProfileMutation.isPending || sendProfileOtpMutation.isPending}
+        onClick={handleSendOtp}
+        type="button"
+        variant="outline"
+      >
+        {sendProfileOtpMutation.isPending ? 'Sending OTP...' : 'Send OTP'}
+      </Button>
+
+      <div className="grid gap-2">
+        <label className="text-sm font-semibold text-neutral-900" htmlFor="otp">
+          OTP
+        </label>
+        <Input
+          className="h-12 rounded-2xl"
+          id="otp"
+          inputMode="numeric"
+          name="otp"
+          onBlur={formik.handleBlur}
+          onChange={formik.handleChange}
+          placeholder="123456"
+          value={formik.values.otp}
+        />
+        {formik.touched.otp && formik.errors.otp ? (
+          <p className="text-sm font-medium text-red-700">{formik.errors.otp}</p>
+        ) : null}
+      </div>
+
+      {sendProfileOtpMutation.isError || verifyProfilePhoneMutation.isError ? (
+        <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
+          Phone verification failed. Check the phone number and OTP, then try again.
+        </p>
+      ) : null}
+
+      <Button
+        className="h-12 rounded-full bg-red-600 text-white hover:bg-red-700"
+        disabled={verifyProfilePhoneMutation.isPending}
+        type="submit"
+      >
+        {verifyProfilePhoneMutation.isPending ? 'Verifying...' : 'Verify phone'}
+      </Button>
+    </form>
+  );
+}

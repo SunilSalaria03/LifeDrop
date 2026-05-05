@@ -3,6 +3,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -18,11 +19,15 @@ import {
 import { User, UserDocument, UserRole } from '../users/schemas/user.schema';
 
 const DONOR_ELIGIBILITY_DAYS = 90;
+const DEFAULT_SEARCH_RADIUS_KM = 50;
+const MAX_SEARCH_RADIUS_KM = 50;
 
 type DonorProfileInput = CreateDonorProfileDto | UpdateDonorProfileDto;
 
 @Injectable()
 export class DonorsService {
+  private readonly logger = new Logger(DonorsService.name);
+
   constructor(
     @InjectModel(DonorProfile.name)
     private readonly donorProfileModel: Model<DonorProfileDocument>,
@@ -118,14 +123,16 @@ export class DonorsService {
   }
 
   async search(query: DonorSearchQueryDto) {
-    const radiusKm = query.radiusKm ?? 50;
     this.assertValidSearchMode(query);
+    const radiusKm = this.normalizeRadiusKm(query.radiusKm);
 
     const baseFilter = this.buildEligibleFilter(query);
     const pipeline = this.hasGeoSearch(query)
       ? this.buildGeoSearchPipeline(query, radiusKm, baseFilter)
       : this.buildManualSearchPipeline(baseFilter);
-      console.log("pipeline",pipeline)
+
+    this.logSearchDebug(query, radiusKm, baseFilter, pipeline);
+
     const items = await this.donorProfileModel.aggregate(pipeline).exec();
 
     return {
@@ -202,7 +209,11 @@ export class DonorsService {
     }
 
     update.isProfileCompleted = Boolean(
-      (user.phone ?? profile.phone) && profile.state && profile.city,
+      user.name &&
+        (user.phone ?? profile.phone) &&
+        user.isPhoneVerified &&
+        profile.state &&
+        profile.city,
     );
     update.role = UserRole.Donor;
 
@@ -215,6 +226,12 @@ export class DonorsService {
         'Blocked users cannot manage donor profiles.',
       );
     }
+
+    if (!user.isProfileCompleted) {
+      throw new ForbiddenException(
+        'Complete your profile before managing donor profiles.',
+      );
+    }
   }
 
   private assertValidSearchMode(query: DonorSearchQueryDto): void {
@@ -222,6 +239,28 @@ export class DonorsService {
       throw new BadRequestException(
         'Both lat and lng are required for geo search.',
       );
+    }
+
+    if (query.lat !== undefined && !Number.isFinite(Number(query.lat))) {
+      throw new BadRequestException('lat must be a valid number.');
+    }
+
+    if (query.lng !== undefined && !Number.isFinite(Number(query.lng))) {
+      throw new BadRequestException('lng must be a valid number.');
+    }
+
+    if (
+      query.lat !== undefined &&
+      (Number(query.lat) < -90 || Number(query.lat) > 90)
+    ) {
+      throw new BadRequestException('lat must be between -90 and 90.');
+    }
+
+    if (
+      query.lng !== undefined &&
+      (Number(query.lng) < -180 || Number(query.lng) > 180)
+    ) {
+      throw new BadRequestException('lng must be between -180 and 180.');
     }
 
     if (
@@ -234,6 +273,26 @@ export class DonorsService {
         'Provide lat/lng or at least one location filter.',
       );
     }
+  }
+
+  private normalizeRadiusKm(radiusKm?: number): number {
+    const normalizedRadius = radiusKm ?? DEFAULT_SEARCH_RADIUS_KM;
+
+    if (!Number.isFinite(Number(normalizedRadius))) {
+      throw new BadRequestException('radiusKm must be a valid number.');
+    }
+
+    if (normalizedRadius < 1) {
+      throw new BadRequestException('radiusKm must be at least 1.');
+    }
+
+    if (normalizedRadius > MAX_SEARCH_RADIUS_KM) {
+      throw new BadRequestException(
+        `radiusKm must be less than or equal to ${MAX_SEARCH_RADIUS_KM}.`,
+      );
+    }
+
+    return Number(normalizedRadius);
   }
 
   private assertValidCoordinatePair(dto: DonorProfileInput): void {
@@ -304,8 +363,38 @@ export class DonorsService {
           },
         },
       },
+      {
+        $sort: {
+          distanceMeters: 1,
+        },
+      },
       ...this.safeDonorProjectionStages(),
     ];
+  }
+
+  private logSearchDebug(
+    query: DonorSearchQueryDto,
+    radiusKm: number,
+    baseFilter: Record<string, unknown>,
+    pipeline: PipelineStage[],
+  ): void {
+    if (process.env.NODE_ENV === 'production') {
+      return;
+    }
+
+    this.logger.debug(
+      JSON.stringify(
+        {
+          message: 'Donor geo/manual search debug',
+          query,
+          radiusKm,
+          baseFilter,
+          pipeline,
+        },
+        null,
+        2,
+      ),
+    );
   }
 
   private buildManualSearchPipeline(

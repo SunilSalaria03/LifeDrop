@@ -17,6 +17,10 @@ export type AuthUser = {
   isPhoneVerified: boolean;
   isProfileCompleted: boolean;
   isBlocked: boolean;
+  addressText?: string;
+  state?: string;
+  city?: string;
+  district?: string;
   location?: LocationPoint;
   createdAt?: string;
   updatedAt?: string;

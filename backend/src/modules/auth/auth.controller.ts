@@ -33,6 +33,19 @@ export class AuthController {
     return this.authService.verifyPhoneOtp(phoneOtpVerifyDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post('otp/verify-profile-phone')
+  verifyProfilePhoneOtp(
+    @Req() request: AuthenticatedRequest,
+    @Body() phoneOtpVerifyDto: PhoneOtpVerifyDto,
+  ) {
+    return this.authService.verifyProfilePhoneOtp(
+      request.user,
+      phoneOtpVerifyDto,
+    );
+  }
+
   @Post('google')
   authenticateWithGoogle(@Body() googleAuthDto: GoogleAuthDto) {
     return this.authService.authenticateWithGoogle(googleAuthDto);

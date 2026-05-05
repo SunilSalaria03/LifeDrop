@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
@@ -27,6 +27,13 @@ export class UsersService {
 
   findByIdWithRefreshToken(id: string): Promise<UserDocument | null> {
     return this.userModel.findById(id).select('+refreshToken').exec();
+  }
+
+  findByIdWithOtp(id: string): Promise<UserDocument | null> {
+    return this.userModel
+      .findById(id)
+      .select('+otpHash +otpValidUntil +otpLastSentAt +otpFailedAttempts')
+      .exec();
   }
 
   findByPhone(phone: string): Promise<UserDocument | null> {
@@ -137,6 +144,10 @@ export class UsersService {
   }
 
   async updateProfile(user: UserDocument, dto: UpdateUserProfileDto) {
+    if (user.isBlocked) {
+      throw new ForbiddenException('Blocked users cannot update profiles.');
+    }
+
     if ((dto.lat === undefined) !== (dto.lng === undefined)) {
       throw new BadRequestException(
         'Both lat and lng are required when updating user location.',
@@ -170,6 +181,7 @@ export class UsersService {
     update.isProfileCompleted = Boolean(
       (dto.name ?? user.name) &&
       (dto.phone ?? user.phone) &&
+      user.isPhoneVerified &&
       (dto.state ?? user.state) &&
       (dto.city ?? user.city),
     );

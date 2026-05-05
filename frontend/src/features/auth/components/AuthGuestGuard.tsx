@@ -16,6 +16,7 @@ export function AuthGuestGuard({ children }: AuthGuestGuardProps) {
 
   useEffect(() => {
     const accessToken = tokenStorage.getAccessToken();
+    const redirect = new URLSearchParams(window.location.search).get('redirect');
 
     if (!accessToken) {
       setCanShow(true);
@@ -25,7 +26,13 @@ export function AuthGuestGuard({ children }: AuthGuestGuardProps) {
 
     getMe()
       .then((user) => {
-        router.replace(user.isProfileCompleted ? '/dashboard' : '/onboarding');
+        if (!user.isProfileCompleted) {
+          const redirectQuery = redirect ? `?redirect=${encodeURIComponent(redirect)}` : '';
+          router.replace(`/profile/setup${redirectQuery}`);
+          return;
+        }
+
+        router.replace(redirect || '/');
       })
       .catch(() => {
         tokenStorage.clearTokens();
@@ -48,4 +55,3 @@ export function AuthGuestGuard({ children }: AuthGuestGuardProps) {
 
   return canShow ? <>{children}</> : null;
 }
-

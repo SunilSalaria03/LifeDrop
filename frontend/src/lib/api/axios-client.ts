@@ -1,8 +1,11 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { tokenStorage } from '@/lib/auth/token-storage';
+import { AuthUser } from '@/features/auth/types/auth.types';
+import { userStorage } from '@/lib/auth/user-storage';
 
 type TokenRefreshResponse = {
   data?: {
+    user?: AuthUser;
     accessToken?: string;
     refreshToken?: string;
   };
@@ -52,6 +55,7 @@ axiosClient.interceptors.response.use(
         .post('/auth/refresh', { refreshToken })
         .then((response) => {
           const refreshResponse = response.data as TokenRefreshResponse;
+          const nextUser = refreshResponse.data?.user;
           const nextAccessToken = refreshResponse.data?.accessToken;
           const nextRefreshToken = refreshResponse.data?.refreshToken;
 
@@ -60,6 +64,9 @@ axiosClient.interceptors.response.use(
           }
 
           tokenStorage.setTokens(nextAccessToken, nextRefreshToken);
+          if (nextUser) {
+            userStorage.setUser(nextUser);
+          }
           return nextAccessToken;
         })
         .catch(() => {

@@ -92,17 +92,17 @@ export function HeroSection() {
     <section className="relative overflow-hidden bg-[linear-gradient(135deg,#eef6ff_0%,#ffffff_45%,#fff2f0_100%)]">
       <div className="absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_center,rgba(37,99,235,0.20),transparent_62%)]" />
       <div className="absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_center,rgba(231,76,60,0.12),transparent_60%)]" />
-      <div className="relative mx-auto grid min-h-[700px] max-w-7xl place-items-center px-4 py-20 text-center sm:px-6 lg:px-8 lg:py-24">
-        <div className="grid w-full gap-10">
-          <div className="mx-auto grid max-w-5xl gap-6">
+      <div className="relative mx-auto grid min-h-[720px] max-w-7xl place-items-center px-4 py-16 text-center sm:px-6 lg:px-8 lg:py-24">
+        <div className="grid w-full gap-9">
+          <div className="mx-auto grid max-w-4xl gap-5">
             <p className="mx-auto inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white/80 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm shadow-blue-950/5">
               <HeartPulse className="h-4 w-4" />
               Emergency blood help, closer to home
             </p>
-            <h1 className="text-5xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-6xl lg:text-7xl">
+            <h1 className="text-4xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-6xl lg:text-7xl">
               Find Blood Donors Near You Instantly
             </h1>
-            <p className="mx-auto max-w-2xl text-lg leading-8 text-neutral-600 sm:text-xl">
+            <p className="mx-auto max-w-2xl text-base leading-7 text-neutral-600 sm:text-xl sm:leading-8">
               Search by blood group and location to connect with nearby donors
               in seconds.
             </p>
@@ -117,7 +117,7 @@ export function HeroSection() {
             />
 
             {validationError ? (
-              <p className="rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-left text-sm font-medium text-red-700">
+              <p className="rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-left text-sm font-semibold text-red-700 shadow-sm shadow-red-950/5">
                 {validationError}
               </p>
             ) : null}

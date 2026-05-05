@@ -1,5 +1,6 @@
 const ACCESS_TOKEN_KEY = 'lifedrop_access_token';
 const REFRESH_TOKEN_KEY = 'lifedrop_refresh_token';
+const USER_STORAGE_KEY = 'lifedrop_user';
 
 export const tokenStorage = {
   getAccessToken() {
@@ -26,6 +27,6 @@ export const tokenStorage = {
   clearTokens() {
     window.localStorage.removeItem(ACCESS_TOKEN_KEY);
     window.localStorage.removeItem(REFRESH_TOKEN_KEY);
+    window.localStorage.removeItem(USER_STORAGE_KEY);
   }
 };
-

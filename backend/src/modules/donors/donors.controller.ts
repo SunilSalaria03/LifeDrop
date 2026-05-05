@@ -98,8 +98,8 @@ export class DonorsController {
     name: 'radiusKm',
     required: false,
     type: Number,
-    example: 10,
-    description: 'Defaults to 5. Maximum 50.',
+    example: 50,
+    description: 'Defaults to 50. Maximum 50.',
   })
   @ApiQuery({
     name: 'state',
