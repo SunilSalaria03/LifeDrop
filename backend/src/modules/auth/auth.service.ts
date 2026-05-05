@@ -4,8 +4,9 @@ import {
   HttpException,
   Injectable,
   HttpStatus,
+  Logger,
   ServiceUnavailableException,
-  UnauthorizedException
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -30,13 +31,14 @@ const TWILIO_MAX_SEND_ATTEMPTS_CODE = 60203;
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   private readonly googleClient = new OAuth2Client();
   private readonly twilioClient?: Twilio;
 
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
   ) {
     this.initializeFirebaseAdmin();
     this.twilioClient = this.createTwilioClient();
@@ -45,15 +47,19 @@ export class AuthService {
   getHealth() {
     return {
       module: 'auth',
-      status: 'ready'
+      status: 'ready',
     };
   }
 
   async sendPhoneOtp(phoneOtpSendDto: PhoneOtpSendDto) {
-    let user = await this.usersService.findByPhoneWithOtp(phoneOtpSendDto.phone);
+    let user = await this.usersService.findByPhoneWithOtp(
+      phoneOtpSendDto.phone,
+    );
 
     if (!user) {
-      user = await this.usersService.createPhoneUser({ phone: phoneOtpSendDto.phone });
+      user = await this.usersService.createPhoneUser({
+        phone: phoneOtpSendDto.phone,
+      });
     }
 
     this.assertCanLogin(user);
@@ -61,15 +67,21 @@ export class AuthService {
     await this.sendOtpSms(user.id, phoneOtpSendDto.phone);
 
     return {
-      message: 'OTP sent successfully'
+      message: 'OTP sent successfully',
     };
   }
 
-  async verifyPhoneOtp(phoneOtpVerifyDto: PhoneOtpVerifyDto): Promise<AuthResponse> {
-    const user = await this.usersService.findByPhoneWithOtp(phoneOtpVerifyDto.phone);
+  async verifyPhoneOtp(
+    phoneOtpVerifyDto: PhoneOtpVerifyDto,
+  ): Promise<AuthResponse> {
+    const user = await this.usersService.findByPhoneWithOtp(
+      phoneOtpVerifyDto.phone,
+    );
 
     if (!user) {
-      throw new UnauthorizedException('Phone user does not exist. Please request OTP first.');
+      throw new UnauthorizedException(
+        'Phone user does not exist. Please request OTP first.',
+      );
     }
 
     this.assertCanLogin(user);
@@ -77,14 +89,20 @@ export class AuthService {
     const verifiedUser = await this.usersService.markPhoneVerified(user.id);
 
     if (!verifiedUser) {
-      throw new UnauthorizedException('Phone user does not exist. Please request OTP again.');
+      throw new UnauthorizedException(
+        'Phone user does not exist. Please request OTP again.',
+      );
     }
 
     return this.createAuthResponse(verifiedUser);
   }
 
-  async authenticateWithGoogle(googleAuthDto: GoogleAuthDto): Promise<AuthResponse> {
-    const googleProfile = await this.verifyGoogleAuthToken(googleAuthDto.idToken);
+  async authenticateWithGoogle(
+    googleAuthDto: GoogleAuthDto,
+  ): Promise<AuthResponse> {
+    const googleProfile = await this.verifyGoogleAuthToken(
+      googleAuthDto.idToken,
+    );
     let user = await this.usersService.findByGoogleId(googleProfile.googleId);
 
     if (!user && googleProfile.email) {
@@ -130,14 +148,16 @@ export class AuthService {
     const signInProvider = firebaseToken.firebase?.sign_in_provider;
 
     if (signInProvider !== 'google.com') {
-      throw new UnauthorizedException('Firebase token is not from Google sign-in.');
+      throw new UnauthorizedException(
+        'Firebase token is not from Google sign-in.',
+      );
     }
 
     return {
       googleId: firebaseToken.uid,
       email: firebaseToken.email,
       name: firebaseToken.name,
-      profileImage: firebaseToken.picture
+      profileImage: firebaseToken.picture,
     };
   }
 
@@ -151,7 +171,7 @@ export class AuthService {
     const ticket = await this.googleClient
       .verifyIdToken({
         idToken,
-        audience: googleClientId
+        audience: googleClientId,
       })
       .catch(() => {
         throw new UnauthorizedException('Invalid Google ID token.');
@@ -167,7 +187,7 @@ export class AuthService {
       googleId: payload.sub,
       email: payload.email,
       name: payload.name,
-      profileImage: payload.picture
+      profileImage: payload.picture,
     };
   }
 
@@ -175,7 +195,7 @@ export class AuthService {
     const refreshSecret = this.getRequiredConfig('JWT_REFRESH_SECRET');
     const payload = await this.jwtService
       .verifyAsync<JwtPayload>(refreshTokenDto.refreshToken, {
-        secret: refreshSecret
+        secret: refreshSecret,
       })
       .catch(() => {
         throw new UnauthorizedException('Invalid refresh token.');
@@ -190,7 +210,9 @@ export class AuthService {
     this.assertCanLogin(user);
 
     if (this.hashToken(refreshTokenDto.refreshToken) !== user.refreshToken) {
-      throw new UnauthorizedException('Refresh token does not match active session.');
+      throw new UnauthorizedException(
+        'Refresh token does not match active session.',
+      );
     }
 
     return this.createAuthResponse(user);
@@ -200,7 +222,7 @@ export class AuthService {
     await this.usersService.clearRefreshToken(userId);
 
     return {
-      message: 'Logged out successfully'
+      message: 'Logged out successfully',
     };
   }
 
@@ -211,23 +233,26 @@ export class AuthService {
   private async createAuthResponse(user: UserDocument): Promise<AuthResponse> {
     const payload: JwtPayload = {
       sub: user.id,
-      role: user.role ?? UserRole.User
+      role: user.role ?? UserRole.User,
     };
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.getRequiredConfig('JWT_ACCESS_SECRET'),
-      expiresIn: this.getTokenExpiry('JWT_ACCESS_EXPIRES_IN', '15m')
+      expiresIn: this.getTokenExpiry('JWT_ACCESS_EXPIRES_IN', '15m'),
     });
     const refreshToken = await this.jwtService.signAsync(payload, {
       secret: this.getRequiredConfig('JWT_REFRESH_SECRET'),
-      expiresIn: this.getTokenExpiry('JWT_REFRESH_EXPIRES_IN', '7d')
+      expiresIn: this.getTokenExpiry('JWT_REFRESH_EXPIRES_IN', '7d'),
     });
 
-    await this.usersService.saveRefreshToken(user.id, this.hashToken(refreshToken));
+    await this.usersService.saveRefreshToken(
+      user.id,
+      this.hashToken(refreshToken),
+    );
 
     return {
       user: this.toAuthUser(user),
       accessToken,
-      refreshToken
+      refreshToken,
     };
   }
 
@@ -245,13 +270,15 @@ export class AuthService {
       isBlocked: user.isBlocked,
       location: user.location,
       createdAt: user.get('createdAt') as Date | undefined,
-      updatedAt: user.get('updatedAt') as Date | undefined
+      updatedAt: user.get('updatedAt') as Date | undefined,
     };
   }
 
   private assertCanLogin(user: UserDocument) {
     if (user.isBlocked) {
-      throw new ForbiddenException('This account is blocked. Please contact support.');
+      throw new ForbiddenException(
+        'This account is blocked. Please contact support.',
+      );
     }
   }
 
@@ -266,22 +293,26 @@ export class AuthService {
 
     const projectId = this.configService.get<string>('FIREBASE_PROJECT_ID');
     const clientEmail = this.configService.get<string>('FIREBASE_CLIENT_EMAIL');
-    const privateKey = this.configService.get<string>('FIREBASE_PRIVATE_KEY')?.replace(/\\n/g, '\n');
+    const privateKey = this.configService
+      .get<string>('FIREBASE_PRIVATE_KEY')
+      ?.replace(/\\n/g, '\n');
 
     if (!projectId && !clientEmail && !privateKey) {
       return;
     }
 
     if (!projectId || !clientEmail || !privateKey) {
-      throw new Error('Missing Firebase Admin env values. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY.');
+      throw new Error(
+        'Missing Firebase Admin env values. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY.',
+      );
     }
 
     initializeApp({
       credential: cert({
         projectId,
         clientEmail,
-        privateKey
-      })
+        privateKey,
+      }),
     });
   }
 
@@ -298,14 +329,16 @@ export class AuthService {
 
   private async sendOtpSms(userId: string, phone: string): Promise<void> {
     const otp = this.generateOtp();
-    const verifyServiceSid = this.configService.get<string>('TWILIO_VERIFY_SERVICE_SID');
+    const verifyServiceSid = this.configService.get<string>(
+      'TWILIO_VERIFY_SERVICE_SID',
+    );
 
     if (this.twilioClient && verifyServiceSid) {
       await this.twilioClient.verify.v2
         .services(verifyServiceSid)
         .verifications.create({
           to: phone,
-          channel: 'sms'
+          channel: 'sms',
         })
         .catch((error: unknown) => {
           this.handleTwilioError(error);
@@ -318,8 +351,14 @@ export class AuthService {
 
     if (!this.twilioClient || !fromPhone) {
       if (this.configService.get<string>('NODE_ENV') !== 'production') {
-        console.warn(`Twilio is not configured. Development OTP for ${phone}: ${otp}`);
-        await this.usersService.saveOtp(userId, this.getOtpValidUntil(), this.hashToken(otp));
+        this.logger.warn(
+          `Twilio is not configured. Development OTP for ${phone}: ${otp}`,
+        );
+        await this.usersService.saveOtp(
+          userId,
+          this.getOtpValidUntil(),
+          this.hashToken(otp),
+        );
         return;
       }
 
@@ -330,23 +369,34 @@ export class AuthService {
       .create({
         to: phone,
         from: fromPhone,
-        body: `Your LifeDrop OTP is ${otp}.`
+        body: `Your LifeDrop OTP is ${otp}.`,
       })
       .catch((error: unknown) => {
         this.handleTwilioError(error);
       });
-    await this.usersService.saveOtp(userId, this.getOtpValidUntil(), this.hashToken(otp));
+    await this.usersService.saveOtp(
+      userId,
+      this.getOtpValidUntil(),
+      this.hashToken(otp),
+    );
   }
 
-  private async verifyTwilioOtp(user: UserDocument, otp: string): Promise<void> {
-    const verifyServiceSid = this.configService.get<string>('TWILIO_VERIFY_SERVICE_SID');
+  private async verifyTwilioOtp(
+    user: UserDocument,
+    otp: string,
+  ): Promise<void> {
+    const verifyServiceSid = this.configService.get<string>(
+      'TWILIO_VERIFY_SERVICE_SID',
+    );
 
     if (!user.otpValidUntil || user.otpValidUntil.getTime() < Date.now()) {
       throw new UnauthorizedException('OTP expired. Please request a new OTP.');
     }
 
     if (user.otpFailedAttempts >= OTP_MAX_FAILED_ATTEMPTS) {
-      throw new UnauthorizedException('Too many invalid OTP attempts. Please request a new OTP.');
+      throw new UnauthorizedException(
+        'Too many invalid OTP attempts. Please request a new OTP.',
+      );
     }
 
     if (this.twilioClient && verifyServiceSid && user.phone) {
@@ -354,7 +404,7 @@ export class AuthService {
         .services(verifyServiceSid)
         .verificationChecks.create({
           to: user.phone,
-          code: otp
+          code: otp,
         })
         .catch((error: unknown) => {
           this.handleTwilioError(error);
@@ -369,7 +419,9 @@ export class AuthService {
     }
 
     if (!user.otpHash) {
-      throw new UnauthorizedException('OTP session expired. Please request a new OTP.');
+      throw new UnauthorizedException(
+        'OTP session expired. Please request a new OTP.',
+      );
     }
 
     if (this.hashToken(otp) !== user.otpHash) {
@@ -393,15 +445,29 @@ export class AuthService {
       message?: string;
     };
 
-    if (twilioError.status === 429 || twilioError.code === TWILIO_MAX_SEND_ATTEMPTS_CODE) {
-      throw new HttpException('Maximum OTP send attempts reached. Please wait before requesting another OTP.', HttpStatus.TOO_MANY_REQUESTS);
+    if (
+      twilioError.status === 429 ||
+      twilioError.code === TWILIO_MAX_SEND_ATTEMPTS_CODE
+    ) {
+      throw new HttpException(
+        'Maximum OTP send attempts reached. Please wait before requesting another OTP.',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
 
-    if (twilioError.status && twilioError.status >= 400 && twilioError.status < 500) {
-      throw new BadRequestException(twilioError.message ?? 'Twilio rejected the OTP request.');
+    if (
+      twilioError.status &&
+      twilioError.status >= 400 &&
+      twilioError.status < 500
+    ) {
+      throw new BadRequestException(
+        twilioError.message ?? 'Twilio rejected the OTP request.',
+      );
     }
 
-    throw new ServiceUnavailableException('OTP service is temporarily unavailable. Please try again later.');
+    throw new ServiceUnavailableException(
+      'OTP service is temporarily unavailable. Please try again later.',
+    );
   }
 
   private assertCanResendOtp(user: UserDocument): void {
@@ -412,8 +478,12 @@ export class AuthService {
     const elapsedMs = Date.now() - user.otpLastSentAt.getTime();
 
     if (elapsedMs < OTP_RESEND_COOLDOWN_MS) {
-      const waitSeconds = Math.ceil((OTP_RESEND_COOLDOWN_MS - elapsedMs) / 1000);
-      throw new BadRequestException(`Please wait ${waitSeconds} seconds before requesting another OTP.`);
+      const waitSeconds = Math.ceil(
+        (OTP_RESEND_COOLDOWN_MS - elapsedMs) / 1000,
+      );
+      throw new BadRequestException(
+        `Please wait ${waitSeconds} seconds before requesting another OTP.`,
+      );
     }
   }
 

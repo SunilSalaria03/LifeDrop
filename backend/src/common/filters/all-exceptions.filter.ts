@@ -3,22 +3,29 @@ import {
   Catch,
   ExceptionFilter,
   HttpException,
-  HttpStatus
+  HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
+  private readonly logger = new Logger(AllExceptionsFilter.name);
+
   catch(exception: unknown, host: ArgumentsHost) {
     const context = host.switchToHttp();
     const response = context.getResponse<Response>();
     const request = context.getRequest<{ url: string }>();
     const isHttpException = exception instanceof HttpException;
-    const status = isHttpException ? exception.getStatus() : this.getStatus(exception);
-    const errorResponse = isHttpException ? exception.getResponse() : this.getUnhandledMessage(exception);
+    const status = isHttpException
+      ? exception.getStatus()
+      : this.getStatus(exception);
+    const errorResponse = isHttpException
+      ? exception.getResponse()
+      : this.getUnhandledMessage(exception);
 
     if (!isHttpException && process.env.NODE_ENV !== 'production') {
-      console.error(exception);
+      this.logger.error(exception);
     }
 
     response.status(status).json({
@@ -26,7 +33,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       statusCode: status,
       message: this.getMessage(errorResponse),
       timestamp: new Date().toISOString(),
-      path: request.url
+      path: request.url,
     });
   }
 
@@ -70,12 +77,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
     return 'Internal server error';
   }
 
-  private isMongoDuplicateError(exception: unknown): exception is { code: number } {
-    return typeof exception === 'object' && exception !== null && 'code' in exception && exception.code === 11000;
+  private isMongoDuplicateError(
+    exception: unknown,
+  ): exception is { code: number } {
+    return (
+      typeof exception === 'object' &&
+      exception !== null &&
+      'code' in exception &&
+      exception.code === 11000
+    );
   }
 
   private isMongooseValidationError(exception: unknown): exception is Error {
     return exception instanceof Error && exception.name === 'ValidationError';
   }
 }
-

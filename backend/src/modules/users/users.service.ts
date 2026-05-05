@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 import { AuthProvider, User, UserDocument } from './schemas/user.schema';
 
 export type CreatePhoneUserInput = {
@@ -16,7 +17,9 @@ export type CreateGoogleUserInput = {
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+  ) {}
 
   findById(id: string): Promise<UserDocument | null> {
     return this.userModel.findById(id).exec();
@@ -42,7 +45,7 @@ export class UsersService {
     return this.userModel.create({
       phone: input.phone,
       authProvider: AuthProvider.Phone,
-      isPhoneVerified: false
+      isPhoneVerified: false,
     });
   }
 
@@ -52,11 +55,14 @@ export class UsersService {
       email: input.email,
       name: input.name,
       profileImage: input.profileImage,
-      authProvider: AuthProvider.Google
+      authProvider: AuthProvider.Google,
     });
   }
 
-  async linkGoogleUser(user: UserDocument, input: CreateGoogleUserInput): Promise<UserDocument> {
+  async linkGoogleUser(
+    user: UserDocument,
+    input: CreateGoogleUserInput,
+  ): Promise<UserDocument> {
     user.googleId = input.googleId;
     user.email = input.email ?? user.email;
     user.name = user.name ?? input.name;
@@ -66,15 +72,26 @@ export class UsersService {
     return user.save();
   }
 
-  async saveRefreshToken(userId: string, refreshTokenHash: string): Promise<void> {
-    await this.userModel.updateOne({ _id: userId }, { refreshToken: refreshTokenHash }).exec();
+  async saveRefreshToken(
+    userId: string,
+    refreshTokenHash: string,
+  ): Promise<void> {
+    await this.userModel
+      .updateOne({ _id: userId }, { refreshToken: refreshTokenHash })
+      .exec();
   }
 
   async clearRefreshToken(userId: string): Promise<void> {
-    await this.userModel.updateOne({ _id: userId }, { $unset: { refreshToken: '' } }).exec();
+    await this.userModel
+      .updateOne({ _id: userId }, { $unset: { refreshToken: '' } })
+      .exec();
   }
 
-  async saveOtp(userId: string, otpValidUntil: Date, otpHash?: string): Promise<void> {
+  async saveOtp(
+    userId: string,
+    otpValidUntil: Date,
+    otpHash?: string,
+  ): Promise<void> {
     await this.userModel
       .updateOne(
         { _id: userId },
@@ -82,18 +99,23 @@ export class UsersService {
           otpHash,
           otpValidUntil,
           otpLastSentAt: new Date(),
-          otpFailedAttempts: 0
-        }
+          otpFailedAttempts: 0,
+        },
       )
       .exec();
   }
 
   findByPhoneWithOtp(phone: string): Promise<UserDocument | null> {
-    return this.userModel.findOne({ phone }).select('+otpHash +otpValidUntil +otpLastSentAt +otpFailedAttempts').exec();
+    return this.userModel
+      .findOne({ phone })
+      .select('+otpHash +otpValidUntil +otpLastSentAt +otpFailedAttempts')
+      .exec();
   }
 
   async incrementOtpFailedAttempts(userId: string): Promise<void> {
-    await this.userModel.updateOne({ _id: userId }, { $inc: { otpFailedAttempts: 1 } }).exec();
+    await this.userModel
+      .updateOne({ _id: userId }, { $inc: { otpFailedAttempts: 1 } })
+      .exec();
   }
 
   async markPhoneVerified(userId: string): Promise<UserDocument | null> {
@@ -105,12 +127,87 @@ export class UsersService {
           $unset: {
             otpHash: '',
             otpValidUntil: '',
-            otpLastSentAt: ''
+            otpLastSentAt: '',
           },
-          otpFailedAttempts: 0
+          otpFailedAttempts: 0,
         },
-        { new: true }
+        { new: true },
       )
       .exec();
+  }
+
+  async updateProfile(user: UserDocument, dto: UpdateUserProfileDto) {
+    if ((dto.lat === undefined) !== (dto.lng === undefined)) {
+      throw new BadRequestException(
+        'Both lat and lng are required when updating user location.',
+      );
+    }
+
+    const update: Record<string, unknown> = {};
+
+    for (const field of [
+      'name',
+      'email',
+      'phone',
+      'profileImage',
+      'addressText',
+      'state',
+      'city',
+      'district',
+    ] as const) {
+      if (dto[field] !== undefined) {
+        update[field] = dto[field];
+      }
+    }
+
+    if (dto.lat !== undefined && dto.lng !== undefined) {
+      update.location = {
+        type: 'Point',
+        coordinates: [Number(dto.lng), Number(dto.lat)],
+      };
+    }
+
+    update.isProfileCompleted = Boolean(
+      (dto.name ?? user.name) &&
+      (dto.phone ?? user.phone) &&
+      (dto.state ?? user.state) &&
+      (dto.city ?? user.city),
+    );
+
+    const updatedUser = await this.userModel
+      .findByIdAndUpdate(
+        user.id,
+        { $set: update },
+        { new: true, runValidators: true },
+      )
+      .exec();
+
+    if (!updatedUser) {
+      throw new BadRequestException('User profile could not be updated.');
+    }
+
+    return this.toSafeUser(updatedUser);
+  }
+
+  toSafeUser(user: UserDocument) {
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      profileImage: user.profileImage,
+      authProvider: user.authProvider,
+      role: user.role,
+      isPhoneVerified: user.isPhoneVerified,
+      isProfileCompleted: user.isProfileCompleted,
+      isBlocked: user.isBlocked,
+      addressText: user.addressText,
+      state: user.state,
+      city: user.city,
+      district: user.district,
+      location: user.location,
+      createdAt: user.get('createdAt') as Date | undefined,
+      updatedAt: user.get('updatedAt') as Date | undefined,
+    };
   }
 }

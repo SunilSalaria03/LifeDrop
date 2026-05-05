@@ -41,7 +41,7 @@ backend/
       blood-requests/
       notifications/
       admin/
-      location/
+      locations/
 ```
 
 Backend responsibilities:
@@ -57,7 +57,10 @@ Implemented foundation:
 - `main.ts` configures `/api/v1`, CORS, validation pipe, response interceptor, and global exception filter.
 - `app.module.ts` configures global environment variables and MongoDB through `MongooseModule`.
 - `modules/auth` contains OTP send/verify, Google auth, token refresh, logout, current-user auth, JWT guard, and JWT strategy.
-- `modules/users` contains the Mongoose user schema and user persistence service used by auth.
+- `modules/users` contains the Mongoose user schema, profile read/update APIs, and user persistence service used by auth.
+- `modules/donors` contains donor profile creation, updates, availability, public profile details, and DB-backed donor search.
+- `modules/locations` contains DB-backed state, district, city, location search, and admin location seed/create APIs.
+- `modules/blood-requests` and `modules/notifications` contain persistence schemas and indexes for request and notification collections.
 
 ## Backend Module Responsibilities
 - `auth`: registration, login, JWT issuing, current-user auth flow, password hashing, and auth guards.
@@ -66,7 +69,7 @@ Implemented foundation:
 - `blood-requests`: request creation, request lifecycle, urgency, blood group need, hospital/contact details, and requester ownership.
 - `notifications`: notification-ready event records and future SMS/email/push integration boundaries.
 - `admin`: role-protected operational views and moderation-ready workflows.
-- `location`: geospatial helpers, distance calculations, and reusable location validation.
+- `locations`: DB-backed state/city/district records, geospatial location records, and reusable location validation.
 
 ## Auth And Access Flow
 - Public users can signup/login using phone OTP or Google only.
@@ -104,6 +107,10 @@ Lifecycle changes must be handled in services and recorded in API contracts when
 ## Location And Nearby Search
 - Store donor and request locations as MongoDB GeoJSON points.
 - Use `2dsphere` indexes for nearby donor and request search.
+- Store GeoJSON coordinates in `[lng, lat]` order everywhere.
+- Donor search is fully database-driven from the `donorprofiles` collection and joined `users` collection.
+- Manual donor search filters real donor profiles by state, city, and district from MongoDB.
+- Browser/manual location dropdowns must fetch states, districts, and cities from the `locations` collection through backend APIs.
 - Keep exact donor location private unless explicitly authorized by a feature.
 - Search APIs should accept distance/radius inputs with documented limits.
 
@@ -184,9 +191,11 @@ Implemented foundation:
 ## Frontend Landing Page
 - `/` renders the public LifeDrop landing page.
 - Landing sections live under `components/landing`.
-- The landing page includes sticky header, Pixabay-inspired hero search, action cards, donor preview, how-it-works steps, impact stats, and footer.
-- Landing CTA buttons route to `/request-blood` and `/become-donor`.
-- Landing search is local UI state only until donor/request search APIs are implemented.
+- The simplified current landing page includes a transparent sticky header, functional hero donor search, action cards, and footer.
+- The header includes browser geolocation detection with a manual-location fallback label.
+- The hero search uses reusable blood group, DB-backed state, and DB-backed city dropdown components, then calls donor search through TanStack Query and the shared Axios client.
+- Donor search targets `GET /api/v1/donors/search` and renders only backend database records.
+- Landing CTA buttons route to `/request-blood` and `/become-donor`; the hero `Find Blood` action routes to `/request-blood` with selected search query values.
 
 ## Deployment Shape
 - Frontend and backend deploy independently.

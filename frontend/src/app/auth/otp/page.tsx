@@ -14,7 +14,6 @@ export default function OtpPage() {
           </div>
 
           <PhoneOtpForm mode="verify" />
-
           <Link className="text-sm font-medium text-red-700" href="/auth/login">
             Back to Login
           </Link>

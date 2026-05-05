@@ -1,5 +1,18 @@
 # LifeDrop Changelog
 
+## 2026-05-05
+- Added DB-driven donor profile backend with protected create, update, current-profile, availability, public profile, and donor search APIs.
+- Added `donorprofiles` schema with GeoJSON `[lng, lat]`, eligibility dates, visibility flags, privacy-safe projections, and donor search indexes.
+- Added DB-driven location module with `locations` schema, states, districts, cities, search, admin create, admin bulk upsert, and optional reverse-geocode placeholder API.
+- Added `bloodrequests` and `notifications` persistence schemas with collection names and indexes.
+- Expanded the user schema with address, state, city, district, and optional geospatial profile location fields.
+- Added protected user profile read/update APIs backed by the `users` collection.
+- Added Swagger setup at `/api/v1/docs` and installed the backend Swagger dependency.
+- Added `npm run seed:locations` and an initial real India location seed JSON that writes to MongoDB.
+- Updated frontend landing dropdowns to fetch states and cities from backend location APIs instead of hardcoded location arrays.
+- Updated frontend donor search parsing to consume the backend `{ items, count, radiusKm }` response and removed placeholder reverse-geocode city data.
+- Verified backend build and frontend TypeScript check; frontend production build is blocked locally by a Windows `spawn EPERM` from Next.
+
 ## 2026-05-04
 - Created AI-first project documentation structure.
 - Defined initial frontend and backend architecture.
@@ -33,3 +46,6 @@
 - Refined landing page spacing, typography, card treatments, hero hierarchy, search bar, header, and stats presentation for a more modern SaaS visual style.
 - Applied Roboto as the global frontend font family.
 - Updated landing page navbar to use a transparent sticky style.
+- Simplified landing page render to show only hero and action cards for now.
+- Added production-ready landing hero search with browser location display, blood group/state/city filters, TanStack Query donor lookup, Axios integration, temporary API-failure handling, and reusable donor list cards.
+- Improved landing donor search UX with debounced requests, loading skeleton cards, no-results empty state, and API failure messaging.

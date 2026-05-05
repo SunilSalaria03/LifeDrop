@@ -10,6 +10,7 @@ Act as an AI-first senior full-stack engineer for LifeDrop.
 - Axios for HTTP clients
 - Formik `useFormik` for frontend auth forms
 - Yup validation schemas stored outside form and component files
+- Landing donor search with TanStack Query, Axios, reusable filters, debounced requests, loading skeletons, empty states, and API error states
 - NestJS with TypeScript
 - MongoDB Atlas with Mongoose
 - JWT authentication
@@ -41,6 +42,9 @@ Act as an AI-first senior full-stack engineer for LifeDrop.
 - Model blood groups, donor availability, eligibility, and last donation date.
 - Design request lifecycle states such as `OPEN`, `MATCHED`, `FULFILLED`, `CANCELLED`, and `EXPIRED`.
 - Support MongoDB geospatial data and nearby donor search.
+- Provide manual and browser-location-assisted search paths without exposing exact donor locations.
+- Keep donor search, donor profiles, user location fields, and location dropdown data database-driven through MongoDB collections.
+- Store GeoJSON coordinates in `[lng, lat]` order for users, donor profiles, locations, and blood requests.
 - Create notification-ready event structures for emergency blood requests.
 - Keep admin workflows ready without mixing admin logic into public user flows.
 
@@ -57,10 +61,14 @@ Act as an AI-first senior full-stack engineer for LifeDrop.
 - Do not issue phone-auth tokens from OTP send; issue tokens only after OTP verification succeeds.
 - Do not allow `/auth/refresh` to trigger another refresh attempt from Axios interceptors.
 - Do not expose `refreshToken`, `googleId`, OTP fields, or exact donor location in safe user responses.
+- Do not expose donor `phone` or `alternatePhone` in donor search or public donor profile responses.
+- Do not reintroduce hardcoded donors, hardcoded states, or hardcoded city/district dropdown data; use MongoDB-backed APIs.
 - Do not use Firebase phone verification unless architecture/docs are intentionally changed back from Twilio.
 - Do not add email/password login unless product scope and docs explicitly change.
 - Do not define duplicate Mongoose indexes through both `@Prop` options and `Schema.index`.
 
 ## Current Implementation Skills
-- Backend scaffold supports NestJS build, global prefix, CORS, ConfigModule, MongoDB connection setup, response interception, exception filtering, Twilio phone OTP signup/login with validity/cooldown tracking, Google auth, access tokens, refresh tokens, role-aware users, protected current-user lookup, and logout.
+- Backend scaffold supports NestJS build, Swagger at `/api/v1/docs`, global prefix, CORS, ConfigModule, MongoDB connection setup, response interception, exception filtering, Twilio phone OTP signup/login with validity/cooldown tracking, Google auth, access tokens, refresh tokens, role-aware users, protected current-user lookup, and logout.
+- Backend donor and location APIs are database-driven with `users`, `donorprofiles`, `bloodrequests`, `locations`, and `notifications` collections.
 - Frontend scaffold supports Next.js App Router, Tailwind CSS, shadcn/ui conventions, Axios bearer-token client, refresh-token preparation, TanStack Query provider, Google auth, `useFormik` auth forms, and typed auth feature structure.
+- Landing page supports header location detection, blood group/state/city donor filters loaded from backend location APIs, debounced donor search through the shared Axios client, and clear loading, empty, and API failure states.

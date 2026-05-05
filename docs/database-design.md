@@ -19,6 +19,10 @@ Fields:
 - `isPhoneVerified`: boolean
 - `isProfileCompleted`: boolean
 - `isBlocked`: boolean
+- `addressText`: optional user address text
+- `state`: optional state from DB-backed location data
+- `city`: optional city from DB-backed location data
+- `district`: optional district from DB-backed location data
 - `location`: optional GeoJSON point, stored only when valid coordinates exist
 - `refreshToken`: hidden hashed refresh token
 - `otpHash`: hidden hashed OTP for local/development SMS fallback
@@ -33,14 +37,72 @@ Sensitive fields:
 - `googleId` is selected out by default and never returned in user responses.
 - OTP fields are selected out by default and never returned in user responses.
 
+### donorprofiles
+
+Stores one donor profile per user.
+
+Fields:
+- `userId`: required unique reference to `users`
+- `bloodGroup`: `A+`, `A-`, `B+`, `B-`, `AB+`, `AB-`, `O+`, or `O-`
+- `phone`: donor contact phone, hidden from search results
+- `alternatePhone`: optional donor contact phone, hidden from search results
+- `state`, `city`, `district`, `addressText`: donor location text from DB-backed location choices
+- `location`: required MongoDB GeoJSON point with coordinates stored as `[lng, lat]`
+- `lastDonationDate`: optional last donation date
+- `nextEligibleDate`: optional eligibility date, calculated as last donation date plus 90 days
+- `isAvailable`, `isActive`, `isVerified`: donor visibility and moderation flags
+- `totalDonations`: donation count
+- `createdAt`, `updatedAt`: timestamps
+
+Indexes:
+- unique `userId`
+- `location` 2dsphere
+- `bloodGroup`, `state`, `city`, `district`, `isAvailable`, `isActive`, `isVerified`
+
+### locations
+
+Stores location dropdown and search data. Frontend state, district, and city dropdowns must fetch this collection through backend APIs.
+
+Fields:
+- `country`
+- `state`
+- `district`
+- `city`
+- `pincode`
+- `location`: optional GeoJSON point with `[lng, lat]`
+- `isActive`
+- `createdAt`, `updatedAt`
+
+Indexes:
+- `state`, `district`, `city`, `pincode`
+- `location` sparse partial 2dsphere
+- unique compound `country + state + district + city + pincode`
+
+### bloodrequests
+
+Stores requester-owned blood request records with GeoJSON request location.
+
+Indexes:
+- `location` 2dsphere
+- `bloodGroup`, `status`, `state`, `city`, `expiresAt`
+
+### notifications
+
+Stores notification-ready event records for future SMS, email, push, and in-app delivery boundaries.
+
+Indexes:
+- `userId`, `bloodRequestId`, `channel`, `status`, `createdAt`
+
 ## Current Connection Setup
 - Backend uses `MongooseModule.forRootAsync`.
 - MongoDB URI is read from `MONGODB_URI`.
 - Atlas connection details must be supplied through environment variables.
 
-## Planned Collections
-- `donors`
+## Current Collections
+- `users`
+- `donorprofiles`
 - `bloodrequests`
+- `locations`
 - `notifications`
 
 ## Current Indexes
@@ -50,9 +112,7 @@ Sensitive fields:
 - User blocked-status index
 - User role index
 - User location sparse partial `2dsphere` index
-
-## Planned Indexes
-- Donor location geospatial index
-- Donor blood group index
-- Blood request status index
-- Blood request location geospatial index
+- Donor profile geospatial, blood group, location text, and visibility indexes
+- Location text, pincode, unique compound, and optional geospatial indexes
+- Blood request status, blood group, city/state, expiry, and geospatial indexes
+- Notification ownership, request, channel, status, and created-date indexes

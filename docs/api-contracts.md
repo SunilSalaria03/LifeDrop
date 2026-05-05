@@ -154,6 +154,162 @@ Authorization: Bearer access_token
 
 Response data is the logged-in safe user object. It never includes `refreshToken` or hidden provider identifiers.
 
+### User Profile
+
+```http
+GET /api/v1/users/profile
+Authorization: Bearer access_token
+```
+
+Returns the logged-in user's safe profile from MongoDB.
+
+```http
+PUT /api/v1/users/profile
+Authorization: Bearer access_token
+```
+
+Updates the logged-in user's real profile fields in the `users` collection, including name, contact fields, address text, state, city, district, and optional GeoJSON location. Coordinates must be supplied together as `lat` and `lng` and are stored as `[lng, lat]`. The response never includes `refreshToken`, OTP fields, or hidden provider identifiers.
+
+### Location States
+
+```http
+GET /api/v1/locations/states
+```
+
+Returns active states from the `locations` collection.
+
+### Location Districts
+
+```http
+GET /api/v1/locations/districts?state=Punjab
+```
+
+Returns active districts for the supplied state from MongoDB.
+
+### Location Cities
+
+```http
+GET /api/v1/locations/cities?state=Punjab&district=Mohali
+```
+
+Returns active cities from MongoDB. `district` can be supplied to narrow the result.
+
+### Create Location
+
+```http
+POST /api/v1/locations
+Authorization: Bearer admin_access_token
+```
+
+Admin-only. Creates a location record with optional GeoJSON coordinates stored as `[lng, lat]`.
+
+### Bulk Create Locations
+
+```http
+POST /api/v1/locations/bulk
+Authorization: Bearer admin_access_token
+```
+
+Admin-only. Upserts location records into the `locations` collection.
+
+### Search Locations
+
+```http
+GET /api/v1/locations/search?keyword=Chandigarh
+```
+
+Returns active city, district, state, or pincode matches from MongoDB.
+
+### Create Donor Profile
+
+```http
+POST /api/v1/donors/profile
+Authorization: Bearer access_token
+```
+
+Creates the logged-in user's donor profile in `donorprofiles`, stores location as GeoJSON `[lng, lat]`, calculates `nextEligibleDate` from `lastDonationDate + 90 days`, and syncs safe profile/location fields back to the linked user. Blocked users cannot create donor profiles.
+
+### Update Donor Profile
+
+```http
+PUT /api/v1/donors/profile
+Authorization: Bearer access_token
+```
+
+Updates only the logged-in user's donor profile. Coordinates must be supplied as both `lat` and `lng` when changing donor location.
+
+### Current Donor Profile
+
+```http
+GET /api/v1/donors/profile/me
+Authorization: Bearer access_token
+```
+
+Returns the logged-in user's donor profile.
+
+### Donor Availability
+
+```http
+PATCH /api/v1/donors/profile/availability
+Authorization: Bearer access_token
+```
+
+Request:
+
+```json
+{
+  "isAvailable": true
+}
+```
+
+### Donor Search
+
+```http
+GET /api/v1/donors/search?bloodGroup=O%2B&lat=30.7333&lng=76.7794&radiusKm=10
+GET /api/v1/donors/search?bloodGroup=O%2B&state=Punjab&city=Chandigarh
+```
+
+Behavior:
+- `bloodGroup` is required.
+- `radiusKm` defaults to `5` and is capped at `50`.
+- `lat` and `lng` must be supplied together.
+- Geo search uses MongoDB `$geoNear`; manual search filters real DB donor profiles by state, city, and district.
+- Results include only active, available, eligible donors whose linked user is not blocked.
+- Search results never expose `phone`, `alternatePhone`, `refreshToken`, OTP fields, or hidden provider identifiers.
+
+Response data:
+
+```json
+{
+  "items": [
+    {
+      "id": "donorProfileId",
+      "userId": "userId",
+      "name": "Rahul Sharma",
+      "profileImage": "",
+      "bloodGroup": "O+",
+      "state": "Punjab",
+      "city": "Chandigarh",
+      "district": "Chandigarh",
+      "distanceKm": 2.4,
+      "isAvailable": true,
+      "lastDonationDate": "2025-12-01T00:00:00.000Z",
+      "nextEligibleDate": "2026-03-01T00:00:00.000Z"
+    }
+  ],
+  "count": 1,
+  "radiusKm": 10
+}
+```
+
+### Donor Public Profile
+
+```http
+GET /api/v1/donors/:id
+```
+
+Returns a privacy-safe donor profile. Phone numbers are not exposed by default.
+
 ### Auth Success Response Shape
 
 ```json
@@ -181,9 +337,6 @@ Response data is the logged-in safe user object. It never includes `refreshToken
 ```
 
 ## Planned Contracts
-- User profile onboarding
-- Donor profile creation and update
 - Blood request creation and lifecycle updates
-- Nearby donor search
 - Notification-ready emergency events
 - Admin-ready management endpoints
