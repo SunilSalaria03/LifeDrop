@@ -22,6 +22,8 @@ Use JWT access token for protected user APIs:
 Authorization: Bearer <accessToken>
 ```
 
+In Swagger UI, click **Authorize** and paste only the raw `accessToken` value. Do not paste `Bearer ` before it; Swagger adds that prefix automatically for the HTTP bearer scheme.
+
 Admin APIs require:
 - Valid JWT access token
 - User role: `admin`

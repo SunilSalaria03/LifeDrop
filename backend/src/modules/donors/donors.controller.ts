@@ -10,6 +10,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { CreateDonorProfileDto } from './dto/create-donor-profile.dto';
 import { DonorSearchQueryDto } from './dto/donor-search-query.dto';
@@ -23,11 +24,13 @@ type AuthenticatedRequest = Request & {
   user: UserDocument;
 };
 
+@ApiTags('donors')
 @Controller('donors')
 export class DonorsController {
   constructor(private readonly donorsService: DonorsService) {}
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post('profile')
   createProfile(
     @Req() request: AuthenticatedRequest,
@@ -40,6 +43,7 @@ export class DonorsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Put('profile')
   updateProfile(
     @Req() request: AuthenticatedRequest,
@@ -52,12 +56,14 @@ export class DonorsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Get('profile/me')
   getMyProfile(@Req() request: AuthenticatedRequest) {
     return this.donorsService.getMyProfile(request.user);
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Patch('profile/availability')
   updateAvailability(
     @Req() request: AuthenticatedRequest,

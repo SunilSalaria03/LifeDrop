@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { GoogleAuthDto } from './dto/google-auth.dto';
@@ -12,6 +13,7 @@ type AuthenticatedRequest = Request & {
   user: UserDocument;
 };
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -42,15 +44,16 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post('logout')
   logout(@Req() request: AuthenticatedRequest) {
     return this.authService.logout(request.user.id);
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Get('me')
   getMe(@Req() request: AuthenticatedRequest) {
     return this.authService.getMe(request.user);
   }
 }
-

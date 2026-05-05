@@ -7,6 +7,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -16,6 +17,7 @@ import { LocationQueryDto } from './dto/location-query.dto';
 import { ReverseGeocodeDto } from './dto/reverse-geocode.dto';
 import { LocationsService } from './locations.service';
 
+@ApiTags('locations')
 @Controller('locations')
 export class LocationsController {
   constructor(private readonly locationsService: LocationsService) {}
@@ -36,6 +38,7 @@ export class LocationsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @Roles(UserRole.Admin)
   @Post()
   create(@Body() createLocationDto: CreateLocationDto) {
@@ -43,6 +46,7 @@ export class LocationsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @Roles(UserRole.Admin)
   @Post('bulk')
   bulkCreate(
