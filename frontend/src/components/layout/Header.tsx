@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { LocationSelector } from '@/components/landing/LocationSelector';
+import { LocationSelector } from '@/components/location/LocationSelector';
 
 export function Header() {
   return (

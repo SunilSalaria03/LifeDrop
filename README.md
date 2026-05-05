@@ -77,6 +77,9 @@ TWILIO_AUTH_TOKEN=your-twilio-auth-token
 TWILIO_PHONE_NUMBER=+10000000000
 TWILIO_VERIFY_SERVICE_SID=your-twilio-verify-service-sid
 FRONTEND_ORIGIN=http://localhost:3000
+ADMIN_NAME=LifeDrop Admin
+ADMIN_EMAIL=admin@example.com
+ADMIN_PHONE=+910000000000
 ```
 
 Run backend in development mode:
@@ -102,6 +105,14 @@ Build backend:
 ```bash
 npm run build
 ```
+
+Create or update the admin user in MongoDB:
+
+```bash
+npm run seed:admin
+```
+
+Set `ADMIN_EMAIL` for a Google admin login, or `ADMIN_PHONE` for a phone OTP admin login. If both are set, the phone number is used to find the admin user and the email is stored on the same record.
 
 Start built backend:
 
@@ -167,6 +178,7 @@ Backend:
 ```bash
 cd backend
 npm run start:dev
+npm run seed:admin
 npm run build
 ```
 

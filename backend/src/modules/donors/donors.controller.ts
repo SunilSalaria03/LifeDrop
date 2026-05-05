@@ -10,7 +10,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { CreateDonorProfileDto } from './dto/create-donor-profile.dto';
 import { DonorSearchQueryDto } from './dto/donor-search-query.dto';
@@ -76,6 +76,49 @@ export class DonorsController {
   }
 
   @Get('search')
+  @ApiQuery({
+    name: 'bloodGroup',
+    required: true,
+    enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+    example: 'O+',
+  })
+  @ApiQuery({
+    name: 'lat',
+    required: false,
+    type: Number,
+    example: 30.7333,
+  })
+  @ApiQuery({
+    name: 'lng',
+    required: false,
+    type: Number,
+    example: 76.7794,
+  })
+  @ApiQuery({
+    name: 'radiusKm',
+    required: false,
+    type: Number,
+    example: 10,
+    description: 'Defaults to 5. Maximum 50.',
+  })
+  @ApiQuery({
+    name: 'state',
+    required: false,
+    type: String,
+    example: 'Punjab',
+  })
+  @ApiQuery({
+    name: 'city',
+    required: false,
+    type: String,
+    example: 'Chandigarh',
+  })
+  @ApiQuery({
+    name: 'district',
+    required: false,
+    type: String,
+    example: 'Chandigarh',
+  })
   search(@Query() donorSearchQueryDto: DonorSearchQueryDto) {
     return this.donorsService.search(donorSearchQueryDto);
   }

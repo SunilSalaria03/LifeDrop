@@ -366,6 +366,7 @@ export class DonorsService {
           district: 1,
           distanceKm: 1,
           isAvailable: 1,
+          isVerified: 1,
           lastDonationDate: 1,
           nextEligibleDate: 1,
           totalDonations: 1,

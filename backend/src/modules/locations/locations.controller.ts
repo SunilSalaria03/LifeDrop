@@ -7,7 +7,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -28,11 +28,29 @@ export class LocationsController {
   }
 
   @Get('districts')
+  @ApiQuery({
+    name: 'state',
+    required: true,
+    type: String,
+    example: 'Punjab',
+  })
   getDistricts(@Query() locationQueryDto: LocationQueryDto) {
     return this.locationsService.getDistricts(locationQueryDto);
   }
 
   @Get('cities')
+  @ApiQuery({
+    name: 'state',
+    required: true,
+    type: String,
+    example: 'Punjab',
+  })
+  @ApiQuery({
+    name: 'district',
+    required: false,
+    type: String,
+    example: 'Chandigarh',
+  })
   getCities(@Query() locationQueryDto: LocationQueryDto) {
     return this.locationsService.getCities(locationQueryDto);
   }
@@ -57,11 +75,29 @@ export class LocationsController {
   }
 
   @Get('search')
+  @ApiQuery({
+    name: 'keyword',
+    required: true,
+    type: String,
+    example: 'Chandigarh',
+  })
   search(@Query() locationQueryDto: LocationQueryDto) {
     return this.locationsService.search(locationQueryDto);
   }
 
   @Get('reverse-geocode')
+  @ApiQuery({
+    name: 'lat',
+    required: true,
+    type: Number,
+    example: 30.7333,
+  })
+  @ApiQuery({
+    name: 'lng',
+    required: true,
+    type: Number,
+    example: 76.7794,
+  })
   reverseGeocode(@Query() reverseGeocodeDto: ReverseGeocodeDto) {
     return this.locationsService.reverseGeocode(reverseGeocodeDto);
   }

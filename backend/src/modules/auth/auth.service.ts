@@ -64,10 +64,11 @@ export class AuthService {
 
     this.assertCanLogin(user);
     this.assertCanResendOtp(user);
-    await this.sendOtpSms(user.id, phoneOtpSendDto.phone);
+    const developmentOtp = await this.sendOtpSms(user.id, phoneOtpSendDto.phone);
 
     return {
       message: 'OTP sent successfully',
+      ...(developmentOtp ? { otp: developmentOtp } : {}),
     };
   }
 
@@ -327,11 +328,24 @@ export class AuthService {
     return new Twilio(accountSid, authToken);
   }
 
-  private async sendOtpSms(userId: string, phone: string): Promise<void> {
+  private async sendOtpSms(
+    userId: string,
+    phone: string,
+  ): Promise<string | undefined> {
     const otp = this.generateOtp();
     const verifyServiceSid = this.configService.get<string>(
       'TWILIO_VERIFY_SERVICE_SID',
     );
+
+    if (this.shouldUseDevelopmentOtp()) {
+      this.logger.warn(`Development OTP for ${phone}: ${otp}`);
+      await this.usersService.saveOtp(
+        userId,
+        this.getOtpValidUntil(),
+        this.hashToken(otp),
+      );
+      return otp;
+    }
 
     if (this.twilioClient && verifyServiceSid) {
       await this.twilioClient.verify.v2
@@ -344,7 +358,7 @@ export class AuthService {
           this.handleTwilioError(error);
         });
       await this.usersService.saveOtp(userId, this.getOtpValidUntil());
-      return;
+      return undefined;
     }
 
     const fromPhone = this.configService.get<string>('TWILIO_PHONE_NUMBER');
@@ -359,7 +373,7 @@ export class AuthService {
           this.getOtpValidUntil(),
           this.hashToken(otp),
         );
-        return;
+        return otp;
       }
 
       throw new BadRequestException('Twilio OTP service is not configured.');
@@ -379,6 +393,7 @@ export class AuthService {
       this.getOtpValidUntil(),
       this.hashToken(otp),
     );
+    return undefined;
   }
 
   private async verifyTwilioOtp(
@@ -399,7 +414,12 @@ export class AuthService {
       );
     }
 
-    if (this.twilioClient && verifyServiceSid && user.phone) {
+    if (
+      !this.shouldUseDevelopmentOtp() &&
+      this.twilioClient &&
+      verifyServiceSid &&
+      user.phone
+    ) {
       const verificationCheck = await this.twilioClient.verify.v2
         .services(verifyServiceSid)
         .verificationChecks.create({
@@ -436,6 +456,10 @@ export class AuthService {
 
   private getOtpValidUntil(): Date {
     return new Date(Date.now() + OTP_VALIDITY_MS);
+  }
+
+  private shouldUseDevelopmentOtp(): boolean {
+    return this.configService.get<string>('NODE_ENV') !== 'production';
   }
 
   private handleTwilioError(error: unknown): never {

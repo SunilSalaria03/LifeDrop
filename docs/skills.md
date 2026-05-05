@@ -10,7 +10,7 @@ Act as an AI-first senior full-stack engineer for LifeDrop.
 - Axios for HTTP clients
 - Formik `useFormik` for frontend auth forms
 - Yup validation schemas stored outside form and component files
-- Landing donor search with TanStack Query, Axios, reusable filters, debounced requests, loading skeletons, empty states, and API error states
+- Landing donor search with TanStack Query, Axios, reusable filters, automatic frontend GPS header location, manual `country-state-city` hero state/city dropdowns that submit selected city coordinates, debounced requests, modern donor cards, donor detail routing, loading skeletons, empty states, and API error states
 - NestJS with TypeScript
 - MongoDB Atlas with Mongoose
 - JWT authentication
@@ -43,7 +43,7 @@ Act as an AI-first senior full-stack engineer for LifeDrop.
 - Design request lifecycle states such as `OPEN`, `MATCHED`, `FULFILLED`, `CANCELLED`, and `EXPIRED`.
 - Support MongoDB geospatial data and nearby donor search.
 - Provide manual and browser-location-assisted search paths without exposing exact donor locations.
-- Keep donor search, donor profiles, user location fields, and location dropdown data database-driven through MongoDB collections.
+- Keep donor search, donor profiles, and user location fields database-driven through MongoDB collections. Header location detection uses frontend geolocation and OpenStreetMap Nominatim; hero state/city dropdowns use `country-state-city`.
 - Store GeoJSON coordinates in `[lng, lat]` order for users, donor profiles, locations, and blood requests.
 - Create notification-ready event structures for emergency blood requests.
 - Keep admin workflows ready without mixing admin logic into public user flows.
@@ -71,4 +71,4 @@ Act as an AI-first senior full-stack engineer for LifeDrop.
 - Backend scaffold supports NestJS build, Swagger at `/api/v1/docs`, global prefix, CORS, ConfigModule, MongoDB connection setup, response interception, exception filtering, Twilio phone OTP signup/login with validity/cooldown tracking, Google auth, access tokens, refresh tokens, role-aware users, protected current-user lookup, and logout.
 - Backend donor and location APIs are database-driven with `users`, `donorprofiles`, `bloodrequests`, `locations`, and `notifications` collections.
 - Frontend scaffold supports Next.js App Router, Tailwind CSS, shadcn/ui conventions, Axios bearer-token client, refresh-token preparation, TanStack Query provider, Google auth, `useFormik` auth forms, and typed auth feature structure.
-- Landing page supports header location detection, blood group/state/city donor filters loaded from backend location APIs, debounced donor search through the shared Axios client, and clear loading, empty, and API failure states.
+- Landing page supports automatic header location detection with browser geolocation, OpenStreetMap Nominatim reverse geocoding, manual hero state/city dropdowns from `country-state-city`, debounced donor search through the shared Axios client, modern donor result cards, public donor detail links, and clear loading, empty, and API failure states.

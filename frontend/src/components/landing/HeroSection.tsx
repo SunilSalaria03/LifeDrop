@@ -2,40 +2,25 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { Droplet, HeartPulse, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { HeartPulse } from "lucide-react";
+import { searchDonors } from "@/features/donors/api/donors.api";
+import { DonorSearchFilters } from "@/features/donors/types/donor.types";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import { searchDonors } from "@/lib/api/donor-search";
-import { DonorSearchFilters } from "@/types/donor";
-import { BloodGroupDropdown } from "./BloodGroupDropdown";
-import { CityDropdown } from "./CityDropdown";
 import { DonorList } from "./DonorList";
-import { StateDropdown } from "./StateDropdown";
+import { DonorSearchFormValues, SearchBar } from "./SearchBar";
 
-type HeroFilters = {
-  bloodGroup: string;
-  state: string;
-  city: string;
-  location: {
-    lat: number | null;
-    lng: number | null;
-  };
-};
-
-const initialFilters: HeroFilters = {
+const initialFilters: DonorSearchFormValues = {
   bloodGroup: "",
   state: "",
+  stateCode: "",
   city: "",
-  location: {
-    lat: null,
-    lng: null,
-  },
+  lat: undefined,
+  lng: undefined,
 };
 
 export function HeroSection() {
-  const router = useRouter();
-  const [filters, setFilters] = useState<HeroFilters>(initialFilters);
+  const [filters, setFilters] =
+    useState<DonorSearchFormValues>(initialFilters);
   const [searchFilters, setSearchFilters] = useState<DonorSearchFilters | null>(
     null,
   );
@@ -47,8 +32,8 @@ export function HeroSection() {
     () => [
       "landing-donor-search",
       debouncedSearchFilters?.bloodGroup ?? "",
-      debouncedSearchFilters?.state ?? "",
-      debouncedSearchFilters?.city ?? "",
+      debouncedSearchFilters?.lat ?? "",
+      debouncedSearchFilters?.lng ?? "",
     ],
     [debouncedSearchFilters],
   );
@@ -64,23 +49,24 @@ export function HeroSection() {
     searchFilters && searchFilters !== debouncedSearchFilters,
   );
 
-  const updateFilter = (
-    key: keyof Pick<HeroFilters, "bloodGroup" | "state" | "city">,
-    value: string,
-  ) => {
+  const updateFilters = (values: DonorSearchFormValues) => {
     setValidationError("");
-    setFilters((currentFilters) => ({
-      ...currentFilters,
-      [key]: value,
-      city: key === "state" ? "" : key === "city" ? value : currentFilters.city,
-    }));
+    setFilters(values);
   };
 
   const validateFilters = () => {
-    if (!filters.bloodGroup || !filters.state || !filters.city) {
-      setValidationError(
-        "Please select blood group, state, and city before searching.",
-      );
+    if (!filters.bloodGroup) {
+      setValidationError('Please select blood group before searching.');
+      return false;
+    }
+
+    if (!filters.state || !filters.city) {
+      setValidationError("Please select state and city / district before searching.");
+      return false;
+    }
+
+    if (filters.lat === undefined || filters.lng === undefined) {
+      setValidationError("Selected city coordinates were not found. Please choose another city / district.");
       return false;
     }
 
@@ -94,13 +80,13 @@ export function HeroSection() {
     }
 
     setHasSearched(true);
+
     setSearchFilters({
       bloodGroup: filters.bloodGroup,
-      state: filters.state,
-      city: filters.city,
+      lat: filters.lat,
+      lng: filters.lng,
     });
   };
-
 
   return (
     <section className="relative overflow-hidden bg-[linear-gradient(135deg,#eef6ff_0%,#ffffff_45%,#fff2f0_100%)]">
@@ -123,33 +109,12 @@ export function HeroSection() {
           </div>
 
           <div className="mx-auto grid w-full max-w-6xl gap-4">
-            <div className="grid gap-3 rounded-[2rem] border border-white/80 bg-white/85 p-3 text-left shadow-2xl shadow-blue-950/10 backdrop-blur md:grid-cols-[1fr_1fr_1fr_auto_auto] md:items-center">
-              <BloodGroupDropdown
-                value={filters.bloodGroup}
-                onChange={(value) => updateFilter("bloodGroup", value)}
-              />
-              <StateDropdown
-                value={filters.state}
-                onChange={(value) => updateFilter("state", value)}
-              />
-              <CityDropdown
-                state={filters.state}
-                value={filters.city}
-                onChange={(value) => updateFilter("city", value)}
-              />
-
-              <Button
-                className="h-14 rounded-2xl bg-[#E74C3C] px-6 text-base text-white shadow-lg shadow-red-500/20 hover:bg-red-600"
-                disabled={donorQuery.isFetching || isSearchDebouncing}
-                onClick={handleFindDonors}
-                type="button"
-              >
-                <Droplet className="h-5 w-5" />
-                {donorQuery.isFetching || isSearchDebouncing
-                  ? "Searching"
-                  : "Find Blood"}
-              </Button>
-            </div>
+            <SearchBar
+              isSearching={donorQuery.isFetching || isSearchDebouncing}
+              onChange={updateFilters}
+              onSearch={handleFindDonors}
+              values={filters}
+            />
 
             {validationError ? (
               <p className="rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-left text-sm font-medium text-red-700">

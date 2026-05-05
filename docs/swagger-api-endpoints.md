@@ -395,6 +395,7 @@ Response data shape:
       "district": "Chandigarh",
       "distanceKm": 2.4,
       "isAvailable": true,
+      "isVerified": true,
       "lastDonationDate": "2025-12-01T00:00:00.000Z",
       "nextEligibleDate": "2026-03-01T00:00:00.000Z",
       "totalDonations": 0,
@@ -427,6 +428,7 @@ Privacy:
 - Does not return `phone`.
 - Does not return `alternatePhone`.
 - Does not return user `refreshToken`, OTP fields, or hidden provider fields.
+- Used by frontend route `/donors/[id]`.
 
 ## Location APIs
 

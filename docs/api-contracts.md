@@ -293,8 +293,12 @@ Response data:
       "district": "Chandigarh",
       "distanceKm": 2.4,
       "isAvailable": true,
+      "isVerified": true,
       "lastDonationDate": "2025-12-01T00:00:00.000Z",
-      "nextEligibleDate": "2026-03-01T00:00:00.000Z"
+      "nextEligibleDate": "2026-03-01T00:00:00.000Z",
+      "totalDonations": 3,
+      "createdAt": "2026-05-05T00:00:00.000Z",
+      "updatedAt": "2026-05-05T00:00:00.000Z"
     }
   ],
   "count": 1,
@@ -308,7 +312,9 @@ Response data:
 GET /api/v1/donors/:id
 ```
 
-Returns a privacy-safe donor profile. Phone numbers are not exposed by default.
+Returns a privacy-safe donor profile for the `/donors/[id]` frontend route. Phone numbers are not exposed by default.
+
+Response data includes safe public fields such as donor id, user id, name, profile image, blood group, state, city, district, availability, verification status, last donation date, next eligible date, total donations, and timestamps. It does not include `phone` or `alternatePhone`.
 
 ### Auth Success Response Shape
 

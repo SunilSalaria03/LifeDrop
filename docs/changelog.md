@@ -1,6 +1,10 @@
 # LifeDrop Changelog
 
 ## 2026-05-05
+- Split frontend location behavior: header now auto-detects GPS location with OpenStreetMap Nominatim, while hero donor search uses manual state/city dropdowns from `country-state-city` and sends selected city coordinates to the MongoDB-backed donor search API.
+- Improved the available donor card UI with avatars, badges, dates, donation stats, and profile links.
+- Added the public donor detail route `/donors/[id]` with `GET /donors/:id` frontend integration and privacy-safe contact messaging.
+- Added `npm run seed:admin` to create or promote an admin user in MongoDB from backend env values.
 - Added DB-driven donor profile backend with protected create, update, current-profile, availability, public profile, and donor search APIs.
 - Added `donorprofiles` schema with GeoJSON `[lng, lat]`, eligibility dates, visibility flags, privacy-safe projections, and donor search indexes.
 - Added DB-driven location module with `locations` schema, states, districts, cities, search, admin create, admin bulk upsert, and optional reverse-geocode placeholder API.
@@ -8,7 +12,6 @@
 - Expanded the user schema with address, state, city, district, and optional geospatial profile location fields.
 - Added protected user profile read/update APIs backed by the `users` collection.
 - Added Swagger setup at `/api/v1/docs` and installed the backend Swagger dependency.
-- Added `npm run seed:locations` and an initial real India location seed JSON that writes to MongoDB.
 - Updated frontend landing dropdowns to fetch states and cities from backend location APIs instead of hardcoded location arrays.
 - Updated frontend donor search parsing to consume the backend `{ items, count, radiusKm }` response and removed placeholder reverse-geocode city data.
 - Verified backend build and frontend TypeScript check; frontend production build is blocked locally by a Windows `spawn EPERM` from Next.
