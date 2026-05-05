@@ -1,6 +1,7 @@
 # LifeDrop Changelog
 
 ## 2026-05-05
+- Fixed donor geo-search default radius metadata so omitted `radiusKm` searches up to 50 km.
 - Split frontend location behavior: header now auto-detects GPS location with OpenStreetMap Nominatim, while hero donor search uses manual state/city dropdowns from `country-state-city` and sends selected city coordinates to the MongoDB-backed donor search API.
 - Improved the available donor card UI with avatars, badges, dates, donation stats, and profile links.
 - Added the public donor detail route `/donors/[id]` with `GET /donors/:id` frontend integration and privacy-safe contact messaging.

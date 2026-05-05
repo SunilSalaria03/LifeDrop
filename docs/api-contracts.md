@@ -271,7 +271,7 @@ GET /api/v1/donors/search?bloodGroup=O%2B&state=Punjab&city=Chandigarh
 
 Behavior:
 - `bloodGroup` is required.
-- `radiusKm` defaults to `5` and is capped at `50`.
+- `radiusKm` defaults to `50` and is capped at `50`.
 - `lat` and `lng` must be supplied together.
 - Geo search uses MongoDB `$geoNear`; manual search filters real DB donor profiles by state, city, and district.
 - Results include only active, available, eligible donors whose linked user is not blocked.

@@ -371,7 +371,7 @@ Optional:
 - `district`
 
 Rules:
-- `radiusKm` defaults to `5`.
+- `radiusKm` defaults to `50`.
 - `radiusKm` must be between `1` and `50`.
 - `lat` and `lng` must be supplied together.
 - If no `lat/lng`, provide at least one location filter: `state`, `city`, or `district`.

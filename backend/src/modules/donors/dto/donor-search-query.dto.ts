@@ -29,13 +29,13 @@ export class DonorSearchQueryDto {
   @IsLongitude()
   lng?: number;
 
-  @ApiPropertyOptional({ example: 5 })
+  @ApiPropertyOptional({ example: 50 })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(50)
-  radiusKm?: number = 5;
+  radiusKm?: number = 50;
 
   @ApiPropertyOptional({ example: 'Tamil Nadu' })
   @IsOptional()

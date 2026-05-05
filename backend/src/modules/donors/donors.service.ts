@@ -118,13 +118,14 @@ export class DonorsService {
   }
 
   async search(query: DonorSearchQueryDto) {
-    const radiusKm = query.radiusKm ?? 5;
+    const radiusKm = query.radiusKm ?? 50;
     this.assertValidSearchMode(query);
 
     const baseFilter = this.buildEligibleFilter(query);
     const pipeline = this.hasGeoSearch(query)
       ? this.buildGeoSearchPipeline(query, radiusKm, baseFilter)
       : this.buildManualSearchPipeline(baseFilter);
+      console.log("pipeline",pipeline)
     const items = await this.donorProfileModel.aggregate(pipeline).exec();
 
     return {
