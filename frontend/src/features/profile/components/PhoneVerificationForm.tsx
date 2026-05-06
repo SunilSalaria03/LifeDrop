@@ -1,9 +1,14 @@
 'use client';
 
 import { useFormik } from 'formik';
+import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AuthUser } from '@/features/auth/types/auth.types';
+import {
+  toIndianE164,
+  toIndianNationalNumber,
+} from '@/lib/phone/india-phone';
 import { useProfile } from '../hooks/useProfile';
 import { profilePhoneSchema } from '../validations/profile.validation';
 
@@ -20,13 +25,13 @@ export function PhoneVerificationForm({ user }: PhoneVerificationFormProps) {
 
   const formik = useFormik({
     initialValues: {
-      phone: user.phone ?? '',
+      phone: toIndianNationalNumber(user.phone),
       otp: '',
     },
     validationSchema: profilePhoneSchema,
     onSubmit: async (values) => {
       await verifyProfilePhoneMutation.mutateAsync({
-        phone: values.phone,
+        phone: toIndianE164(values.phone),
         otp: values.otp ?? '',
       });
     },
@@ -43,10 +48,10 @@ export function PhoneVerificationForm({ user }: PhoneVerificationFormProps) {
     }
 
     await updateProfileMutation.mutateAsync({
-      phone: formik.values.phone,
+      phone: toIndianE164(formik.values.phone),
     });
     await sendProfileOtpMutation.mutateAsync({
-      phone: formik.values.phone,
+      phone: toIndianE164(formik.values.phone),
     });
   };
 
@@ -63,13 +68,11 @@ export function PhoneVerificationForm({ user }: PhoneVerificationFormProps) {
         <label className="text-sm font-semibold text-neutral-900" htmlFor="phone">
           Phone number
         </label>
-        <Input
-          className="h-12 rounded-2xl"
+        <IndiaPhoneInput
           id="phone"
           name="phone"
           onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          placeholder="+919999999999"
+          onChange={(phone) => void formik.setFieldValue('phone', phone)}
           value={formik.values.phone}
         />
         {formik.touched.phone && formik.errors.phone ? (

@@ -4,7 +4,7 @@ export const phoneOtpSendSchema = yup.object({
   phone: yup
     .string()
     .trim()
-    .matches(/^\+[1-9]\d{7,14}$/, 'Use E.164 format, for example +919999999999.')
+    .matches(/^\d{10}$/, 'Enter a 10 digit Indian mobile number.')
     .required('Phone number is required.')
 });
 
@@ -18,4 +18,3 @@ export const phoneOtpVerifySchema = yup.object({
 
 export type PhoneOtpSendValues = yup.InferType<typeof phoneOtpSendSchema>;
 export type PhoneOtpVerifyValues = yup.InferType<typeof phoneOtpVerifySchema>;
-

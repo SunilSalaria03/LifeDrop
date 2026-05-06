@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { City, State } from 'country-state-city';
 import { useFormik } from 'formik';
 import { useRouter } from 'next/navigation';
+import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -14,6 +15,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { AuthUser } from '@/features/auth/types/auth.types';
+import {
+  toIndianE164,
+  toIndianNationalNumber,
+} from '@/lib/phone/india-phone';
 import { useProfile } from '../hooks/useProfile';
 import { profileSetupSchema } from '../validations/profile.validation';
 
@@ -36,7 +41,7 @@ export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
   const formik = useFormik({
     initialValues: {
       name: user.name ?? '',
-      phone: user.phone ?? '',
+      phone: toIndianNationalNumber(user.phone),
       state: user.state ?? '',
       stateCode: findStateCode(user.state),
       city: user.city ?? '',
@@ -50,7 +55,7 @@ export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
     onSubmit: async (values) => {
       const updatedUser = await updateProfileMutation.mutateAsync({
         name: values.name,
-        phone: values.phone,
+        phone: values.phone ? toIndianE164(values.phone) : undefined,
         state: values.state,
         city: values.city,
         district: values.district,
@@ -121,13 +126,12 @@ export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
         <label className="text-sm font-semibold text-neutral-900" htmlFor="phone">
           Phone
         </label>
-        <Input
-          className="h-12 rounded-2xl"
+        <IndiaPhoneInput
           disabled={user.isPhoneVerified}
           id="phone"
           name="phone"
           onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
+          onChange={(phone) => void formik.setFieldValue('phone', phone)}
           value={formik.values.phone}
         />
       </div>

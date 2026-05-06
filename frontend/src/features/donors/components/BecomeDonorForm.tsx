@@ -1,22 +1,27 @@
-'use client';
+"use client";
 
-import { useMemo, useState } from 'react';
-import { City, State } from 'country-state-city';
-import { useFormik } from 'formik';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useMemo, useState } from "react";
+import { City, State } from "country-state-city";
+import { useFormik } from "formik";
+import { useRouter } from "next/navigation";
+import { IndiaPhoneInput } from "@/components/forms/IndiaPhoneInput";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { AuthUser } from '@/features/auth/types/auth.types';
-import { bloodGroups } from '@/lib/constants/locations';
-import { useDonorProfile } from '../hooks/useDonorProfile';
-import { donorProfileSchema } from '../validations/donor.validation';
+} from "@/components/ui/select";
+import { AuthUser } from "@/features/auth/types/auth.types";
+import { bloodGroups } from "@/lib/constants/locations";
+import {
+  toIndianE164,
+  toIndianNationalNumber,
+} from "@/lib/phone/india-phone";
+import { useDonorProfile } from "../hooks/useDonorProfile";
+import { donorProfileSchema } from "../validations/donor.validation";
 
 type BecomeDonorFormProps = {
   user: AuthUser;
@@ -24,43 +29,48 @@ type BecomeDonorFormProps = {
 
 function findStateCode(stateName?: string) {
   return (
-    State.getStatesOfCountry('IN').find((state) => state.name === stateName)
-      ?.isoCode ?? ''
+    State.getStatesOfCountry("IN").find((state) => state.name === stateName)
+      ?.isoCode ?? ""
   );
 }
 
 export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
   const router = useRouter();
   const { createDonorProfileMutation } = useDonorProfile();
-  const states = useMemo(() => State.getStatesOfCountry('IN'), []);
+  const states = useMemo(() => State.getStatesOfCountry("IN"), []);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
 
   const formik = useFormik({
     initialValues: {
-      bloodGroup: '',
-      phone: user.phone ?? '',
-      alternatePhone: '',
-      state: user.state ?? '',
+      bloodGroup: "",
+      phone: toIndianNationalNumber(user.phone),
+      alternatePhone: "",
+      state: user.state ?? "",
       stateCode: findStateCode(user.state),
-      city: user.city ?? '',
-      district: user.district ?? '',
-      addressText: user.addressText ?? '',
+      city: user.city ?? "",
+      district: user.district ?? "",
+      addressText: user.addressText ?? "",
       lat: user.location?.coordinates?.[1],
       lng: user.location?.coordinates?.[0],
-      lastDonationDate: '',
+      lastDonationDate: "",
       isAvailable: true,
     },
     validationSchema: donorProfileSchema,
     onSubmit: async (values) => {
-      if (typeof values.lat !== 'number' || typeof values.lng !== 'number') {
-        await formik.setFieldError('city', 'Select a city to use its coordinates.');
+      if (typeof values.lat !== "number" || typeof values.lng !== "number") {
+        await formik.setFieldError(
+          "city",
+          "Select a city to use its coordinates.",
+        );
         return;
       }
 
       await createDonorProfileMutation.mutateAsync({
         bloodGroup: values.bloodGroup,
-        phone: values.phone,
-        alternatePhone: values.alternatePhone || undefined,
+        phone: toIndianE164(values.phone),
+        alternatePhone: values.alternatePhone
+          ? toIndianE164(values.alternatePhone)
+          : undefined,
         state: values.state,
         city: values.city,
         district: values.district || undefined,
@@ -71,7 +81,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
         isAvailable: values.isAvailable,
       });
       setShowSuccessToast(true);
-      window.setTimeout(() => router.push('/'), 900);
+      window.setTimeout(() => router.push("/"), 900);
     },
   });
 
@@ -80,7 +90,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
       return [];
     }
 
-    return City.getCitiesOfState('IN', formik.values.stateCode);
+    return City.getCitiesOfState("IN", formik.values.stateCode);
   }, [formik.values.stateCode]);
 
   const handleStateChange = (stateCode: string) => {
@@ -88,8 +98,8 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
     void formik.setValues({
       ...formik.values,
       stateCode,
-      state: selectedState?.name ?? '',
-      city: '',
+      state: selectedState?.name ?? "",
+      city: "",
       lat: undefined,
       lng: undefined,
     });
@@ -114,7 +124,9 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
       ) : null}
 
       <Select
-        onValueChange={(bloodGroup) => void formik.setFieldValue('bloodGroup', bloodGroup)}
+        onValueChange={(bloodGroup) =>
+          void formik.setFieldValue("bloodGroup", bloodGroup)
+        }
         value={formik.values.bloodGroup}
       >
         <SelectTrigger className="h-12 rounded-2xl">
@@ -130,24 +142,27 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
       </Select>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <Input
-          className="h-12 rounded-2xl"
+        <IndiaPhoneInput
           name="phone"
-          onChange={formik.handleChange}
+          onChange={(phone) => void formik.setFieldValue("phone", phone)}
           placeholder="Phone"
           value={formik.values.phone}
         />
-        <Input
-          className="h-12 rounded-2xl"
+        <IndiaPhoneInput
           name="alternatePhone"
-          onChange={formik.handleChange}
+          onChange={(phone) =>
+            void formik.setFieldValue("alternatePhone", phone)
+          }
           placeholder="Alternate phone optional"
           value={formik.values.alternatePhone}
         />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <Select onValueChange={handleStateChange} value={formik.values.stateCode}>
+        <Select
+          onValueChange={handleStateChange}
+          value={formik.values.stateCode}
+        >
           <SelectTrigger className="h-12 rounded-2xl">
             <SelectValue placeholder="State" />
           </SelectTrigger>
@@ -169,7 +184,10 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
           </SelectTrigger>
           <SelectContent>
             {cities.map((city) => (
-              <SelectItem key={`${city.name}-${city.latitude}`} value={city.name}>
+              <SelectItem
+                key={`${city.name}-${city.latitude}`}
+                value={city.name}
+              >
                 {city.name}
               </SelectItem>
             ))}
@@ -213,7 +231,8 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
         </label>
       </div>
 
-      {Object.keys(formik.touched).length > 0 && Object.values(formik.errors)[0] ? (
+      {Object.keys(formik.touched).length > 0 &&
+      Object.values(formik.errors)[0] ? (
         <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
           {Object.values(formik.errors)[0]}
         </p>
@@ -221,7 +240,8 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
 
       {createDonorProfileMutation.isError ? (
         <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
-          Donor profile could not be saved. You may already have a donor profile.
+          Donor profile could not be saved. You may already have a donor
+          profile.
         </p>
       ) : null}
 
@@ -230,7 +250,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
         disabled={createDonorProfileMutation.isPending}
         type="submit"
       >
-        {createDonorProfileMutation.isPending ? 'Saving...' : 'Become a donor'}
+        {createDonorProfileMutation.isPending ? "Saving..." : "Become a donor"}
       </Button>
     </form>
   );

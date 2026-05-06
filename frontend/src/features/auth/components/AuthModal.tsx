@@ -3,8 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import { ArrowLeft, Droplet, ShieldCheck, X } from 'lucide-react';
+import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  toIndianE164,
+  toIndianNationalNumber,
+} from '@/lib/phone/india-phone';
 import { GoogleLoginButton } from './GoogleLoginButton';
 import { useAuth } from '../hooks/useAuth';
 import { AuthUser } from '../types/auth.types';
@@ -29,8 +34,9 @@ export function AuthModal({
   initialPhone = '',
 }: AuthModalProps) {
   const { sendOtpMutation, verifyOtpMutation } = useAuth();
-  const [step, setStep] = useState<AuthStep>(initialPhone ? 'otp' : 'login');
-  const [phoneForOtp, setPhoneForOtp] = useState(initialPhone);
+  const initialNationalPhone = toIndianNationalNumber(initialPhone);
+  const [step, setStep] = useState<AuthStep>(initialNationalPhone ? 'otp' : 'login');
+  const [phoneForOtp, setPhoneForOtp] = useState(initialNationalPhone);
   const [resendSeconds, setResendSeconds] = useState(0);
 
   useEffect(() => {
@@ -48,8 +54,9 @@ export function AuthModal({
 
   useEffect(() => {
     if (isOpen) {
-      setStep(initialPhone ? 'otp' : 'login');
-      setPhoneForOtp(initialPhone);
+      const nationalPhone = toIndianNationalNumber(initialPhone);
+      setStep(nationalPhone ? 'otp' : 'login');
+      setPhoneForOtp(nationalPhone);
       setResendSeconds(0);
     }
   }, [initialPhone, isOpen]);
@@ -80,7 +87,7 @@ export function AuthModal({
     enableReinitialize: true,
     onSubmit: async (values) => {
       await sendOtpMutation.mutateAsync({
-        phone: values.phone,
+        phone: toIndianE164(values.phone),
       });
       setPhoneForOtp(values.phone);
       setStep('otp');
@@ -95,7 +102,7 @@ export function AuthModal({
     validationSchema: phoneOtpVerifySchema,
     onSubmit: async (values) => {
       const authResponse = await verifyOtpMutation.mutateAsync({
-        phone: phoneForOtp,
+        phone: toIndianE164(phoneForOtp),
         otp: values.otp,
       });
       onAuthenticated?.(authResponse.user);
@@ -108,7 +115,7 @@ export function AuthModal({
     }
 
     await sendOtpMutation.mutateAsync({
-      phone: phoneForOtp,
+      phone: toIndianE164(phoneForOtp),
     });
     setResendSeconds(60);
   }
@@ -127,7 +134,7 @@ export function AuthModal({
   const description =
     step === 'login'
       ? 'Enter your phone number to receive a secure verification code.'
-      : `Use the 6 digit code sent to ${phoneForOtp}.`;
+      : `Use the 6 digit code sent to +91 ${phoneForOtp}.`;
 
   return (
     <div
@@ -177,14 +184,12 @@ export function AuthModal({
                   <label className="text-sm font-semibold text-neutral-900" htmlFor="auth-phone">
                     Phone number
                   </label>
-                  <Input
-                    className="h-12 rounded-2xl bg-white"
+                  <IndiaPhoneInput
+                    className="bg-white"
                     id="auth-phone"
-                    inputMode="tel"
                     name="phone"
                     onBlur={sendFormik.handleBlur}
-                    onChange={sendFormik.handleChange}
-                    placeholder="+919999999999"
+                    onChange={(phone) => void sendFormik.setFieldValue('phone', phone)}
                     value={sendFormik.values.phone}
                   />
                   {sendFormik.touched.phone && sendFormik.errors.phone ? (

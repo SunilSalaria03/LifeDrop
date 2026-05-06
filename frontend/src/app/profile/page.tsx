@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -43,6 +44,10 @@ import { MyDonorProfile } from '@/features/donors/types/donor.types';
 import { useProfile } from '@/features/profile/hooks/useProfile';
 import { profileSetupSchema } from '@/features/profile/validations/profile.validation';
 import { bloodGroups } from '@/lib/constants/locations';
+import {
+  toIndianE164,
+  toIndianNationalNumber,
+} from '@/lib/phone/india-phone';
 
 type InfoItemProps = {
   icon: LucideIcon;
@@ -138,7 +143,7 @@ function ProfileEditForm({
     initialValues: {
       name: user.name ?? '',
       profileImage: user.profileImage ?? '',
-      phone: user.phone ?? '',
+      phone: toIndianNationalNumber(user.phone),
       state: user.state ?? '',
       stateCode: findStateCode(user.state),
       city: user.city ?? '',
@@ -153,7 +158,7 @@ function ProfileEditForm({
       await updateProfileMutation.mutateAsync({
         name: values.name,
         profileImage: values.profileImage || undefined,
-        phone: values.phone,
+        phone: values.phone ? toIndianE164(values.phone) : undefined,
         state: values.state,
         city: values.city,
         district: values.district || undefined,
@@ -208,11 +213,10 @@ function ProfileEditForm({
           placeholder="Full name"
           value={formik.values.name}
         />
-        <Input
-          className="h-12 rounded-2xl"
+        <IndiaPhoneInput
           name="phone"
           onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
+          onChange={(phone) => void formik.setFieldValue('phone', phone)}
           placeholder="Phone number"
           value={formik.values.phone}
         />
@@ -314,15 +318,15 @@ const donorEditSchema = yup.object({
   phone: yup
     .string()
     .trim()
-    .matches(/^\+[1-9]\d{7,14}$/, 'Use E.164 format, for example +919999999999.')
+    .matches(/^\d{10}$/, 'Enter a 10 digit Indian mobile number.')
     .required('Phone is required.'),
   alternatePhone: yup
     .string()
     .trim()
     .test(
       'optional-e164',
-      'Use E.164 format, for example +918888888888.',
-      (value) => !value || /^\+[1-9]\d{7,14}$/.test(value),
+      'Enter a 10 digit Indian mobile number.',
+      (value) => !value || /^\d{10}$/.test(value),
     ),
   state: yup.string().required('State is required.'),
   stateCode: yup.string().required('State is required.'),
@@ -348,8 +352,8 @@ function DonorEditForm({
   const formik = useFormik({
     initialValues: {
       bloodGroup: donor.bloodGroup ?? '',
-      phone: donor.phone ?? '',
-      alternatePhone: donor.alternatePhone ?? '',
+      phone: toIndianNationalNumber(donor.phone),
+      alternatePhone: toIndianNationalNumber(donor.alternatePhone),
       state: donor.state ?? '',
       stateCode: findStateCode(donor.state),
       city: donor.city ?? '',
@@ -365,8 +369,10 @@ function DonorEditForm({
     onSubmit: async (values) => {
       await updateDonorProfileMutation.mutateAsync({
         bloodGroup: values.bloodGroup,
-        phone: values.phone,
-        alternatePhone: values.alternatePhone || undefined,
+        phone: toIndianE164(values.phone),
+        alternatePhone: values.alternatePhone
+          ? toIndianE164(values.alternatePhone)
+          : undefined,
         state: values.state,
         city: values.city,
         district: values.district || undefined,
@@ -430,20 +436,18 @@ function DonorEditForm({
             ))}
           </SelectContent>
         </Select>
-        <Input
-          className="h-12 rounded-2xl"
+        <IndiaPhoneInput
           name="phone"
-          onChange={formik.handleChange}
+          onChange={(phone) => void formik.setFieldValue('phone', phone)}
           placeholder="Donor phone"
           value={formik.values.phone}
         />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <Input
-          className="h-12 rounded-2xl"
+        <IndiaPhoneInput
           name="alternatePhone"
-          onChange={formik.handleChange}
+          onChange={(phone) => void formik.setFieldValue('alternatePhone', phone)}
           placeholder="Alternate phone optional"
           value={formik.values.alternatePhone}
         />

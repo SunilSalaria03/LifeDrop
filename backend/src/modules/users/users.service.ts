@@ -1,8 +1,18 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { DonorProfile } from '../donors/schemas/donor-profile.schema';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
-import { AuthProvider, User, UserDocument } from './schemas/user.schema';
+import {
+  AuthProvider,
+  User,
+  UserDocument,
+  UserRole,
+} from './schemas/user.schema';
 
 export type CreatePhoneUserInput = {
   phone: string;
@@ -19,6 +29,8 @@ export type CreateGoogleUserInput = {
 export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectModel(DonorProfile.name)
+    private readonly donorProfileModel: Model<DonorProfile>,
   ) {}
 
   findById(id: string): Promise<UserDocument | null> {
@@ -198,7 +210,51 @@ export class UsersService {
       throw new BadRequestException('User profile could not be updated.');
     }
 
+    await this.syncDonorProfileFromUser(updatedUser, dto);
+
     return this.toSafeUser(updatedUser);
+  }
+
+  private async syncDonorProfileFromUser(
+    user: UserDocument,
+    dto: UpdateUserProfileDto,
+  ): Promise<void> {
+    if (user.role !== UserRole.Donor) {
+      return;
+    }
+
+    const donorUpdate: Record<string, unknown> = {};
+
+    for (const field of [
+      'phone',
+      'addressText',
+      'state',
+      'city',
+      'district',
+    ] as const) {
+      if (dto[field] !== undefined) {
+        donorUpdate[field] = dto[field];
+      }
+    }
+
+    if (dto.lat !== undefined && dto.lng !== undefined) {
+      donorUpdate.location = {
+        type: 'Point',
+        coordinates: [Number(dto.lng), Number(dto.lat)],
+      };
+    }
+
+    if (Object.keys(donorUpdate).length === 0) {
+      return;
+    }
+
+    await this.donorProfileModel
+      .updateOne(
+        { userId: user._id },
+        { $set: donorUpdate },
+        { runValidators: true },
+      )
+      .exec();
   }
 
   toSafeUser(user: UserDocument) {

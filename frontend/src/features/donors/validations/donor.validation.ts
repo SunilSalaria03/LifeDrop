@@ -5,15 +5,15 @@ export const donorProfileSchema = yup.object({
   phone: yup
     .string()
     .trim()
-    .matches(/^\+[1-9]\d{7,14}$/, 'Use E.164 format, for example +919999999999.')
+    .matches(/^\d{10}$/, 'Enter a 10 digit Indian mobile number.')
     .required('Phone is required.'),
   alternatePhone: yup
     .string()
     .trim()
     .test(
       'optional-e164',
-      'Use E.164 format, for example +918888888888.',
-      (value) => !value || /^\+[1-9]\d{7,14}$/.test(value),
+      'Enter a 10 digit Indian mobile number.',
+      (value) => !value || /^\d{10}$/.test(value),
     ),
   state: yup.string().required('State is required.'),
   stateCode: yup.string().required('State is required.'),

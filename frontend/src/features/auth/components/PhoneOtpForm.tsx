@@ -3,8 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
+import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  toIndianE164,
+  toIndianNationalNumber,
+} from '@/lib/phone/india-phone';
 import { phoneOtpSendSchema, phoneOtpVerifySchema } from '../validations/auth.validation';
 import { useAuth } from '../hooks/useAuth';
 
@@ -22,7 +27,7 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setPhoneFromQuery(params.get('phone') ?? '');
+    setPhoneFromQuery(toIndianNationalNumber(params.get('phone') ?? ''));
     setRedirect(params.get('redirect'));
     setHasLoadedQuery(true);
   }, []);
@@ -61,10 +66,10 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
     enableReinitialize: true,
     onSubmit: async (values) => {
       await sendOtpMutation.mutateAsync({
-        phone: values.phone
+        phone: toIndianE164(values.phone)
       });
       router.push(
-        `/?auth=login&phone=${encodeURIComponent(values.phone)}${
+        `/?auth=login&phone=${encodeURIComponent(toIndianE164(values.phone))}${
           redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''
         }`,
       );
@@ -78,7 +83,7 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
     validationSchema: phoneOtpVerifySchema,
     onSubmit: async (values) => {
       await verifyOtpMutation.mutateAsync({
-        phone: phoneFromQuery,
+        phone: toIndianE164(phoneFromQuery),
         otp: values.otp
       });
     }
@@ -90,7 +95,7 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
     }
 
     await sendOtpMutation.mutateAsync({
-      phone: phoneFromQuery
+      phone: toIndianE164(phoneFromQuery)
     });
     setResendSeconds(60);
   }
@@ -160,14 +165,13 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
         <label className="text-sm font-semibold text-neutral-900" htmlFor="phone">
           Phone number
         </label>
-        <Input
+        <IndiaPhoneInput
           id="phone"
           name="phone"
-          placeholder="+919999999999"
           className="h-12 rounded-2xl bg-white"
           value={sendFormik.values.phone}
           onBlur={sendFormik.handleBlur}
-          onChange={sendFormik.handleChange}
+          onChange={(phone) => void sendFormik.setFieldValue('phone', phone)}
         />
         {sendFormik.touched.phone && sendFormik.errors.phone ? (
           <p className="text-sm font-medium text-red-700">{sendFormik.errors.phone}</p>
