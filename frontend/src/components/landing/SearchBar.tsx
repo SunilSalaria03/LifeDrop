@@ -79,7 +79,7 @@ export function SearchBar({
   };
 
   return (
-    <div className="grid gap-3 rounded-[2rem] border border-white/80 bg-white/85 p-3 text-left shadow-2xl shadow-blue-950/10 backdrop-blur md:grid-cols-[1fr_1fr_1fr_auto] md:items-center">
+    <div className="grid gap-3 rounded-3xl border border-white/80 bg-white/90 p-3 text-left shadow-2xl shadow-red-950/10 backdrop-blur sm:p-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-center">
       <Select onValueChange={updateBloodGroup} value={values.bloodGroup}>
         <SelectTrigger
           aria-label="Blood group"
@@ -133,7 +133,7 @@ export function SearchBar({
       </Select>
 
       <Button
-        className="h-14 rounded-2xl bg-[#E74C3C] px-6 text-base text-white shadow-lg shadow-red-500/20 hover:bg-red-600"
+        className="h-14 w-full rounded-2xl bg-red-600 px-6 text-base text-white shadow-lg shadow-red-500/20 hover:bg-red-700 md:w-auto"
         disabled={isSearching}
         onClick={onSearch}
         type="button"

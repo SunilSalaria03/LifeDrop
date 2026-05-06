@@ -3,6 +3,7 @@ import { AuthUser } from '@/features/auth/types/auth.types';
 export type UpdateProfilePayload = {
   name?: string;
   phone?: string;
+  profileImage?: string;
   state?: string;
   city?: string;
   district?: string;

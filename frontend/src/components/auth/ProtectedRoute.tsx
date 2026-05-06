@@ -24,7 +24,7 @@ export function ProtectedRoute({
 
     if (!accessToken) {
       const currentPath = window.location.pathname;
-      router.replace(`/auth/login?redirect=${encodeURIComponent(redirect || currentPath)}`);
+      router.replace(`/?auth=login&redirect=${encodeURIComponent(redirect || currentPath)}`);
       return;
     }
 
@@ -41,7 +41,7 @@ export function ProtectedRoute({
   useEffect(() => {
     if (meQuery.isError) {
       tokenStorage.clearTokens();
-      router.replace('/auth/login');
+      router.replace('/?auth=login');
     }
   }, [meQuery.isError, router]);
 

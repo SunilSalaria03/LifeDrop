@@ -29,7 +29,7 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
 
   useEffect(() => {
     if (hasLoadedQuery && mode === 'verify' && !phoneFromQuery) {
-      router.replace('/auth/login');
+      router.replace('/?auth=login');
     }
   }, [hasLoadedQuery, mode, phoneFromQuery, router]);
 
@@ -64,7 +64,7 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
         phone: values.phone
       });
       router.push(
-        `/auth/otp?phone=${encodeURIComponent(values.phone)}${
+        `/?auth=login&phone=${encodeURIComponent(values.phone)}${
           redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''
         }`,
       );
@@ -107,6 +107,7 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
             name="otp"
             inputMode="numeric"
             placeholder="123456"
+            className="h-12 rounded-2xl bg-white"
             value={verifyFormik.values.otp}
             onBlur={verifyFormik.handleBlur}
             onChange={verifyFormik.handleChange}
@@ -131,11 +132,11 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
         </Button>
 
         <Button
-          type="button"
           className="h-12 rounded-full"
-          variant="outline"
           disabled={sendOtpMutation.isPending || resendSeconds > 0 || !phoneFromQuery}
           onClick={handleResendOtp}
+          type="button"
+          variant="outline"
         >
           {sendOtpMutation.isPending
             ? 'Resending...'

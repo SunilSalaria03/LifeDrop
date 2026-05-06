@@ -12,9 +12,9 @@ export default function BecomeDonorPage() {
 
   return (
     <ProtectedRoute requireCompletedProfile>
-      <main className="min-h-screen bg-[linear-gradient(135deg,#f8fbff_0%,#ffffff_48%,#fff5f5_100%)] px-4 py-10 sm:px-6 lg:px-8">
-        <Card className="mx-auto max-w-2xl rounded-2xl border-white/80 bg-white/95 shadow-2xl shadow-blue-950/10">
-          <CardContent className="grid gap-7 p-6 sm:p-8">
+      <main className="min-h-screen bg-[linear-gradient(135deg,#f8fbff_0%,#ffffff_48%,#fff5f5_100%)] px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+        <Card className="mx-auto w-full max-w-2xl rounded-2xl border-white/80 bg-white/95 shadow-2xl shadow-red-950/10">
+          <CardContent className="grid gap-6 p-5 sm:gap-7 sm:p-8">
             <div className="grid gap-4 text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-600 text-white shadow-lg shadow-red-600/20">
                 <HeartHandshake className="h-7 w-7" />
@@ -23,7 +23,7 @@ export default function BecomeDonorPage() {
                 <p className="text-sm font-semibold uppercase text-red-600">
                   Become a donor
                 </p>
-                <h1 className="mt-2 text-3xl font-bold tracking-normal text-neutral-950">
+                <h1 className="mt-2 text-2xl font-bold tracking-normal text-neutral-950 sm:text-3xl">
                   Share your donor availability
                 </h1>
                 <p className="mt-2 text-sm leading-6 text-neutral-600">

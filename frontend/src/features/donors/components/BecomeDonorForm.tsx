@@ -108,7 +108,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
   return (
     <form className="grid gap-4" onSubmit={formik.handleSubmit}>
       {showSuccessToast ? (
-        <div className="fixed right-4 top-4 z-50 rounded-2xl border border-green-100 bg-white px-4 py-3 text-sm font-semibold text-green-800 shadow-xl shadow-green-950/10">
+        <div className="fixed inset-x-4 top-4 z-50 rounded-2xl border border-green-100 bg-white px-4 py-3 text-sm font-semibold text-green-800 shadow-xl shadow-green-950/10 sm:left-auto sm:w-fit">
           Donor profile saved successfully.
         </div>
       ) : null}
@@ -226,7 +226,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
       ) : null}
 
       <Button
-        className="h-12 rounded-full bg-red-600 text-white hover:bg-red-700"
+        className="h-12 w-full rounded-full bg-red-600 text-white hover:bg-red-700"
         disabled={createDonorProfileMutation.isPending}
         type="submit"
       >

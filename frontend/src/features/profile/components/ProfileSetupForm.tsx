@@ -194,7 +194,7 @@ export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
       ) : null}
 
       <Button
-        className="h-12 rounded-full bg-red-600 text-white hover:bg-red-700"
+        className="h-12 w-full rounded-full bg-red-600 text-white hover:bg-red-700"
         disabled={updateProfileMutation.isPending}
         type="submit"
       >

@@ -51,7 +51,7 @@ export function PhoneVerificationForm({ user }: PhoneVerificationFormProps) {
   };
 
   return (
-    <form className="grid gap-4 rounded-2xl border border-blue-100 bg-blue-50/60 p-4" onSubmit={formik.handleSubmit}>
+    <form className="grid gap-4 rounded-2xl border border-red-100 bg-red-50/60 p-4 sm:p-5" onSubmit={formik.handleSubmit}>
       <div>
         <h2 className="text-lg font-bold text-neutral-950">Verify your phone</h2>
         <p className="mt-1 text-sm leading-6 text-neutral-600">
@@ -78,7 +78,7 @@ export function PhoneVerificationForm({ user }: PhoneVerificationFormProps) {
       </div>
 
       <Button
-        className="h-11 rounded-full"
+        className="h-11 w-full rounded-full bg-white"
         disabled={updateProfileMutation.isPending || sendProfileOtpMutation.isPending}
         onClick={handleSendOtp}
         type="button"
@@ -113,7 +113,7 @@ export function PhoneVerificationForm({ user }: PhoneVerificationFormProps) {
       ) : null}
 
       <Button
-        className="h-12 rounded-full bg-red-600 text-white hover:bg-red-700"
+        className="h-12 w-full rounded-full bg-red-600 text-white hover:bg-red-700"
         disabled={verifyProfilePhoneMutation.isPending}
         type="submit"
       >

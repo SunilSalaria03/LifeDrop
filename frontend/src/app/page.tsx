@@ -1,4 +1,3 @@
-import { ActionCards } from '@/components/landing/ActionCards';
 import { CTASection } from '@/components/landing/CTASection';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { HowItWorks } from '@/components/landing/HowItWorks';

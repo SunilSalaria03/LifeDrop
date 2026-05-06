@@ -57,7 +57,7 @@ export function useAuth() {
     mutationFn: logout,
     onSettled: () => {
       tokenStorage.clearTokens();
-      router.push('/auth/login');
+      router.push('/?auth=login');
     }
   });
 

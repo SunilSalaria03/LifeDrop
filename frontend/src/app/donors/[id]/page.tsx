@@ -58,8 +58,8 @@ function DetailItem({
   value: string;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-neutral-100 bg-neutral-50/80 p-4">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-blue-600 shadow-sm shadow-neutral-950/5">
+    <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-neutral-100 bg-neutral-50/80 p-4">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-red-600 shadow-sm shadow-neutral-950/5">
         <Icon className="h-5 w-5" />
       </div>
       <div className="min-w-0">
@@ -81,13 +81,13 @@ function DonorProfileHeader({ donor }: { donor: DonorDetail }) {
     .join(', ');
 
   return (
-    <Card className="overflow-hidden rounded-2xl border-white/80 bg-white shadow-xl shadow-blue-950/10">
-      <CardContent className="grid gap-6 p-6 sm:grid-cols-[auto_1fr] sm:items-center lg:p-8">
-        <Avatar className="h-24 w-24 border-4 border-blue-50 bg-blue-50">
+    <Card className="overflow-hidden rounded-2xl border-white/80 bg-white shadow-xl shadow-red-950/10">
+      <CardContent className="grid gap-6 p-5 sm:grid-cols-[auto_1fr] sm:items-center sm:p-6 lg:p-8">
+        <Avatar className="h-24 w-24 border-4 border-red-50 bg-red-50">
           {donor.profileImage ? (
             <AvatarImage alt={donorName} src={donor.profileImage} />
           ) : null}
-          <AvatarFallback className="text-2xl text-blue-700">
+          <AvatarFallback className="text-2xl text-red-700">
             {getInitials(donor.name)}
           </AvatarFallback>
         </Avatar>
@@ -95,19 +95,19 @@ function DonorProfileHeader({ donor }: { donor: DonorDetail }) {
         <div className="grid gap-4">
           <div className="grid gap-2">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-3xl font-bold tracking-normal text-neutral-950 sm:text-4xl">
+              <h1 className="break-words text-2xl font-bold tracking-normal text-neutral-950 sm:text-4xl">
                 {donorName}
               </h1>
               {donor.isVerified ? (
                 <ShieldCheck
                   aria-label="Verified donor"
-                  className="h-6 w-6 text-blue-600"
+                  className="h-6 w-6 text-red-600"
                 />
               ) : null}
             </div>
-            <p className="flex items-center gap-2 text-base text-neutral-600">
-              <MapPin className="h-5 w-5 shrink-0 text-blue-600" />
-              <span>{location}</span>
+            <p className="flex items-start gap-2 text-base text-neutral-600">
+              <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+              <span className="break-words">{location || 'Location not provided'}</span>
             </p>
           </div>
 
@@ -126,7 +126,7 @@ function DonorProfileHeader({ donor }: { donor: DonorDetail }) {
               {donor.isAvailable ? 'Available' : 'Not Available'}
             </Badge>
             {donor.isVerified ? (
-              <Badge className="gap-1.5 bg-blue-50 px-4 py-2 text-blue-700 ring-1 ring-blue-100">
+              <Badge className="gap-1.5 bg-red-50 px-4 py-2 text-red-700 ring-1 ring-red-100">
                 <ShieldCheck className="h-4 w-4" />
                 Verified
               </Badge>
@@ -147,7 +147,7 @@ export default function DonorDetailPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-[linear-gradient(135deg,#f4f8ff_0%,#ffffff_48%,#fff5f3_100%)] px-4 py-10 text-neutral-950 sm:px-6 lg:px-8">
+      <main className="min-h-screen bg-[linear-gradient(135deg,#f8fbff_0%,#ffffff_48%,#fff5f5_100%)] px-4 py-8 text-neutral-950 sm:px-6 sm:py-10 lg:px-8">
         <div className="mx-auto grid max-w-6xl gap-6">
           <Button asChild className="w-fit rounded-full" variant="outline">
             <Link href="/">
@@ -157,11 +157,11 @@ export default function DonorDetailPage() {
           </Button>
 
           {donorQuery.isLoading ? (
-            <Card className="animate-pulse rounded-2xl border-white/80 bg-white/90 shadow-xl shadow-blue-950/10">
-              <CardContent className="grid gap-6 p-6 sm:grid-cols-[auto_1fr] lg:p-8">
+            <Card className="animate-pulse rounded-2xl border-white/80 bg-white/90 shadow-xl shadow-red-950/10">
+              <CardContent className="grid gap-6 p-5 sm:grid-cols-[auto_1fr] sm:p-6 lg:p-8">
                 <div className="h-24 w-24 rounded-full bg-neutral-200" />
                 <div className="grid gap-3">
-                  <div className="h-8 w-64 rounded-full bg-neutral-200" />
+                  <div className="h-8 w-64 max-w-full rounded-full bg-neutral-200" />
                   <div className="h-5 w-80 max-w-full rounded-full bg-neutral-100" />
                   <div className="flex gap-2">
                     <div className="h-9 w-16 rounded-full bg-red-100" />
@@ -186,13 +186,13 @@ export default function DonorDetailPage() {
               <DonorProfileHeader donor={donor} />
 
               <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-                <Card className="rounded-2xl border-white/80 bg-white/95 shadow-lg shadow-blue-950/5">
-                  <CardHeader>
+                <Card className="rounded-2xl border-white/80 bg-white/95 shadow-lg shadow-red-950/5">
+                  <CardHeader className="p-5 sm:p-6">
                     <h2 className="text-xl font-bold text-neutral-950">
                       Donor Details
                     </h2>
                   </CardHeader>
-                  <CardContent className="grid gap-3 sm:grid-cols-2">
+                  <CardContent className="grid gap-3 p-5 pt-0 sm:grid-cols-2 sm:p-6 sm:pt-0">
                     <DetailItem
                       icon={HeartPulse}
                       label="Blood group"
@@ -240,25 +240,25 @@ export default function DonorDetailPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="h-fit rounded-2xl border-white/80 bg-white/95 shadow-lg shadow-blue-950/5">
-                  <CardHeader>
+                <Card className="h-fit rounded-2xl border-white/80 bg-white/95 shadow-lg shadow-red-950/5">
+                  <CardHeader className="p-5 sm:p-6">
                     <h2 className="text-xl font-bold text-neutral-950">
                       Request Support
                     </h2>
                   </CardHeader>
-                  <CardContent className="grid gap-4">
-                    <p className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm font-medium leading-6 text-blue-800">
+                  <CardContent className="grid gap-4 p-5 pt-0 sm:p-6 sm:pt-0">
+                    <p className="rounded-2xl border border-red-100 bg-red-50 p-4 text-sm font-medium leading-6 text-red-800">
                       Contact details are shared only after request approval.
                     </p>
                     <Button
                       asChild
-                      className="h-12 rounded-full bg-red-600 text-white hover:bg-red-700"
+                      className="h-12 w-full rounded-full bg-red-600 text-white hover:bg-red-700"
                     >
                       <Link href={`/request-blood?donorId=${donor.id}`}>
                         Request Blood
                       </Link>
                     </Button>
-                    <Button asChild className="h-12 rounded-full" variant="outline">
+                    <Button asChild className="h-12 w-full rounded-full" variant="outline">
                       <Link href="/">Back to Search</Link>
                     </Button>
                   </CardContent>

@@ -18,7 +18,7 @@ export function AuthProtectedGuard({ children }: AuthProtectedGuardProps) {
     const accessToken = tokenStorage.getAccessToken();
 
     if (!accessToken) {
-      router.replace('/auth/login');
+      router.replace('/?auth=login');
       setIsChecking(false);
       return;
     }
@@ -29,7 +29,7 @@ export function AuthProtectedGuard({ children }: AuthProtectedGuardProps) {
       })
       .catch(() => {
         tokenStorage.clearTokens();
-        router.replace('/auth/login');
+        router.replace('/?auth=login');
       })
       .finally(() => {
         setIsChecking(false);

@@ -92,7 +92,7 @@ export function SuccessStories() {
             {stories.map((story) => (
               <CarouselItem
                 key={story.name}
-                className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
+                className="basis-full pl-4 sm:basis-1/2 lg:basis-1/3"
               >
                 <Card className="h-full rounded-2xl border-red-100/70 bg-white/95 shadow-lg shadow-red-950/5 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-red-950/10">
                   <CardContent className="grid h-full gap-5 p-6 lg:p-7">
@@ -133,7 +133,7 @@ export function SuccessStories() {
                     </div>
 
                     <p className="text-sm leading-6 text-neutral-600">
-                      “{story.message}”
+                      &ldquo;{story.message}&rdquo;
                     </p>
                   </CardContent>
                 </Card>

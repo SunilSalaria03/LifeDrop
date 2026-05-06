@@ -2,6 +2,12 @@ import * as yup from 'yup';
 
 export const profileSetupSchema = yup.object({
   name: yup.string().trim().min(2, 'Enter your full name.').required('Name is required.'),
+  profileImage: yup
+    .string()
+    .trim()
+    .url('Enter a valid image URL.')
+    .transform((value) => value || undefined)
+    .optional(),
   phone: yup
     .string()
     .trim()

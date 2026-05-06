@@ -13,8 +13,8 @@ export function LocationSelector() {
       : error || 'Unable to detect location';
 
   return (
-    <div className="flex max-w-[190px] items-center gap-2 rounded-full border border-white/60 bg-white/80 px-3 py-2 text-sm font-semibold text-neutral-700 shadow-sm shadow-blue-950/5 backdrop-blur sm:max-w-[260px]">
-      <MapPin className="h-4 w-4 shrink-0 text-blue-600" />
+    <div className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-full border border-red-100 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 shadow-sm shadow-red-950/5 backdrop-blur sm:max-w-[260px] sm:flex-none">
+      <MapPin className="h-4 w-4 shrink-0 text-red-600" />
       <span className="truncate">{label}</span>
     </div>
   );

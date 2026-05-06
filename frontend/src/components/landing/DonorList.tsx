@@ -14,22 +14,22 @@ function DonorSkeletonCard() {
   return (
     <Card className="overflow-hidden rounded-2xl border-white/80 bg-white/90 shadow-lg shadow-blue-950/5">
       <CardContent className="grid gap-5 p-5">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          <div className="h-12 w-12 rounded-full bg-neutral-200" />
-          <div className="grid flex-1 gap-2">
-            <div className="h-4 w-32 rounded-full bg-neutral-200" />
-            <div className="h-3 w-40 rounded-full bg-neutral-100" />
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <div className="h-12 w-12 rounded-full bg-neutral-200" />
+            <div className="grid flex-1 gap-2">
+              <div className="h-4 w-32 rounded-full bg-neutral-200" />
+              <div className="h-3 w-40 max-w-full rounded-full bg-neutral-100" />
+            </div>
           </div>
+          <div className="h-8 w-14 rounded-full bg-red-100" />
         </div>
-        <div className="h-8 w-14 rounded-full bg-red-100" />
-      </div>
-      <div className="grid gap-3">
-        <div className="h-4 w-full rounded-full bg-neutral-100" />
-        <div className="h-4 w-5/6 rounded-full bg-neutral-100" />
-        <div className="h-4 w-3/4 rounded-full bg-neutral-100" />
-      </div>
-      <div className="h-11 rounded-full bg-neutral-100" />
+        <div className="grid gap-3">
+          <div className="h-4 w-full rounded-full bg-neutral-100" />
+          <div className="h-4 w-5/6 rounded-full bg-neutral-100" />
+          <div className="h-4 w-3/4 rounded-full bg-neutral-100" />
+        </div>
+        <div className="h-11 rounded-full bg-neutral-100" />
       </CardContent>
     </Card>
   );
@@ -46,14 +46,14 @@ export function DonorList({ donors, isLoading, hasSearched, errorMessage }: Dono
     <div className="mx-auto grid w-full max-w-6xl gap-5 text-left">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-normal text-blue-700">
+          <p className="text-sm font-semibold uppercase tracking-normal text-red-700">
             Search results
           </p>
           <h2 className="mt-1 text-2xl font-bold text-neutral-950">
             Available Donors
           </h2>
         </div>
-        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-blue-100 bg-white/90 px-3 py-1.5 text-sm font-semibold text-blue-700 shadow-sm shadow-blue-950/5">
+        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-red-100 bg-white/90 px-3 py-1.5 text-sm font-semibold text-red-700 shadow-sm shadow-red-950/5">
           <UsersRound className="h-4 w-4" />
           {donorCountLabel}
         </span>
@@ -61,7 +61,7 @@ export function DonorList({ donors, isLoading, hasSearched, errorMessage }: Dono
 
       {isLoading ? (
         <div
-          className="grid animate-pulse gap-4 md:grid-cols-2 lg:grid-cols-3"
+          className="grid animate-pulse gap-4 sm:grid-cols-2 xl:grid-cols-3"
           aria-label="Loading donor results"
         >
           {Array.from({ length: 6 }).map((_, index) => (
@@ -81,7 +81,7 @@ export function DonorList({ donors, isLoading, hasSearched, errorMessage }: Dono
           </p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {donors.map((donor) => (
             <DonorCard donor={donor} key={donor.id} />
           ))}
