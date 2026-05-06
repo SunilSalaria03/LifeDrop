@@ -3,24 +3,54 @@ import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDateString,
+  IsEmail,
   IsEnum,
   IsLatitude,
   IsLongitude,
+  IsNumber,
   IsOptional,
   IsPhoneNumber,
+  IsPostalCode,
   IsString,
+  Max,
   MaxLength,
+  Min,
 } from 'class-validator';
 import { BloodGroup } from '../schemas/donor-profile.schema';
+import { Gender } from '../../users/schemas/user.schema';
 
 export class CreateDonorProfileDto {
-  @ApiProperty({ enum: BloodGroup, example: BloodGroup.OPositive })
-  @IsEnum(BloodGroup)
-  bloodGroup: BloodGroup;
+  @ApiProperty({ example: 'Rahul Sharma' })
+  @IsString()
+  @MaxLength(100)
+  name: string;
+
+  @ApiPropertyOptional({ example: 'rahul@example.com' })
+  @IsOptional()
+  @IsEmail()
+  email?: string;
 
   @ApiProperty({ example: '+919999999999' })
   @IsPhoneNumber('IN')
   phone: string;
+
+  @ApiProperty({ enum: BloodGroup, example: BloodGroup.OPositive })
+  @IsEnum(BloodGroup)
+  bloodGroup: BloodGroup;
+
+  @ApiPropertyOptional({ enum: Gender, example: Gender.Male })
+  @IsEnum(Gender)
+  gender: Gender;
+
+  @ApiPropertyOptional({ example: '1996-08-15' })
+  @IsDateString()
+  birthDate: string;
+
+  @ApiPropertyOptional({ example: 72 })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  weight: number;
 
   @ApiPropertyOptional({ example: '+918888888888' })
   @IsOptional()
@@ -37,17 +67,37 @@ export class CreateDonorProfileDto {
   @MaxLength(100)
   city: string;
 
-  @ApiPropertyOptional({ example: 'Chennai' })
+  @ApiProperty({ example: 'Chennai' })
+  @IsString()
+  @MaxLength(100)
+  district: string;
+
+  @ApiPropertyOptional({ example: 'Roorkee' })
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  district?: string;
+  tehsil?: string;
 
   @ApiPropertyOptional({ example: 'Anna Nagar, Chennai' })
   @IsOptional()
   @IsString()
   @MaxLength(300)
   addressText?: string;
+
+  @ApiPropertyOptional({ example: true })
+  @Type(() => Boolean)
+  @IsBoolean()
+  showMobile: boolean;
+
+  @ApiPropertyOptional({ example: true })
+  @Type(() => Boolean)
+  @IsBoolean()
+  smsAlert: boolean;
+
+  @ApiPropertyOptional({ example: '160017' })
+  @IsOptional()
+  @IsPostalCode('IN')
+  pincode?: string;
 
   @ApiProperty({ example: 13.0827 })
   @Type(() => Number)

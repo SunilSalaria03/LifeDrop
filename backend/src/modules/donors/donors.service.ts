@@ -55,7 +55,7 @@ export class DonorsService {
       totalDonations: 0,
     });
 
-    await this.syncUserFromDonorProfile(user, profile);
+    await this.syncUserFromDonorProfile(user, profile, dto);
 
     return profile;
   }
@@ -87,7 +87,7 @@ export class DonorsService {
       );
     }
 
-    await this.syncUserFromDonorProfile(user, updatedProfile);
+    await this.syncUserFromDonorProfile(user, updatedProfile, dto);
     return updatedProfile;
   }
 
@@ -161,6 +161,9 @@ export class DonorsService {
   private toDonorProfileData(dto: DonorProfileInput) {
     const data: Record<string, unknown> = { ...dto };
 
+    delete data.name;
+    delete data.email;
+
     if (dto.lat !== undefined && dto.lng !== undefined) {
       data.location = {
         type: 'Point',
@@ -170,6 +173,10 @@ export class DonorsService {
 
     delete data.lat;
     delete data.lng;
+
+    if (dto.birthDate !== undefined) {
+      data.birthDate = new Date(dto.birthDate);
+    }
 
     if (dto.lastDonationDate !== undefined) {
       const lastDonationDate = new Date(dto.lastDonationDate);
@@ -191,14 +198,41 @@ export class DonorsService {
   private async syncUserFromDonorProfile(
     user: UserDocument,
     profile: DonorProfileDocument,
+    dto?: DonorProfileInput,
   ): Promise<void> {
     const update: Record<string, unknown> = {};
 
-    if (!user.phone && profile.phone) {
-      update.phone = profile.phone;
+    const nextName = dto?.name ?? user.name;
+    const nextPhone = dto?.phone ?? profile.phone ?? user.phone;
+
+    if (dto?.name !== undefined) {
+      update.name = dto.name;
     }
 
-    for (const field of ['state', 'city', 'district', 'addressText'] as const) {
+    if (dto?.email !== undefined) {
+      update.email = dto.email;
+    }
+
+    if (nextPhone) {
+      update.phone = nextPhone;
+    }
+
+
+    for (const field of [
+      'bloodGroup',
+      'gender',
+      'birthDate',
+      'weight',
+      'lastDonationDate',
+      'showMobile',
+      'smsAlert',
+      'pincode',
+      'state',
+      'city',
+      'district',
+      'tehsil',
+      'addressText',
+    ] as const) {
       if (profile[field] !== undefined) {
         update[field] = profile[field];
       }
@@ -209,11 +243,9 @@ export class DonorsService {
     }
 
     update.isProfileCompleted = Boolean(
-      user.name &&
-        (user.phone ?? profile.phone) &&
-        user.isPhoneVerified &&
-        profile.state &&
-        profile.city,
+      nextName &&
+        nextPhone &&
+        user.phoneVerified,
     );
     update.role = UserRole.Donor;
 
@@ -227,11 +259,12 @@ export class DonorsService {
       );
     }
 
-    if (!user.isProfileCompleted) {
+    if (!user.phoneVerified) {
       throw new ForbiddenException(
-        'Complete your profile before managing donor profiles.',
+        'Verify your phone number before managing donor profiles.',
       );
     }
+
   }
 
   private assertValidSearchMode(query: DonorSearchQueryDto): void {

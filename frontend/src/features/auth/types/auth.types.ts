@@ -1,5 +1,6 @@
 export type AuthProvider = 'phone' | 'google';
 export type UserRole = 'user' | 'donor' | 'admin';
+export type Gender = 'male' | 'female' | 'other';
 
 export type LocationPoint = {
   type: 'Point';
@@ -14,13 +15,22 @@ export type AuthUser = {
   profileImage?: string;
   authProvider: AuthProvider;
   role: UserRole;
-  isPhoneVerified: boolean;
+  phoneVerified: boolean;
   isProfileCompleted: boolean;
   isBlocked: boolean;
   addressText?: string;
+  bloodGroup?: string;
+  gender?: Gender;
+  birthDate?: string;
+  weight?: number;
+  lastDonationDate?: string;
+  showMobile?: boolean;
+  smsAlert?: boolean;
+  pincode?: string;
   state?: string;
   city?: string;
   district?: string;
+  tehsil?: string;
   location?: LocationPoint;
   createdAt?: string;
   updatedAt?: string;

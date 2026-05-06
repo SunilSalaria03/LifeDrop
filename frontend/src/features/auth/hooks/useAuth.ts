@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   authenticateWithGoogle,
   getMe,
@@ -30,6 +30,7 @@ function getRedirectParam() {
 
 export function useAuth() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const sendOtpMutation = useMutation({
     mutationFn: async ({ phone }: { phone: string }) => sendPhoneOtp({ phone })
@@ -55,9 +56,16 @@ export function useAuth() {
 
   const logoutMutation = useMutation({
     mutationFn: logout,
+    onMutate: () => {
+      void queryClient.cancelQueries({ queryKey: ['auth'] });
+      void queryClient.cancelQueries({ queryKey: ['donors', 'profile', 'me'] });
+    },
     onSettled: () => {
       tokenStorage.clearTokens();
-      router.push('/?auth=login');
+      userStorage.clearUser();
+      queryClient.removeQueries({ queryKey: ['auth'] });
+      queryClient.removeQueries({ queryKey: ['donors', 'profile', 'me'] });
+      router.push('/');
     }
   });
 

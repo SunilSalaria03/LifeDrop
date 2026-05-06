@@ -1,14 +1,13 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useMemo, useState } from 'react';
-import { City, State } from 'country-state-city';
-import { useFormik } from 'formik';
-import * as yup from 'yup';
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import { City, State } from "country-state-city";
+import { useFormik } from "formik";
+import * as yup from "yup";
 import {
   BadgeCheck,
   CalendarCheck,
-  Camera,
   CheckCircle2,
   Droplet,
   Edit3,
@@ -19,35 +18,34 @@ import {
   ShieldCheck,
   UserRound,
   X,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { IndiaPhoneInput } from "@/components/forms/IndiaPhoneInput";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { AuthUser } from '@/features/auth/types/auth.types';
-import { useDonorProfile } from '@/features/donors/hooks/useDonorProfile';
-import { MyDonorProfile } from '@/features/donors/types/donor.types';
-import { useProfile } from '@/features/profile/hooks/useProfile';
-import { profileSetupSchema } from '@/features/profile/validations/profile.validation';
-import { bloodGroups } from '@/lib/constants/locations';
-import {
-  toIndianE164,
-  toIndianNationalNumber,
-} from '@/lib/phone/india-phone';
+} from "@/components/ui/select";
+import { Footer } from "@/components/layout/Footer";
+import { Header } from "@/components/layout/Header";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { AuthUser } from "@/features/auth/types/auth.types";
+import { useDonorProfile } from "@/features/donors/hooks/useDonorProfile";
+import { MyDonorProfile } from "@/features/donors/types/donor.types";
+import { useProfile } from "@/features/profile/hooks/useProfile";
+import { updateProfileFormSchema } from "@/features/profile/validations/profile.validation";
+import { bloodGroups } from "@/lib/constants/locations";
+import { getApiErrorMessage } from "@/lib/api/error-message";
+import { toIndianE164, toIndianNationalNumber } from "@/lib/phone/india-phone";
+import { useToast } from "@/components/ui/toast";
 
 type InfoItemProps = {
   icon: LucideIcon;
@@ -56,37 +54,54 @@ type InfoItemProps = {
 };
 
 function getInitials(name?: string, email?: string, phone?: string) {
-  const displayValue = name?.trim() || email?.trim() || phone?.trim() || 'LD';
+  const displayValue = name?.trim() || email?.trim() || phone?.trim() || "LD";
 
   return displayValue
-    .split(' ')
+    .split(" ")
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
-    .join('');
+    .join("");
 }
 
 function getDisplayName(user?: AuthUser) {
-  return user?.name?.trim() || user?.email?.trim() || user?.phone?.trim() || 'LifeDrop User';
+  return (
+    user?.name?.trim() ||
+    user?.email?.trim() ||
+    user?.phone?.trim() ||
+    "LifeDrop User"
+  );
 }
 
 function findStateCode(stateName?: string) {
   return (
-    State.getStatesOfCountry('IN').find((state) => state.name === stateName)
-      ?.isoCode ?? ''
+    State.getStatesOfCountry("IN").find((state) => state.name === stateName)
+      ?.isoCode ?? ""
   );
 }
 
 function formatDate(date?: string) {
   if (!date) {
-    return 'Not provided';
+    return "Not provided";
   }
 
-  return new Intl.DateTimeFormat('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
   }).format(new Date(date));
+}
+
+function formatDateInputValue(date?: string) {
+  if (!date) {
+    return "";
+  }
+
+  return date.slice(0, 10);
+}
+
+function booleanSelectValue(value?: boolean) {
+  return value ? "true" : "false";
 }
 
 function InfoItem({ icon: Icon, label, value }: InfoItemProps) {
@@ -100,7 +115,7 @@ function InfoItem({ icon: Icon, label, value }: InfoItemProps) {
           {label}
         </span>
         <span className="mt-1 block break-words text-sm font-semibold text-neutral-950">
-          {value || 'Not provided'}
+          {value || "Not provided"}
         </span>
       </span>
     </div>
@@ -137,45 +152,79 @@ function ProfileEditForm({
   user: AuthUser;
 }) {
   const { updateProfileMutation } = useProfile();
-  const states = useMemo(() => State.getStatesOfCountry('IN'), []);
+  const { showToast } = useToast();
+  const states = useMemo(() => State.getStatesOfCountry("IN"), []);
+  const isDonor = user.role === "donor";
 
   const formik = useFormik({
     initialValues: {
-      name: user.name ?? '',
-      profileImage: user.profileImage ?? '',
+      name: user.name ?? "",
+      email: user.email ?? "",
       phone: toIndianNationalNumber(user.phone),
-      state: user.state ?? '',
+      bloodGroup: user.bloodGroup ?? "",
+      gender: user.gender ?? "",
+      birthDate: formatDateInputValue(user.birthDate),
+      weight: user.weight?.toString() ?? "",
+      lastDonationDate: formatDateInputValue(user.lastDonationDate),
+      showMobile: user.showMobile ?? false,
+      smsAlert: user.smsAlert ?? false,
+      pincode: user.pincode ?? "",
+      state: user.state ?? "",
       stateCode: findStateCode(user.state),
-      city: user.city ?? '',
-      district: user.district ?? '',
-      addressText: user.addressText ?? '',
-      lat: user.location?.coordinates?.[1],
-      lng: user.location?.coordinates?.[0],
+      district: user.district ?? user.city ?? "",
+      tehsil: user.tehsil ?? "",
     },
-    validationSchema: profileSetupSchema,
+    validationSchema: updateProfileFormSchema,
     enableReinitialize: true,
+    validateOnChange: false,
     onSubmit: async (values) => {
-      await updateProfileMutation.mutateAsync({
-        name: values.name,
-        profileImage: values.profileImage || undefined,
-        phone: values.phone ? toIndianE164(values.phone) : undefined,
-        state: values.state,
-        city: values.city,
-        district: values.district || undefined,
-        addressText: values.addressText || undefined,
-        lat: values.lat,
-        lng: values.lng,
-      });
-      onCancel();
+      try {
+        await updateProfileMutation.mutateAsync({
+          name: values.name,
+          email: values.email || undefined,
+          phone: toIndianE164(values.phone),
+          pincode: values.pincode || undefined,
+          state: values.state,
+          city: values.district,
+          district: values.district,
+          tehsil: values.tehsil || undefined,
+          ...(isDonor
+            ? {
+                bloodGroup: values.bloodGroup || undefined,
+                gender: values.gender || undefined,
+                birthDate: values.birthDate || undefined,
+                weight: values.weight ? Number(values.weight) : undefined,
+                lastDonationDate: values.lastDonationDate || undefined,
+                showMobile: values.showMobile,
+                smsAlert: values.smsAlert,
+              }
+            : {}),
+        });
+        showToast({
+          message: "Profile updated successfully.",
+          title: "Profile saved",
+          variant: "success",
+        });
+        onCancel();
+      } catch (error) {
+        showToast({
+          message: getApiErrorMessage(
+            error,
+            "Profile could not be updated. Please check the details and try again.",
+          ),
+          title: "Update failed",
+          variant: "error",
+        });
+      }
     },
   });
 
-  const cities = useMemo(() => {
+  const districts = useMemo(() => {
     if (!formik.values.stateCode) {
       return [];
     }
 
-    return City.getCitiesOfState('IN', formik.values.stateCode);
+    return City.getCitiesOfState("IN", formik.values.stateCode);
   }, [formik.values.stateCode]);
 
   const handleStateChange = (stateCode: string) => {
@@ -183,102 +232,230 @@ function ProfileEditForm({
     void formik.setValues({
       ...formik.values,
       stateCode,
-      state: selectedState?.name ?? '',
-      city: '',
-      lat: undefined,
-      lng: undefined,
+      state: selectedState?.name ?? "",
+      district: "",
+      tehsil: "",
     });
   };
 
-  const handleCityChange = (cityName: string) => {
-    const selectedCity = cities.find((city) => city.name === cityName);
+  const handleDistrictChange = (districtName: string) => {
     void formik.setValues({
       ...formik.values,
-      city: cityName,
-      lat: selectedCity?.latitude ? Number(selectedCity.latitude) : undefined,
-      lng: selectedCity?.longitude ? Number(selectedCity.longitude) : undefined,
+      district: districtName,
+      tehsil: "",
     });
   };
 
   const firstError = Object.values(formik.errors)[0];
 
   return (
-    <form className="grid gap-4" onSubmit={formik.handleSubmit}>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Input
-          className="h-12 rounded-2xl"
-          name="name"
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          placeholder="Full name"
-          value={formik.values.name}
-        />
-        <IndiaPhoneInput
-          name="phone"
-          onBlur={formik.handleBlur}
-          onChange={(phone) => void formik.setFieldValue('phone', phone)}
-          placeholder="Phone number"
-          value={formik.values.phone}
-        />
-      </div>
+    <form className="grid gap-6" onSubmit={formik.handleSubmit}>
+      <section className="grid gap-4">
+        <h3 className="text-base font-bold text-neutral-950">
+          Login Information
+        </h3>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <Input
+            className="h-12 rounded-2xl"
+            name="name"
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            placeholder="Full name"
+            value={formik.values.name}
+          />
+          <Input
+            className="h-12 rounded-2xl"
+            name="email"
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            placeholder="Email"
+            type="email"
+            value={formik.values.email}
+          />
+          <IndiaPhoneInput
+            name="phone"
+            onBlur={formik.handleBlur}
+            onChange={(phone) =>
+              void formik.setFieldValue("phone", phone, false)
+            }
+            placeholder="Mobile number"
+            value={formik.values.phone}
+          />
+        </div>
+      </section>
 
-      <Input
-        className="h-12 rounded-2xl"
-        name="profileImage"
-        onBlur={formik.handleBlur}
-        onChange={formik.handleChange}
-        placeholder="Profile image URL"
-        value={formik.values.profileImage}
-      />
+      {isDonor ? (
+      <section className="grid gap-4">
+        <h3 className="text-base font-bold text-neutral-950">
+          Donor Information
+        </h3>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <Select
+            onValueChange={(bloodGroup) =>
+              void formik.setFieldValue("bloodGroup", bloodGroup, false)
+            }
+            value={formik.values.bloodGroup}
+          >
+            <SelectTrigger className="h-12 rounded-2xl">
+              <SelectValue placeholder="Blood group" />
+            </SelectTrigger>
+            <SelectContent>
+              {bloodGroups.map((bloodGroup) => (
+                <SelectItem key={bloodGroup} value={bloodGroup}>
+                  {bloodGroup}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            onValueChange={(gender) =>
+              void formik.setFieldValue("gender", gender, false)
+            }
+            value={formik.values.gender}
+          >
+            <SelectTrigger className="h-12 rounded-2xl">
+              <SelectValue placeholder="Gender" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="male">Male</SelectItem>
+              <SelectItem value="female">Female</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+          <Input
+            className="h-12 rounded-2xl"
+            inputMode="numeric"
+            name="weight"
+            onChange={formik.handleChange}
+            placeholder="Weight"
+            value={formik.values.weight}
+          />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Input
+            className="h-12 rounded-2xl"
+            name="birthDate"
+            onChange={formik.handleChange}
+            type="date"
+            value={formik.values.birthDate}
+          />
+          <Input
+            className="h-12 rounded-2xl"
+            name="lastDonationDate"
+            onChange={formik.handleChange}
+            type="date"
+            value={formik.values.lastDonationDate}
+          />
+        </div>
+      </section>
+      ) : null}
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Select onValueChange={handleStateChange} value={formik.values.stateCode}>
-          <SelectTrigger className="h-12 rounded-2xl">
-            <SelectValue placeholder="State" />
-          </SelectTrigger>
-          <SelectContent>
-            {states.map((state) => (
-              <SelectItem key={state.isoCode} value={state.isoCode}>
-                {state.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <section className="grid gap-4">
+        <h3 className="text-base font-bold text-neutral-950">
+          Contact Information
+        </h3>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {isDonor ? (
+          <Select
+            onValueChange={(value) =>
+              void formik.setFieldValue("showMobile", value === "true", false)
+            }
+            value={booleanSelectValue(formik.values.showMobile)}
+          >
+            <SelectTrigger className="h-12 rounded-2xl">
+              <SelectValue placeholder="Show mobile" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="true">Show mobile</SelectItem>
+              <SelectItem value="false">Hide mobile</SelectItem>
+            </SelectContent>
+          </Select>
+          ) : null}
+          {isDonor ? (
+          <Select
+            onValueChange={(value) =>
+              void formik.setFieldValue("smsAlert", value === "true", false)
+            }
+            value={booleanSelectValue(formik.values.smsAlert)}
+          >
+            <SelectTrigger className="h-12 rounded-2xl">
+              <SelectValue placeholder="SMS alert" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="true">SMS alerts on</SelectItem>
+              <SelectItem value="false">SMS alerts off</SelectItem>
+            </SelectContent>
+          </Select>
+          ) : null}
+          <Input
+            className="h-12 rounded-2xl"
+            inputMode="numeric"
+            maxLength={6}
+            name="pincode"
+            onChange={formik.handleChange}
+            placeholder="Pin code"
+            value={formik.values.pincode}
+          />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Select
+            onValueChange={handleStateChange}
+            value={formik.values.stateCode}
+          >
+            <SelectTrigger className="h-12 rounded-2xl">
+              <SelectValue placeholder="State" />
+            </SelectTrigger>
+            <SelectContent>
+              {states.map((state) => (
+                <SelectItem key={state.isoCode} value={state.isoCode}>
+                  {state.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Select
-          disabled={!formik.values.stateCode}
-          onValueChange={handleCityChange}
-          value={formik.values.city}
-        >
-          <SelectTrigger className="h-12 rounded-2xl">
-            <SelectValue placeholder="City" />
-          </SelectTrigger>
-          <SelectContent>
-            {cities.map((city) => (
-              <SelectItem key={`${city.name}-${city.latitude}`} value={city.name}>
-                {city.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Input
-          className="h-12 rounded-2xl"
-          name="district"
-          onChange={formik.handleChange}
-          placeholder="District optional"
-          value={formik.values.district}
-        />
-        <Input
-          className="h-12 rounded-2xl"
-          name="addressText"
-          onChange={formik.handleChange}
-          placeholder="Address optional"
-          value={formik.values.addressText}
-        />
-      </div>
+          <Select
+            disabled={!formik.values.stateCode}
+            onValueChange={handleDistrictChange}
+            value={formik.values.district}
+          >
+            <SelectTrigger className="h-12 rounded-2xl">
+              <SelectValue placeholder="District" />
+            </SelectTrigger>
+            <SelectContent>
+              {districts.map((city) => (
+                <SelectItem
+                  key={`${city.name}-${city.latitude}`}
+                  value={city.name}
+                >
+                  {city.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            disabled={!formik.values.district}
+            onValueChange={(tehsil) =>
+              void formik.setFieldValue("tehsil", tehsil, false)
+            }
+            value={formik.values.tehsil}
+          >
+            <SelectTrigger className="h-12 rounded-2xl">
+              <SelectValue placeholder="Tehsil" />
+            </SelectTrigger>
+            <SelectContent>
+              {districts.map((city) => (
+                <SelectItem
+                  key={`tehsil-${city.name}-${city.latitude}`}
+                  value={city.name}
+                >
+                  {city.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </section>
 
       {firstError ? (
         <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
@@ -306,7 +483,7 @@ function ProfileEditForm({
           disabled={updateProfileMutation.isPending}
           type="submit"
         >
-          {updateProfileMutation.isPending ? 'Saving...' : 'Save profile'}
+          {updateProfileMutation.isPending ? "Saving..." : "Save profile"}
         </Button>
       </div>
     </form>
@@ -314,23 +491,23 @@ function ProfileEditForm({
 }
 
 const donorEditSchema = yup.object({
-  bloodGroup: yup.string().required('Blood group is required.'),
+  bloodGroup: yup.string().required("Blood group is required."),
   phone: yup
     .string()
     .trim()
-    .matches(/^\d{10}$/, 'Enter a 10 digit Indian mobile number.')
-    .required('Phone is required.'),
+    .matches(/^\d{10}$/, "Enter a 10 digit Indian mobile number.")
+    .required("Phone is required."),
   alternatePhone: yup
     .string()
     .trim()
     .test(
-      'optional-e164',
-      'Enter a 10 digit Indian mobile number.',
+      "optional-e164",
+      "Enter a 10 digit Indian mobile number.",
       (value) => !value || /^\d{10}$/.test(value),
     ),
-  state: yup.string().required('State is required.'),
-  stateCode: yup.string().required('State is required.'),
-  city: yup.string().required('City is required.'),
+  state: yup.string().required("State is required."),
+  stateCode: yup.string().required("State is required."),
+  city: yup.string().required("City is required."),
   district: yup.string().optional(),
   addressText: yup.string().optional(),
   lat: yup.number().optional(),
@@ -347,25 +524,26 @@ function DonorEditForm({
   onCancel: () => void;
 }) {
   const { updateDonorProfileMutation } = useDonorProfile();
-  const states = useMemo(() => State.getStatesOfCountry('IN'), []);
+  const states = useMemo(() => State.getStatesOfCountry("IN"), []);
 
   const formik = useFormik({
     initialValues: {
-      bloodGroup: donor.bloodGroup ?? '',
+      bloodGroup: donor.bloodGroup ?? "",
       phone: toIndianNationalNumber(donor.phone),
       alternatePhone: toIndianNationalNumber(donor.alternatePhone),
-      state: donor.state ?? '',
+      state: donor.state ?? "",
       stateCode: findStateCode(donor.state),
-      city: donor.city ?? '',
-      district: donor.district ?? '',
-      addressText: donor.addressText ?? '',
+      city: donor.city ?? "",
+      district: donor.district ?? "",
+      addressText: donor.addressText ?? "",
       lat: undefined as number | undefined,
       lng: undefined as number | undefined,
-      lastDonationDate: donor.lastDonationDate ?? '',
+      lastDonationDate: donor.lastDonationDate ?? "",
       isAvailable: donor.isAvailable ?? true,
     },
     validationSchema: donorEditSchema,
     enableReinitialize: true,
+    validateOnChange: false,
     onSubmit: async (values) => {
       await updateDonorProfileMutation.mutateAsync({
         bloodGroup: values.bloodGroup,
@@ -377,8 +555,8 @@ function DonorEditForm({
         city: values.city,
         district: values.district || undefined,
         addressText: values.addressText || undefined,
-        lat: typeof values.lat === 'number' ? values.lat : undefined,
-        lng: typeof values.lng === 'number' ? values.lng : undefined,
+        lat: typeof values.lat === "number" ? values.lat : undefined,
+        lng: typeof values.lng === "number" ? values.lng : undefined,
         lastDonationDate: values.lastDonationDate || undefined,
         isAvailable: values.isAvailable,
       });
@@ -391,7 +569,7 @@ function DonorEditForm({
       return [];
     }
 
-    return City.getCitiesOfState('IN', formik.values.stateCode);
+    return City.getCitiesOfState("IN", formik.values.stateCode);
   }, [formik.values.stateCode]);
 
   const handleStateChange = (stateCode: string) => {
@@ -399,8 +577,8 @@ function DonorEditForm({
     void formik.setValues({
       ...formik.values,
       stateCode,
-      state: selectedState?.name ?? '',
-      city: '',
+      state: selectedState?.name ?? "",
+      city: "",
       lat: undefined,
       lng: undefined,
     });
@@ -422,7 +600,9 @@ function DonorEditForm({
     <form className="grid gap-4" onSubmit={formik.handleSubmit}>
       <div className="grid gap-3 sm:grid-cols-2">
         <Select
-          onValueChange={(bloodGroup) => void formik.setFieldValue('bloodGroup', bloodGroup)}
+          onValueChange={(bloodGroup) =>
+            void formik.setFieldValue("bloodGroup", bloodGroup)
+          }
           value={formik.values.bloodGroup}
         >
           <SelectTrigger className="h-12 rounded-2xl">
@@ -438,7 +618,7 @@ function DonorEditForm({
         </Select>
         <IndiaPhoneInput
           name="phone"
-          onChange={(phone) => void formik.setFieldValue('phone', phone)}
+          onChange={(phone) => void formik.setFieldValue("phone", phone, false)}
           placeholder="Donor phone"
           value={formik.values.phone}
         />
@@ -447,7 +627,9 @@ function DonorEditForm({
       <div className="grid gap-3 sm:grid-cols-2">
         <IndiaPhoneInput
           name="alternatePhone"
-          onChange={(phone) => void formik.setFieldValue('alternatePhone', phone)}
+          onChange={(phone) =>
+            void formik.setFieldValue("alternatePhone", phone, false)
+          }
           placeholder="Alternate phone optional"
           value={formik.values.alternatePhone}
         />
@@ -461,7 +643,10 @@ function DonorEditForm({
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <Select onValueChange={handleStateChange} value={formik.values.stateCode}>
+        <Select
+          onValueChange={handleStateChange}
+          value={formik.values.stateCode}
+        >
           <SelectTrigger className="h-12 rounded-2xl">
             <SelectValue placeholder="State" />
           </SelectTrigger>
@@ -483,7 +668,10 @@ function DonorEditForm({
           </SelectTrigger>
           <SelectContent>
             {cities.map((city) => (
-              <SelectItem key={`${city.name}-${city.latitude}`} value={city.name}>
+              <SelectItem
+                key={`${city.name}-${city.latitude}`}
+                value={city.name}
+              >
                 {city.name}
               </SelectItem>
             ))}
@@ -526,12 +714,18 @@ function DonorEditForm({
 
       {updateDonorProfileMutation.isError ? (
         <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
-          Donor details could not be updated. Please check the form and try again.
+          Donor details could not be updated. Please check the form and try
+          again.
         </p>
       ) : null}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-        <Button className="h-12 rounded-full" onClick={onCancel} type="button" variant="outline">
+        <Button
+          className="h-12 rounded-full"
+          onClick={onCancel}
+          type="button"
+          variant="outline"
+        >
           Cancel
         </Button>
         <Button
@@ -539,7 +733,9 @@ function DonorEditForm({
           disabled={updateDonorProfileMutation.isPending}
           type="submit"
         >
-          {updateDonorProfileMutation.isPending ? 'Updating...' : 'Update donor details'}
+          {updateDonorProfileMutation.isPending
+            ? "Updating..."
+            : "Update donor details"}
         </Button>
       </div>
     </form>
@@ -554,11 +750,12 @@ export default function ProfilePage() {
   const user = meQuery.data;
   const donor = myDonorProfileQuery.data;
   const isLoading = meQuery.isLoading || myDonorProfileQuery.isLoading;
+  const isDonor = user?.role === "donor";
   const completedItems = [
     Boolean(user?.name),
     Boolean(user?.phone || user?.email),
-    Boolean(user?.city && user?.state),
-    Boolean(user?.isPhoneVerified),
+    Boolean((user?.district || user?.city) && user?.state),
+    Boolean(user?.phoneVerified),
   ].filter(Boolean).length;
   const completionPercent = Math.round((completedItems / 4) * 100);
 
@@ -574,10 +771,17 @@ export default function ProfilePage() {
               <CardContent className="grid gap-6 p-5 sm:grid-cols-[auto_1fr] sm:items-center sm:p-8">
                 <Avatar className="h-24 w-24 border-4 border-red-50 bg-red-50 shadow-lg shadow-red-950/10 sm:h-28 sm:w-28">
                   {user.profileImage ? (
-                    <AvatarImage alt={getDisplayName(user)} src={user.profileImage} />
+                    <AvatarImage
+                      alt={getDisplayName(user)}
+                      src={user.profileImage}
+                    />
                   ) : null}
                   <AvatarFallback className="text-2xl font-bold text-red-700">
-                    {getInitials(user.name, user.email, user.phone)}
+                    {getInitials(
+                      user.name,
+                      user.email,
+                      user.phone,
+                    )}
                   </AvatarFallback>
                 </Avatar>
 
@@ -588,14 +792,18 @@ export default function ProfilePage() {
                         <h1 className="break-words text-2xl font-bold tracking-normal text-neutral-950 sm:text-4xl">
                           {getDisplayName(user)}
                         </h1>
-                        {user.isPhoneVerified ? (
+                        {user.phoneVerified ? (
                           <ShieldCheck className="h-6 w-6 text-red-700" />
                         ) : null}
                       </div>
                       <p className="mt-2 flex items-start gap-2 text-sm font-medium text-neutral-600 sm:text-base">
                         <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
                         <span className="break-words">
-                          {[user.city, user.state].filter(Boolean).join(', ') || 'Location not provided'}
+                          {[
+                            user.district ?? user.city,
+                            user.state,
+                          ].filter(Boolean).join(", ") ||
+                            "Location not provided"}
                         </span>
                       </p>
                     </div>
@@ -603,81 +811,81 @@ export default function ProfilePage() {
                     <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
                       <Button
                         className="h-11 rounded-full border-red-100 bg-white hover:bg-red-50"
-                        onClick={() => setIsEditingProfile((current) => !current)}
+                        onClick={() =>
+                          setIsEditingProfile((current) => !current)
+                        }
                         type="button"
                         variant="outline"
                       >
-                        {isEditingProfile ? <X className="h-4 w-4" /> : <Edit3 className="h-4 w-4" />}
-                        {isEditingProfile ? 'Close edit' : 'Edit profile'}
-                      </Button>
-                      <Button asChild className="h-11 rounded-full bg-red-700 text-white hover:bg-red-800">
-                        <Link href="/profile/setup">
-                          <Camera className="h-4 w-4" />
-                          Profile setup
-                        </Link>
+                        {isEditingProfile ? (
+                          <X className="h-4 w-4" />
+                        ) : (
+                          <Edit3 className="h-4 w-4" />
+                        )}
+                        {isEditingProfile ? "Close edit" : "Edit profile"}
                       </Button>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap gap-2">
                     <Badge className="bg-red-50 px-3.5 py-1.5 text-red-700 ring-1 ring-red-100">
-                      {user.role === 'donor' || donor ? 'Donor account' : 'User account'}
+                      {user.role === "donor" || donor
+                        ? "Donor account"
+                        : "User account"}
                     </Badge>
                     <Badge
                       className={
-                        user.isPhoneVerified
-                          ? 'gap-1.5 bg-green-50 px-3.5 py-1.5 text-green-700 ring-1 ring-green-100'
-                          : 'gap-1.5 bg-amber-50 px-3.5 py-1.5 text-amber-700 ring-1 ring-amber-100'
+                        user.phoneVerified
+                          ? "gap-1.5 bg-green-50 px-3.5 py-1.5 text-green-700 ring-1 ring-green-100"
+                          : "gap-1.5 bg-amber-50 px-3.5 py-1.5 text-amber-700 ring-1 ring-amber-100"
                       }
                     >
                       <CheckCircle2 className="h-3.5 w-3.5" />
-                      {user.isPhoneVerified ? 'Verified' : 'Verification pending'}
+                      {user.phoneVerified
+                        ? "Verified"
+                        : "Verification pending"}
+                    </Badge>
+
+                    <Badge className="rounded-full bg-red-50 text-red-700 hover:bg-red-100">
+                      Profile {completionPercent}% Complete
+                    </Badge>
+
+                    {user.role === "donor" && donor?.bloodGroup && (
+                      <Badge className="rounded-full bg-red-100 text-red-700 hover:bg-red-100">
+                        {donor?.bloodGroup}
+                      </Badge>
+                    )}
+
+                    {user.role === "donor" && (
+                      <Badge className="rounded-full bg-green-100 text-green-700 hover:bg-green-100">
+                        {donor ? "Active Donor" : "Not Donor"}
+                      </Badge>
+                    )}
+
+                    <Badge className="rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-100">
+                      Member since {formatDate(user.createdAt)}
                     </Badge>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <Card className="rounded-2xl border-white/80 bg-white/95 shadow-lg shadow-red-950/5 transition hover:-translate-y-1 hover:border-red-100">
-                <CardContent className="p-5">
-                  <p className="text-sm font-semibold text-neutral-500">Profile completion</p>
-                  <p className="mt-2 text-3xl font-bold text-red-700">{completionPercent}%</p>
-                  <div className="mt-4 h-2 rounded-full bg-red-100">
-                    <div className="h-full rounded-full bg-red-700" style={{ width: `${completionPercent}%` }} />
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="rounded-2xl border-white/80 bg-white/95 shadow-lg shadow-red-950/5 transition hover:-translate-y-1 hover:border-red-100">
-                <CardContent className="p-5">
-                  <p className="text-sm font-semibold text-neutral-500">Blood group</p>
-                  <p className="mt-2 text-3xl font-bold text-red-700">{donor?.bloodGroup ?? 'N/A'}</p>
-                </CardContent>
-              </Card>
-              <Card className="rounded-2xl border-white/80 bg-white/95 shadow-lg shadow-red-950/5 transition hover:-translate-y-1 hover:border-red-100">
-                <CardContent className="p-5">
-                  <p className="text-sm font-semibold text-neutral-500">Donor status</p>
-                  <p className="mt-2 text-2xl font-bold text-neutral-950">{donor ? 'Active' : 'Not donor'}</p>
-                </CardContent>
-              </Card>
-              <Card className="rounded-2xl border-white/80 bg-white/95 shadow-lg shadow-red-950/5 transition hover:-translate-y-1 hover:border-red-100">
-                <CardContent className="p-5">
-                  <p className="text-sm font-semibold text-neutral-500">Member since</p>
-                  <p className="mt-2 text-2xl font-bold text-neutral-950">{formatDate(user.createdAt)}</p>
-                </CardContent>
-              </Card>
-            </div>
-
             {isEditingProfile ? (
               <Card className="rounded-2xl border-red-100 bg-white/95 shadow-xl shadow-red-950/10">
                 <CardHeader className="p-5 sm:p-6">
-                  <h2 className="text-xl font-bold text-neutral-950">Update Profile</h2>
+                  <h2 className="text-xl font-bold text-neutral-950">
+                    Update Profile
+                  </h2>
                   <p className="text-sm leading-6 text-neutral-600">
-                    Keep your contact and location details accurate for faster request handling.
+                    Keep your contact and location details accurate for faster
+                    request handling.
                   </p>
                 </CardHeader>
                 <CardContent className="p-5 pt-0 sm:p-6 sm:pt-0">
-                  <ProfileEditForm onCancel={() => setIsEditingProfile(false)} user={user} />
+                  <ProfileEditForm
+                    onCancel={() => setIsEditingProfile(false)}
+                    user={user}
+                  />
                 </CardContent>
               </Card>
             ) : null}
@@ -685,17 +893,61 @@ export default function ProfilePage() {
             <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
               <Card className="rounded-2xl border-white/80 bg-white/95 shadow-lg shadow-red-950/5">
                 <CardHeader className="p-5 sm:p-6">
-                  <h2 className="text-xl font-bold text-neutral-950">Personal Information</h2>
+                  <h2 className="text-xl font-bold text-neutral-950">
+                    Personal Information
+                  </h2>
                 </CardHeader>
                 <CardContent className="grid gap-3 p-5 pt-0 sm:grid-cols-2 sm:p-6 sm:pt-0">
-                  <InfoItem icon={UserRound} label="Full name" value={user.name} />
+                  <InfoItem
+                    icon={UserRound}
+                    label="Full name"
+                    value={user.name}
+                  />
                   <InfoItem icon={Mail} label="Email" value={user.email} />
-                  <InfoItem icon={Phone} label="Phone number" value={user.phone} />
-                  <InfoItem icon={UserRound} label="Gender" value="Not provided" />
-                  <InfoItem icon={Droplet} label="Blood group" value={donor?.bloodGroup} />
-                  <InfoItem icon={MapPin} label="City and state" value={[user.city, user.state].filter(Boolean).join(', ')} />
-                  <InfoItem icon={CalendarCheck} label="Account created" value={formatDate(user.createdAt)} />
-                  <InfoItem icon={BadgeCheck} label="Verification status" value={user.isPhoneVerified ? 'Verified' : 'Pending verification'} />
+                  <InfoItem
+                    icon={Phone}
+                    label="Phone number"
+                    value={user.phone}
+                  />
+                  <InfoItem
+                    icon={MapPin}
+                    label="District and state"
+                    value={[
+                      user.district ?? user.city,
+                      user.state,
+                    ].filter(Boolean).join(", ")}
+                  />
+                  <InfoItem
+                    icon={MapPin}
+                    label="Pin code"
+                    value={user.pincode}
+                  />
+                  <InfoItem
+                    icon={CalendarCheck}
+                    label="Account created"
+                    value={formatDate(user.createdAt)}
+                  />
+                  <InfoItem
+                    icon={BadgeCheck}
+                    label="Verification status"
+                    value={
+                      user.phoneVerified ? "Verified" : "Pending verification"
+                    }
+                  />
+                  {isDonor ? (
+                    <>
+                      <InfoItem
+                        icon={UserRound}
+                        label="Gender"
+                        value={user.gender}
+                      />
+                      <InfoItem
+                        icon={Droplet}
+                        label="Blood group"
+                        value={user.bloodGroup ?? donor?.bloodGroup}
+                      />
+                    </>
+                  ) : null}
                 </CardContent>
               </Card>
 
@@ -703,13 +955,19 @@ export default function ProfilePage() {
                 <CardHeader className="p-5 sm:p-6">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h2 className="text-xl font-bold text-neutral-950">Donor Information</h2>
+                      <h2 className="text-xl font-bold text-neutral-950">
+                        Donor Information
+                      </h2>
                       <p className="mt-1 text-sm leading-6 text-neutral-600">
-                        {donor ? 'Manage your donor availability and donation details.' : 'You can help nearby patients find blood faster.'}
+                        {donor
+                          ? "Manage your donor availability and donation details."
+                          : "You can help nearby patients find blood faster."}
                       </p>
                     </div>
                     {donor ? (
-                      <Badge className="bg-red-50 text-red-700 ring-1 ring-red-100">Donor</Badge>
+                      <Badge className="bg-red-50 text-red-700 ring-1 ring-red-100">
+                        Donor
+                      </Badge>
                     ) : null}
                   </div>
                 </CardHeader>
@@ -721,9 +979,25 @@ export default function ProfilePage() {
                   ) : donor ? (
                     <>
                       <div className="grid gap-3">
-                        <InfoItem icon={Droplet} label="Blood group" value={donor.bloodGroup} />
-                        <InfoItem icon={CheckCircle2} label="Availability" value={donor.isAvailable ? 'Available for requests' : 'Not available'} />
-                        <InfoItem icon={CalendarCheck} label="Last donation" value={formatDate(donor.lastDonationDate)} />
+                        <InfoItem
+                          icon={Droplet}
+                          label="Blood group"
+                          value={donor.bloodGroup}
+                        />
+                        <InfoItem
+                          icon={CheckCircle2}
+                          label="Availability"
+                          value={
+                            donor.isAvailable
+                              ? "Available for requests"
+                              : "Not available"
+                          }
+                        />
+                        <InfoItem
+                          icon={CalendarCheck}
+                          label="Last donation"
+                          value={formatDate(donor.lastDonationDate)}
+                        />
                       </div>
                       <Button
                         className="h-12 rounded-full bg-red-700 text-white hover:bg-red-800"
@@ -731,7 +1005,9 @@ export default function ProfilePage() {
                         type="button"
                       >
                         <Edit3 className="h-4 w-4" />
-                        {isEditingDonor ? 'Close donor form' : 'Update donor details'}
+                        {isEditingDonor
+                          ? "Close donor form"
+                          : "Update donor details"}
                       </Button>
                     </>
                   ) : (
@@ -740,12 +1016,18 @@ export default function ProfilePage() {
                         <HeartHandshake className="h-6 w-6" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-neutral-950">Become a LifeDrop donor</h3>
+                        <h3 className="text-lg font-bold text-neutral-950">
+                          Become a LifeDrop donor
+                        </h3>
                         <p className="mt-2 text-sm leading-6 text-neutral-700">
-                          Add your blood group and availability so people near your city can find help in urgent moments.
+                          Add your blood group and availability so people near
+                          your city can find help in urgent moments.
                         </p>
                       </div>
-                      <Button asChild className="h-12 rounded-full bg-red-700 text-white hover:bg-red-800">
+                      <Button
+                        asChild
+                        className="h-12 rounded-full bg-red-700 text-white hover:bg-red-800"
+                      >
                         <Link href="/become-donor">Become a Donor</Link>
                       </Button>
                     </div>
@@ -757,13 +1039,19 @@ export default function ProfilePage() {
             {donor && isEditingDonor ? (
               <Card className="rounded-2xl border-red-100 bg-white/95 shadow-xl shadow-red-950/10">
                 <CardHeader className="p-5 sm:p-6">
-                  <h2 className="text-xl font-bold text-neutral-950">Update Donor Details</h2>
+                  <h2 className="text-xl font-bold text-neutral-950">
+                    Update Donor Details
+                  </h2>
                   <p className="text-sm leading-6 text-neutral-600">
-                    Update your blood group, contact preferences, location, and availability.
+                    Update your blood group, contact preferences, location, and
+                    availability.
                   </p>
                 </CardHeader>
                 <CardContent className="p-5 pt-0 sm:p-6 sm:pt-0">
-                  <DonorEditForm donor={donor} onCancel={() => setIsEditingDonor(false)} />
+                  <DonorEditForm
+                    donor={donor}
+                    onCancel={() => setIsEditingDonor(false)}
+                  />
                 </CardContent>
               </Card>
             ) : null}

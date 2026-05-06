@@ -83,7 +83,7 @@ Behavior:
 - Protected route for logged-in Google users who need a verified phone number.
 - Verifies the OTP and attaches the phone to the current user.
 - Prevents using a phone number that belongs to another account.
-- Marks `isPhoneVerified` true and returns the safe current user.
+- Marks `phoneVerified` true and returns the safe current user.
 
 ### Verify Phone OTP
 
@@ -106,7 +106,7 @@ Behavior:
 - Reject expired OTPs after 10 minutes.
 - Reject verification after repeated invalid attempts.
 - Return safe user, access token, and refresh token.
-- Frontend redirects to `/profile/setup` when `isProfileCompleted` is false.
+- Frontend redirects to `/profile/setup` when `phoneVerified` is false.
 
 ### Google Auth
 
@@ -192,7 +192,7 @@ Authorization: Bearer access_token
 
 Updates the logged-in user's real profile fields in the `users` collection, including name, contact fields, address text, state, city, district, and optional GeoJSON location. Coordinates must be supplied together as `lat` and `lng` and are stored as `[lng, lat]`. The response never includes `refreshToken`, OTP fields, or hidden provider identifiers.
 
-Profile completion is set only when required safe fields are present: `name`, `phone`, `isPhoneVerified`, `state`, and `city`. Blocked users cannot update their profile.
+Profile completion is set when required safe auth fields are present: `name`, `phone`, and `phoneVerified`. Blocked users cannot update their profile. Normal profile updates use only basic fields; donor-only fields are accepted through donor profile APIs.
 
 ### Location States
 
@@ -251,7 +251,7 @@ POST /api/v1/donors/profile
 Authorization: Bearer access_token
 ```
 
-Creates the logged-in user's donor profile in `donorprofiles`, stores location as GeoJSON `[lng, lat]`, calculates `nextEligibleDate` from `lastDonationDate + 90 days`, and syncs safe profile/location fields back to the linked user. Blocked users and users with incomplete profiles cannot create donor profiles. A user can have only one donor profile.
+Creates the logged-in user's donor profile in `donorprofiles`, stores location as GeoJSON `[lng, lat]`, calculates `nextEligibleDate` from `lastDonationDate + 90 days` when supplied, syncs safe profile/location fields back to the linked user, and promotes the user role to `donor`. Blocked users cannot create donor profiles. A user can have only one donor profile.
 
 ### Update Donor Profile
 
@@ -354,7 +354,7 @@ Response data includes safe public fields such as donor id, user id, name, profi
       "profileImage": "https://example.com/image.png",
       "authProvider": "phone",
       "role": "user",
-      "isPhoneVerified": true,
+      "phoneVerified": true,
       "isProfileCompleted": false,
       "isBlocked": false
     },

@@ -9,10 +9,9 @@ export function redirectAfterLogin(
   router: RouterLike,
   redirect?: string | null,
 ) {
-  const redirectQuery = redirect ? `?redirect=${encodeURIComponent(redirect)}` : '';
-
-  if (!authResponse.user.isProfileCompleted) {
-    router.push(`/profile/setup${redirectQuery}`);
+  if (!authResponse.user.phoneVerified) {
+    const target = redirect ? `?redirect=${encodeURIComponent(redirect)}` : '';
+    router.push(`/profile/setup${target}`);
     return;
   }
 

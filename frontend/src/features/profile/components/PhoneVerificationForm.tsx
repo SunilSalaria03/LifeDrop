@@ -1,10 +1,13 @@
 'use client';
 
 import { useFormik } from 'formik';
+import { useRouter } from 'next/navigation';
 import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/toast';
 import { AuthUser } from '@/features/auth/types/auth.types';
+import { getApiErrorMessage } from '@/lib/api/error-message';
 import {
   toIndianE164,
   toIndianNationalNumber,
@@ -17,11 +20,13 @@ type PhoneVerificationFormProps = {
 };
 
 export function PhoneVerificationForm({ user }: PhoneVerificationFormProps) {
+  const router = useRouter();
   const {
     updateProfileMutation,
     sendProfileOtpMutation,
     verifyProfilePhoneMutation,
   } = useProfile();
+  const { showToast } = useToast();
 
   const formik = useFormik({
     initialValues: {
@@ -29,11 +34,30 @@ export function PhoneVerificationForm({ user }: PhoneVerificationFormProps) {
       otp: '',
     },
     validationSchema: profilePhoneSchema,
+    validateOnChange: false,
     onSubmit: async (values) => {
-      await verifyProfilePhoneMutation.mutateAsync({
-        phone: toIndianE164(values.phone),
-        otp: values.otp ?? '',
-      });
+      try {
+        await verifyProfilePhoneMutation.mutateAsync({
+          phone: toIndianE164(values.phone),
+          otp: values.otp ?? '',
+        });
+        showToast({
+          message: 'Phone number verified successfully.',
+          title: 'OTP verified',
+          variant: 'success',
+        });
+        const redirect = new URLSearchParams(window.location.search).get('redirect');
+        router.push(redirect || '/');
+      } catch (error) {
+        showToast({
+          message: getApiErrorMessage(
+            error,
+            'Phone verification failed. Check the OTP and try again.',
+          ),
+          title: 'Verification failed',
+          variant: 'error',
+        });
+      }
     },
   });
 
@@ -72,7 +96,7 @@ export function PhoneVerificationForm({ user }: PhoneVerificationFormProps) {
           id="phone"
           name="phone"
           onBlur={formik.handleBlur}
-          onChange={(phone) => void formik.setFieldValue('phone', phone)}
+          onChange={(phone) => void formik.setFieldValue('phone', phone, false)}
           value={formik.values.phone}
         />
         {formik.touched.phone && formik.errors.phone ? (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { City, State } from "country-state-city";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
@@ -14,7 +14,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/components/ui/toast";
 import { AuthUser } from "@/features/auth/types/auth.types";
+import { getApiErrorMessage } from "@/lib/api/error-message";
 import { bloodGroups } from "@/lib/constants/locations";
 import {
   toIndianE164,
@@ -34,58 +36,116 @@ function findStateCode(stateName?: string) {
   );
 }
 
+function formatDateInputValue(date?: string) {
+  if (!date) {
+    return "";
+  }
+
+  return date.slice(0, 10);
+}
+
+function booleanSelectValue(value?: boolean) {
+  return value ? "true" : "false";
+}
+
+function FieldLabel({
+  children,
+  htmlFor,
+}: {
+  children: string;
+  htmlFor?: string;
+}) {
+  return (
+    <label
+      className="grid gap-2 text-sm font-semibold text-neutral-700"
+      htmlFor={htmlFor}
+    >
+      <span>{children}</span>
+    </label>
+  );
+}
+
 export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
   const router = useRouter();
   const { createDonorProfileMutation } = useDonorProfile();
+  const { showToast } = useToast();
   const states = useMemo(() => State.getStatesOfCountry("IN"), []);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
 
   const formik = useFormik({
     initialValues: {
-      bloodGroup: "",
+      name: user.name ?? "",
+      email: user.email ?? "",
       phone: toIndianNationalNumber(user.phone),
-      alternatePhone: "",
+      bloodGroup: user.bloodGroup ?? "",
+      gender: user.gender ?? "",
+      birthDate: formatDateInputValue(user.birthDate),
+      weight: user.weight?.toString() ?? "",
+      lastDonationDate: formatDateInputValue(user.lastDonationDate),
+      showMobile: user.showMobile ?? false,
+      smsAlert: user.smsAlert ?? false,
       state: user.state ?? "",
       stateCode: findStateCode(user.state),
-      city: user.city ?? "",
-      district: user.district ?? "",
-      addressText: user.addressText ?? "",
+      district: user.district ?? user.city ?? "",
+      tehsil: user.tehsil ?? "",
+      pincode: user.pincode ?? "",
       lat: user.location?.coordinates?.[1],
       lng: user.location?.coordinates?.[0],
-      lastDonationDate: "",
       isAvailable: true,
     },
     validationSchema: donorProfileSchema,
+    validateOnChange: false,
+    enableReinitialize: true,
     onSubmit: async (values) => {
       if (typeof values.lat !== "number" || typeof values.lng !== "number") {
         await formik.setFieldError(
-          "city",
-          "Select a city to use its coordinates.",
+          "district",
+          "Select a district to use its coordinates.",
         );
         return;
       }
 
-      await createDonorProfileMutation.mutateAsync({
-        bloodGroup: values.bloodGroup,
-        phone: toIndianE164(values.phone),
-        alternatePhone: values.alternatePhone
-          ? toIndianE164(values.alternatePhone)
-          : undefined,
-        state: values.state,
-        city: values.city,
-        district: values.district || undefined,
-        addressText: values.addressText || undefined,
-        lat: values.lat,
-        lng: values.lng,
-        lastDonationDate: values.lastDonationDate || undefined,
-        isAvailable: values.isAvailable,
-      });
-      setShowSuccessToast(true);
-      window.setTimeout(() => router.push("/"), 900);
+      try {
+        await createDonorProfileMutation.mutateAsync({
+          name: values.name,
+          email: values.email || undefined,
+          phone: toIndianE164(values.phone),
+          bloodGroup: values.bloodGroup,
+          gender: values.gender,
+          birthDate: values.birthDate,
+          weight: Number(values.weight),
+          state: values.state,
+          city: values.district,
+          district: values.district,
+          tehsil: values.tehsil || undefined,
+          pincode: values.pincode || undefined,
+          lat: values.lat,
+          lng: values.lng,
+          lastDonationDate: values.lastDonationDate || undefined,
+          showMobile: values.showMobile,
+          smsAlert: values.smsAlert,
+          isAvailable: values.isAvailable,
+        });
+
+        showToast({
+          message: "Your donor profile is active now.",
+          title: "Donor profile saved",
+          variant: "success",
+        });
+        router.push("/profile");
+      } catch (error) {
+        showToast({
+          message: getApiErrorMessage(
+            error,
+            "Donor profile could not be saved. Please check the details and try again.",
+          ),
+          title: "Save failed",
+          variant: "error",
+        });
+      }
     },
   });
 
-  const cities = useMemo(() => {
+  const districts = useMemo(() => {
     if (!formik.values.stateCode) {
       return [];
     }
@@ -99,149 +159,286 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
       ...formik.values,
       stateCode,
       state: selectedState?.name ?? "",
-      city: "",
+      district: "",
+      tehsil: "",
       lat: undefined,
       lng: undefined,
     });
   };
 
-  const handleCityChange = (cityName: string) => {
-    const selectedCity = cities.find((city) => city.name === cityName);
+  const handleDistrictChange = (districtName: string) => {
+    const selectedDistrict = districts.find((city) => city.name === districtName);
     void formik.setValues({
       ...formik.values,
-      city: cityName,
-      lat: selectedCity?.latitude ? Number(selectedCity.latitude) : undefined,
-      lng: selectedCity?.longitude ? Number(selectedCity.longitude) : undefined,
+      district: districtName,
+      tehsil: "",
+      lat: selectedDistrict?.latitude
+        ? Number(selectedDistrict.latitude)
+        : undefined,
+      lng: selectedDistrict?.longitude
+        ? Number(selectedDistrict.longitude)
+        : undefined,
     });
   };
 
+  const firstError = Object.values(formik.errors)[0];
+
   return (
-    <form className="grid gap-4" onSubmit={formik.handleSubmit}>
-      {showSuccessToast ? (
-        <div className="fixed inset-x-4 top-4 z-50 rounded-2xl border border-green-100 bg-white px-4 py-3 text-sm font-semibold text-green-800 shadow-xl shadow-green-950/10 sm:left-auto sm:w-fit">
-          Donor profile saved successfully.
+    <form className="grid gap-6" onSubmit={formik.handleSubmit}>
+      <section className="grid gap-4">
+        <h2 className="text-base font-bold text-neutral-950">Personal</h2>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="name">Name</FieldLabel>
+            <Input
+              className="h-12 rounded-2xl"
+              id="name"
+              name="name"
+              onChange={formik.handleChange}
+              placeholder="Enter name"
+              value={formik.values.name}
+            />
+          </div>
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="email">Email</FieldLabel>
+            <Input
+              className="h-12 rounded-2xl"
+              id="email"
+              name="email"
+              onChange={formik.handleChange}
+              placeholder="Enter email"
+              type="email"
+              value={formik.values.email}
+            />
+          </div>
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="phone">Phone</FieldLabel>
+            <IndiaPhoneInput
+              name="phone"
+              onChange={(phone) =>
+                void formik.setFieldValue("phone", phone, false)
+              }
+              placeholder="Enter phone number"
+              value={formik.values.phone}
+            />
+          </div>
         </div>
-      ) : null}
+      </section>
 
-      <Select
-        onValueChange={(bloodGroup) =>
-          void formik.setFieldValue("bloodGroup", bloodGroup)
-        }
-        value={formik.values.bloodGroup}
-      >
-        <SelectTrigger className="h-12 rounded-2xl">
-          <SelectValue placeholder="Blood group" />
-        </SelectTrigger>
-        <SelectContent>
-          {bloodGroups.map((bloodGroup) => (
-            <SelectItem key={bloodGroup} value={bloodGroup}>
-              {bloodGroup}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <section className="grid gap-4">
+        <h2 className="text-base font-bold text-neutral-950">Donor</h2>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-2">
+            <FieldLabel>Blood group</FieldLabel>
+            <Select
+              onValueChange={(bloodGroup) =>
+                void formik.setFieldValue("bloodGroup", bloodGroup, false)
+              }
+              value={formik.values.bloodGroup}
+            >
+              <SelectTrigger className="h-12 rounded-2xl">
+                <SelectValue placeholder="Select blood group" />
+              </SelectTrigger>
+              <SelectContent>
+                {bloodGroups.map((bloodGroup) => (
+                  <SelectItem key={bloodGroup} value={bloodGroup}>
+                    {bloodGroup}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <FieldLabel>Gender</FieldLabel>
+            <Select
+              onValueChange={(gender) =>
+                void formik.setFieldValue("gender", gender, false)
+              }
+              value={formik.values.gender}
+            >
+              <SelectTrigger className="h-12 rounded-2xl">
+                <SelectValue placeholder="Select gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="male">Male</SelectItem>
+                <SelectItem value="female">Female</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="weight">Weight</FieldLabel>
+            <Input
+              className="h-12 rounded-2xl"
+              id="weight"
+              inputMode="numeric"
+              name="weight"
+              onChange={formik.handleChange}
+              placeholder="Enter weight in kg"
+              value={formik.values.weight}
+            />
+          </div>
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="birthDate">Birth date</FieldLabel>
+            <Input
+              className="h-12 rounded-2xl"
+              id="birthDate"
+              name="birthDate"
+              onChange={formik.handleChange}
+              type="date"
+              value={formik.values.birthDate}
+            />
+          </div>
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="lastDonationDate">
+              Last donation date
+            </FieldLabel>
+            <Input
+              className="h-12 rounded-2xl"
+              id="lastDonationDate"
+              name="lastDonationDate"
+              onChange={formik.handleChange}
+              type="date"
+              value={formik.values.lastDonationDate}
+            />
+          </div>
+          <div className="grid gap-2">
+            <span className="text-sm font-semibold text-neutral-700">
+              Availability
+            </span>
+            <label className="flex h-12 items-center gap-2 rounded-2xl border border-neutral-200 bg-white px-3 text-sm font-semibold text-neutral-700">
+              <input
+                checked={formik.values.isAvailable}
+                name="isAvailable"
+                onChange={formik.handleChange}
+                type="checkbox"
+              />
+              Available for requests
+            </label>
+          </div>
+        </div>
+      </section>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <IndiaPhoneInput
-          name="phone"
-          onChange={(phone) => void formik.setFieldValue("phone", phone)}
-          placeholder="Phone"
-          value={formik.values.phone}
-        />
-        <IndiaPhoneInput
-          name="alternatePhone"
-          onChange={(phone) =>
-            void formik.setFieldValue("alternatePhone", phone)
-          }
-          placeholder="Alternate phone optional"
-          value={formik.values.alternatePhone}
-        />
-      </div>
+      <section className="grid gap-4">
+        <h2 className="text-base font-bold text-neutral-950">Contact</h2>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-2">
+            <FieldLabel>Show mobile</FieldLabel>
+            <Select
+              onValueChange={(value) =>
+                void formik.setFieldValue("showMobile", value === "true", false)
+              }
+              value={booleanSelectValue(formik.values.showMobile)}
+            >
+              <SelectTrigger className="h-12 rounded-2xl">
+                <SelectValue placeholder="Select visibility" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="true">Show mobile</SelectItem>
+                <SelectItem value="false">Hide mobile</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <FieldLabel>SMS alert</FieldLabel>
+            <Select
+              onValueChange={(value) =>
+                void formik.setFieldValue("smsAlert", value === "true", false)
+              }
+              value={booleanSelectValue(formik.values.smsAlert)}
+            >
+              <SelectTrigger className="h-12 rounded-2xl">
+                <SelectValue placeholder="Select SMS alert" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="true">SMS alerts on</SelectItem>
+                <SelectItem value="false">SMS alerts off</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="pincode">Pincode</FieldLabel>
+            <Input
+              className="h-12 rounded-2xl"
+              id="pincode"
+              inputMode="numeric"
+              maxLength={6}
+              name="pincode"
+              onChange={formik.handleChange}
+              placeholder="Enter pincode optional"
+              value={formik.values.pincode}
+            />
+          </div>
+          <div className="grid gap-2">
+            <FieldLabel>State</FieldLabel>
+            <Select
+              onValueChange={handleStateChange}
+              value={formik.values.stateCode}
+            >
+              <SelectTrigger className="h-12 rounded-2xl">
+                <SelectValue placeholder="Select state" />
+              </SelectTrigger>
+              <SelectContent>
+                {states.map((state) => (
+                  <SelectItem key={state.isoCode} value={state.isoCode}>
+                    {state.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <FieldLabel>District</FieldLabel>
+            <Select
+              disabled={!formik.values.stateCode}
+              onValueChange={handleDistrictChange}
+              value={formik.values.district}
+            >
+              <SelectTrigger className="h-12 rounded-2xl">
+                <SelectValue placeholder="Select district" />
+              </SelectTrigger>
+              <SelectContent>
+                {districts.map((district) => (
+                  <SelectItem
+                    key={`${district.name}-${district.latitude}`}
+                    value={district.name}
+                  >
+                    {district.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <FieldLabel>Tehsil</FieldLabel>
+            <Select
+              disabled={!formik.values.district}
+              onValueChange={(tehsil) =>
+                void formik.setFieldValue("tehsil", tehsil, false)
+              }
+              value={formik.values.tehsil}
+            >
+              <SelectTrigger className="h-12 rounded-2xl">
+                <SelectValue placeholder="Select tehsil optional" />
+              </SelectTrigger>
+              <SelectContent>
+                {districts.map((district) => (
+                  <SelectItem
+                    key={`tehsil-${district.name}-${district.latitude}`}
+                    value={district.name}
+                  >
+                    {district.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </section>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Select
-          onValueChange={handleStateChange}
-          value={formik.values.stateCode}
-        >
-          <SelectTrigger className="h-12 rounded-2xl">
-            <SelectValue placeholder="State" />
-          </SelectTrigger>
-          <SelectContent>
-            {states.map((state) => (
-              <SelectItem key={state.isoCode} value={state.isoCode}>
-                {state.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          disabled={!formik.values.stateCode}
-          onValueChange={handleCityChange}
-          value={formik.values.city}
-        >
-          <SelectTrigger className="h-12 rounded-2xl">
-            <SelectValue placeholder="City" />
-          </SelectTrigger>
-          <SelectContent>
-            {cities.map((city) => (
-              <SelectItem
-                key={`${city.name}-${city.latitude}`}
-                value={city.name}
-              >
-                {city.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Input
-          className="h-12 rounded-2xl"
-          name="district"
-          onChange={formik.handleChange}
-          placeholder="District"
-          value={formik.values.district}
-        />
-        <Input
-          className="h-12 rounded-2xl"
-          name="addressText"
-          onChange={formik.handleChange}
-          placeholder="Address"
-          value={formik.values.addressText}
-        />
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Input
-          className="h-12 rounded-2xl"
-          name="lastDonationDate"
-          onChange={formik.handleChange}
-          type="date"
-          value={formik.values.lastDonationDate}
-        />
-        <label className="flex h-12 items-center gap-2 rounded-2xl border border-neutral-200 bg-white px-3 text-sm font-semibold text-neutral-700">
-          <input
-            checked={formik.values.isAvailable}
-            name="isAvailable"
-            onChange={formik.handleChange}
-            type="checkbox"
-          />
-          Available for requests
-        </label>
-      </div>
-
-      {Object.keys(formik.touched).length > 0 &&
-      Object.values(formik.errors)[0] ? (
+      {firstError ? (
         <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
-          {Object.values(formik.errors)[0]}
-        </p>
-      ) : null}
-
-      {createDonorProfileMutation.isError ? (
-        <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
-          Donor profile could not be saved. You may already have a donor
-          profile.
+          {firstError}
         </p>
       ) : null}
 

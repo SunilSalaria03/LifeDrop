@@ -3,9 +3,32 @@
 import { useRouter } from 'next/navigation';
 import { Droplet, HeartHandshake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { tokenStorage } from '@/lib/auth/token-storage';
+import { userStorage } from '@/lib/auth/user-storage';
 
 export function CTASection() {
   const router = useRouter();
+
+  const handleBecomeDonor = () => {
+    const user = userStorage.getUser();
+
+    if (!tokenStorage.getAccessToken()) {
+      window.dispatchEvent(new CustomEvent('lifedrop:open-auth-modal'));
+      return;
+    }
+
+    if (user?.role === 'donor') {
+      router.push('/profile');
+      return;
+    }
+
+    if (!user?.phoneVerified) {
+      router.push('/profile/setup?redirect=/become-donor');
+      return;
+    }
+
+    router.push('/become-donor');
+  };
 
   return (
     <section className="bg-white px-4 py-14 sm:px-6 lg:px-8 lg:py-24">
@@ -20,7 +43,7 @@ export function CTASection() {
           <div className="flex flex-col justify-center gap-3 sm:flex-row">
             <Button
               className="h-12 w-full rounded-full bg-white px-6 text-red-700 hover:bg-red-50 sm:w-auto"
-              onClick={() => router.push('/become-donor')}
+              onClick={handleBecomeDonor}
               type="button"
             >
               <HeartHandshake className="h-5 w-5" />

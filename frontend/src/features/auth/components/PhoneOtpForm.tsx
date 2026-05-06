@@ -6,6 +6,8 @@ import { useFormik } from 'formik';
 import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/toast';
+import { getApiErrorMessage } from '@/lib/api/error-message';
 import {
   toIndianE164,
   toIndianNationalNumber,
@@ -23,6 +25,7 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
   const [redirect, setRedirect] = useState<string | null>(null);
   const [hasLoadedQuery, setHasLoadedQuery] = useState(false);
   const { sendOtpMutation, verifyOtpMutation } = useAuth();
+  const { showToast } = useToast();
   const [resendSeconds, setResendSeconds] = useState(60);
 
   useEffect(() => {
@@ -64,6 +67,7 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
     },
     validationSchema: phoneOtpSendSchema,
     enableReinitialize: true,
+    validateOnChange: false,
     onSubmit: async (values) => {
       await sendOtpMutation.mutateAsync({
         phone: toIndianE164(values.phone)
@@ -81,11 +85,28 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
       otp: ''
     },
     validationSchema: phoneOtpVerifySchema,
+    validateOnChange: false,
     onSubmit: async (values) => {
-      await verifyOtpMutation.mutateAsync({
-        phone: toIndianE164(phoneFromQuery),
-        otp: values.otp
-      });
+      try {
+        await verifyOtpMutation.mutateAsync({
+          phone: toIndianE164(phoneFromQuery),
+          otp: values.otp
+        });
+        showToast({
+          message: 'OTP verified successfully.',
+          title: 'Login successful',
+          variant: 'success',
+        });
+      } catch (error) {
+        showToast({
+          message: getApiErrorMessage(
+            error,
+            'OTP verification failed. Check the code and try again.',
+          ),
+          title: 'Verification failed',
+          variant: 'error',
+        });
+      }
     }
   });
 
@@ -171,7 +192,7 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
           className="h-12 rounded-2xl bg-white"
           value={sendFormik.values.phone}
           onBlur={sendFormik.handleBlur}
-          onChange={(phone) => void sendFormik.setFieldValue('phone', phone)}
+          onChange={(phone) => void sendFormik.setFieldValue('phone', phone, false)}
         />
         {sendFormik.touched.phone && sendFormik.errors.phone ? (
           <p className="text-sm font-medium text-red-700">{sendFormik.errors.phone}</p>

@@ -24,7 +24,7 @@
 - Converts Twilio, Google, MongoDB, and validation failures into clear HTTP errors.
 
 ## Security Agent
-- Owns JWT safety, password hashing, guards, roles, and protected endpoints.
+- Owns JWT safety, password-free auth boundaries, guards, roles, and protected endpoints.
 - Reviews donor location privacy and sensitive contact data exposure.
 - Ensures secrets and database credentials are environment-driven.
 - Prevents known auth regressions: no tokens before OTP verification, no email/password login, no sensitive auth fields in responses, and no blocked-user login/refresh.

@@ -17,7 +17,7 @@ type UserRecord = {
   phone?: string;
   authProvider: AuthProvider;
   role: UserRole;
-  isPhoneVerified: boolean;
+  phoneVerified: boolean;
   isProfileCompleted: boolean;
   isBlocked: boolean;
 };
@@ -33,7 +33,7 @@ const userSchema = new Schema<UserRecord>(
       required: true,
     },
     role: { type: String, enum: Object.values(UserRole), required: true },
-    isPhoneVerified: { type: Boolean, default: false },
+    phoneVerified: { type: Boolean, default: false },
     isProfileCompleted: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
   },
@@ -80,7 +80,7 @@ async function seedAdmin() {
     name: adminName,
     authProvider,
     role: UserRole.Admin,
-    isPhoneVerified: Boolean(adminPhone),
+    phoneVerified: Boolean(adminPhone),
     isProfileCompleted: true,
     isBlocked: false,
   };

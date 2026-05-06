@@ -64,7 +64,7 @@ export class UsersService {
     return this.userModel.create({
       phone: input.phone,
       authProvider: AuthProvider.Phone,
-      isPhoneVerified: false,
+      phoneVerified: false,
     });
   }
 
@@ -75,6 +75,7 @@ export class UsersService {
       name: input.name,
       profileImage: input.profileImage,
       authProvider: AuthProvider.Google,
+      phoneVerified: false,
     });
   }
 
@@ -142,7 +143,7 @@ export class UsersService {
       .findByIdAndUpdate(
         userId,
         {
-          isPhoneVerified: true,
+          phoneVerified: true,
           $unset: {
             otpHash: '',
             otpValidUntil: '',
@@ -167,20 +168,53 @@ export class UsersService {
     }
 
     const update: Record<string, unknown> = {};
+    const nextName = dto.name;
+    const nextPhone = dto.phone;
+    const isDonor = user.role === UserRole.Donor;
 
     for (const field of [
-      'name',
       'email',
-      'phone',
       'profileImage',
-      'addressText',
+      'pincode',
       'state',
       'city',
       'district',
+      'tehsil',
     ] as const) {
       if (dto[field] !== undefined) {
         update[field] = dto[field];
       }
+    }
+
+    if (isDonor) {
+      for (const field of [
+        'addressText',
+        'bloodGroup',
+        'gender',
+        'weight',
+        'showMobile',
+        'smsAlert',
+      ] as const) {
+        if (dto[field] !== undefined) {
+          update[field] = dto[field];
+        }
+      }
+
+      if (dto.birthDate !== undefined) {
+        update.birthDate = new Date(dto.birthDate);
+      }
+
+      if (dto.lastDonationDate !== undefined) {
+        update.lastDonationDate = new Date(dto.lastDonationDate);
+      }
+    }
+
+    if (nextName !== undefined) {
+      update.name = nextName;
+    }
+
+    if (nextPhone !== undefined) {
+      update.phone = nextPhone;
     }
 
     if (dto.lat !== undefined && dto.lng !== undefined) {
@@ -191,11 +225,9 @@ export class UsersService {
     }
 
     update.isProfileCompleted = Boolean(
-      (dto.name ?? user.name) &&
-      (dto.phone ?? user.phone) &&
-      user.isPhoneVerified &&
-      (dto.state ?? user.state) &&
-      (dto.city ?? user.city),
+      (nextName ?? user.name) &&
+      (nextPhone ?? user.phone) &&
+      user.phoneVerified,
     );
 
     const updatedUser = await this.userModel
@@ -228,12 +260,24 @@ export class UsersService {
     for (const field of [
       'phone',
       'addressText',
+      'bloodGroup',
+      'gender',
+      'birthDate',
+      'weight',
+      'lastDonationDate',
+      'showMobile',
+      'smsAlert',
+      'pincode',
       'state',
       'city',
       'district',
+      'tehsil',
     ] as const) {
       if (dto[field] !== undefined) {
-        donorUpdate[field] = dto[field];
+        donorUpdate[field] =
+          field === 'lastDonationDate' || field === 'birthDate'
+            ? new Date(dto[field])
+            : dto[field];
       }
     }
 
@@ -258,6 +302,8 @@ export class UsersService {
   }
 
   toSafeUser(user: UserDocument) {
+    const isDonor = user.role === UserRole.Donor;
+
     return {
       id: user.id,
       name: user.name,
@@ -266,13 +312,22 @@ export class UsersService {
       profileImage: user.profileImage,
       authProvider: user.authProvider,
       role: user.role,
-      isPhoneVerified: user.isPhoneVerified,
+      phoneVerified: user.phoneVerified,
       isProfileCompleted: user.isProfileCompleted,
       isBlocked: user.isBlocked,
-      addressText: user.addressText,
+      addressText: isDonor ? user.addressText : undefined,
+      bloodGroup: isDonor ? user.bloodGroup : undefined,
+      gender: isDonor ? user.gender : undefined,
+      birthDate: isDonor ? user.birthDate : undefined,
+      weight: isDonor ? user.weight : undefined,
+      lastDonationDate: isDonor ? user.lastDonationDate : undefined,
+      showMobile: isDonor ? user.showMobile : undefined,
+      smsAlert: isDonor ? user.smsAlert : undefined,
+      pincode: user.pincode,
       state: user.state,
       city: user.city,
       district: user.district,
+      tehsil: user.tehsil,
       location: user.location,
       createdAt: user.get('createdAt') as Date | undefined,
       updatedAt: user.get('updatedAt') as Date | undefined,

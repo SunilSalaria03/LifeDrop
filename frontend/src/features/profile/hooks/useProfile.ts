@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { sendPhoneOtp } from '@/features/auth/api/auth.api';
+import { userStorage } from '@/lib/auth/user-storage';
 import { updateProfile, verifyProfilePhone } from '../api/profile.api';
 
 export function useProfile() {
@@ -9,7 +10,9 @@ export function useProfile() {
 
   const updateProfileMutation = useMutation({
     mutationFn: updateProfile,
-    onSuccess: () => {
+    onSuccess: (updatedUser) => {
+      userStorage.setUser(updatedUser);
+      queryClient.setQueryData(['auth', 'me'], updatedUser);
       void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
     },
   });
@@ -20,7 +23,9 @@ export function useProfile() {
 
   const verifyProfilePhoneMutation = useMutation({
     mutationFn: verifyProfilePhone,
-    onSuccess: () => {
+    onSuccess: (updatedUser) => {
+      userStorage.setUser(updatedUser);
+      queryClient.setQueryData(['auth', 'me'], updatedUser);
       void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
     },
   });

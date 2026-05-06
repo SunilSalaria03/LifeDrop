@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { AlertTriangle, HeartHandshake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { tokenStorage } from '@/lib/auth/token-storage';
+import { userStorage } from '@/lib/auth/user-storage';
 
 const actions = [
   {
@@ -28,6 +30,32 @@ const actions = [
 export function ActionCards() {
   const router = useRouter();
 
+  const handleAction = (href: string) => {
+    if (href !== '/become-donor') {
+      router.push(href);
+      return;
+    }
+
+    const user = userStorage.getUser();
+
+    if (!tokenStorage.getAccessToken()) {
+      window.dispatchEvent(new CustomEvent('lifedrop:open-auth-modal'));
+      return;
+    }
+
+    if (user?.role === 'donor') {
+      router.push('/profile');
+      return;
+    }
+
+    if (!user?.phoneVerified) {
+      router.push('/profile/setup?redirect=/become-donor');
+      return;
+    }
+
+    router.push(href);
+  };
+
   return (
     <section className="bg-white px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
       <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2">
@@ -47,7 +75,7 @@ export function ActionCards() {
                 <p className="max-w-xl text-sm leading-6 text-neutral-600 sm:text-base sm:leading-7">{action.description}</p>
               </div>
               <div>
-                <Button className={`${action.button} h-11 rounded-full px-6 text-white`} onClick={() => router.push(action.href)} type="button">
+                <Button className={`${action.button} h-11 rounded-full px-6 text-white`} onClick={() => handleAction(action.href)} type="button">
                   {action.buttonLabel}
                 </Button>
               </div>

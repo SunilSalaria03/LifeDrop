@@ -19,13 +19,22 @@ export type DonorSearchFilters = {
 };
 
 export type DonorProfilePayload = {
+  name: string;
+  email?: string;
   bloodGroup: string;
+  gender: string;
+  birthDate: string;
+  weight: number;
   phone: string;
   alternatePhone?: string;
   state: string;
   city: string;
-  district?: string;
+  district: string;
+  tehsil?: string;
   addressText?: string;
+  showMobile: boolean;
+  smsAlert: boolean;
+  pincode?: string;
   lat: number;
   lng: number;
   lastDonationDate?: string;
@@ -38,9 +47,16 @@ export type DonorListItem = {
   name?: string;
   profileImage?: string;
   bloodGroup: string;
+  gender?: string;
+  birthDate?: string;
+  weight?: number;
   state: string;
   city: string;
   district?: string;
+  tehsil?: string;
+  pincode?: string;
+  showMobile?: boolean;
+  smsAlert?: boolean;
   distanceKm?: number;
   isAvailable: boolean;
   isVerified?: boolean;

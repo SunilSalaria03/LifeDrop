@@ -6,6 +6,8 @@ import { ArrowLeft, Droplet, ShieldCheck, X } from 'lucide-react';
 import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/toast';
+import { getApiErrorMessage } from '@/lib/api/error-message';
 import {
   toIndianE164,
   toIndianNationalNumber,
@@ -34,6 +36,7 @@ export function AuthModal({
   initialPhone = '',
 }: AuthModalProps) {
   const { sendOtpMutation, verifyOtpMutation } = useAuth();
+  const { showToast } = useToast();
   const initialNationalPhone = toIndianNationalNumber(initialPhone);
   const [step, setStep] = useState<AuthStep>(initialNationalPhone ? 'otp' : 'login');
   const [phoneForOtp, setPhoneForOtp] = useState(initialNationalPhone);
@@ -85,6 +88,7 @@ export function AuthModal({
     },
     validationSchema: phoneOtpSendSchema,
     enableReinitialize: true,
+    validateOnChange: false,
     onSubmit: async (values) => {
       await sendOtpMutation.mutateAsync({
         phone: toIndianE164(values.phone),
@@ -100,12 +104,29 @@ export function AuthModal({
       otp: '',
     },
     validationSchema: phoneOtpVerifySchema,
+    validateOnChange: false,
     onSubmit: async (values) => {
-      const authResponse = await verifyOtpMutation.mutateAsync({
-        phone: toIndianE164(phoneForOtp),
-        otp: values.otp,
-      });
-      onAuthenticated?.(authResponse.user);
+      try {
+        const authResponse = await verifyOtpMutation.mutateAsync({
+          phone: toIndianE164(phoneForOtp),
+          otp: values.otp,
+        });
+        showToast({
+          message: 'OTP verified successfully.',
+          title: 'Login successful',
+          variant: 'success',
+        });
+        onAuthenticated?.(authResponse.user);
+      } catch (error) {
+        showToast({
+          message: getApiErrorMessage(
+            error,
+            'OTP verification failed. Check the code and try again.',
+          ),
+          title: 'Verification failed',
+          variant: 'error',
+        });
+      }
     },
   });
 
@@ -189,7 +210,9 @@ export function AuthModal({
                     id="auth-phone"
                     name="phone"
                     onBlur={sendFormik.handleBlur}
-                    onChange={(phone) => void sendFormik.setFieldValue('phone', phone)}
+                    onChange={(phone) =>
+                      void sendFormik.setFieldValue('phone', phone, false)
+                    }
                     value={sendFormik.values.phone}
                   />
                   {sendFormik.touched.phone && sendFormik.errors.phone ? (

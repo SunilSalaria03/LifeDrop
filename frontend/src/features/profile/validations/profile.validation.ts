@@ -26,6 +26,41 @@ export const profileSetupSchema = yup.object({
   lng: yup.number().optional(),
 });
 
+export const updateProfileFormSchema = yup.object({
+  name: yup.string().trim().min(2, 'Enter your full name.').required('Name is required.'),
+  email: yup.string().trim().email('Enter a valid email address.').optional(),
+  phone: yup
+    .string()
+    .trim()
+    .matches(/^\d{10}$/, 'Enter a 10 digit Indian mobile number.')
+    .required('Mobile number is required.'),
+  bloodGroup: yup.string().trim().optional(),
+  gender: yup.string().trim().oneOf(['male', 'female', 'other', ''], 'Select a valid gender.').optional(),
+  birthDate: yup.string().trim().optional(),
+  weight: yup
+    .number()
+    .transform((value, originalValue) =>
+      originalValue === '' || Number.isNaN(value) ? undefined : value,
+    )
+    .min(1, 'Enter a valid weight.')
+    .optional(),
+  lastDonationDate: yup.string().trim().optional(),
+  showMobile: yup.boolean().optional(),
+  smsAlert: yup.boolean().optional(),
+  pincode: yup
+    .string()
+    .trim()
+    .matches(/^\d{6}$/, {
+      excludeEmptyString: true,
+      message: 'Enter a 6 digit pin code.',
+    })
+    .optional(),
+  state: yup.string().trim().required('State is required.'),
+  stateCode: yup.string().trim().required('State is required.'),
+  district: yup.string().trim().required('District is required.'),
+  tehsil: yup.string().trim().optional(),
+});
+
 export const profilePhoneSchema = yup.object({
   phone: yup
     .string()
@@ -36,4 +71,5 @@ export const profilePhoneSchema = yup.object({
 });
 
 export type ProfileSetupValues = yup.InferType<typeof profileSetupSchema>;
+export type UpdateProfileFormValues = yup.InferType<typeof updateProfileFormSchema>;
 export type ProfilePhoneValues = yup.InferType<typeof profilePhoneSchema>;

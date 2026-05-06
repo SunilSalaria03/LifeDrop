@@ -52,6 +52,7 @@ export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
     },
     validationSchema: profileSetupSchema,
     enableReinitialize: true,
+    validateOnChange: false,
     onSubmit: async (values) => {
       const updatedUser = await updateProfileMutation.mutateAsync({
         name: values.name,
@@ -127,11 +128,11 @@ export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
           Phone
         </label>
         <IndiaPhoneInput
-          disabled={user.isPhoneVerified}
+          disabled={user.phoneVerified}
           id="phone"
           name="phone"
           onBlur={formik.handleBlur}
-          onChange={(phone) => void formik.setFieldValue('phone', phone)}
+          onChange={(phone) => void formik.setFieldValue('phone', phone, false)}
           value={formik.values.phone}
         />
       </div>
@@ -193,7 +194,7 @@ export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
 
       {updateProfileMutation.data && !updateProfileMutation.data.isProfileCompleted ? (
         <p className="rounded-2xl bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800 ring-1 ring-amber-100">
-          Verify your phone and complete all required details before continuing.
+          Verify your phone before continuing.
         </p>
       ) : null}
 

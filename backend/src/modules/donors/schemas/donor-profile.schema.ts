@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MongooseSchema, Types } from 'mongoose';
 import { User } from '../../users/schemas/user.schema';
+import { Gender } from '../../users/schemas/user.schema';
 
 export type DonorProfileDocument = HydratedDocument<DonorProfile>;
 
@@ -56,6 +57,15 @@ export class DonorProfile {
   @Prop({ type: String, enum: BloodGroup, required: true })
   bloodGroup: BloodGroup;
 
+  @Prop({ type: String, enum: Gender })
+  gender?: Gender;
+
+  @Prop()
+  birthDate?: Date;
+
+  @Prop({ min: 1 })
+  weight?: number;
+
   @Prop({ required: true, trim: true })
   phone: string;
 
@@ -72,7 +82,19 @@ export class DonorProfile {
   district?: string;
 
   @Prop({ trim: true })
+  tehsil?: string;
+
+  @Prop({ trim: true })
   addressText?: string;
+
+  @Prop({ default: false })
+  showMobile?: boolean;
+
+  @Prop({ default: false })
+  smsAlert?: boolean;
+
+  @Prop({ trim: true })
+  pincode?: string;
 
   @Prop({ type: GeoPointSchema, required: true })
   location: GeoPoint;
@@ -104,6 +126,7 @@ DonorProfileSchema.index({ bloodGroup: 1 });
 DonorProfileSchema.index({ state: 1 });
 DonorProfileSchema.index({ city: 1 });
 DonorProfileSchema.index({ district: 1 });
+DonorProfileSchema.index({ pincode: 1 });
 DonorProfileSchema.index({ isAvailable: 1 });
 DonorProfileSchema.index({ isActive: 1 });
 DonorProfileSchema.index({ isVerified: 1 });

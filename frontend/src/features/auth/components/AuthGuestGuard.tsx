@@ -25,13 +25,7 @@ export function AuthGuestGuard({ children }: AuthGuestGuardProps) {
     }
 
     getMe()
-      .then((user) => {
-        if (!user.isProfileCompleted) {
-          const redirectQuery = redirect ? `?redirect=${encodeURIComponent(redirect)}` : '';
-          router.replace(`/profile/setup${redirectQuery}`);
-          return;
-        }
-
+      .then(() => {
         router.replace(redirect || '/');
       })
       .catch(() => {

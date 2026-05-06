@@ -33,11 +33,11 @@ export default function ProfileSetupPage() {
               </div>
             </div>
 
-            {user && !user.isPhoneVerified ? (
+            {user && !user.phoneVerified ? (
               <PhoneVerificationForm user={user} />
             ) : null}
 
-            {user?.isPhoneVerified ? <ProfileSetupForm user={user} /> : null}
+            {user?.phoneVerified ? <ProfileSetupForm user={user} /> : null}
           </CardContent>
         </Card>
       </main>

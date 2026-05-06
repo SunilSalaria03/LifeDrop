@@ -16,7 +16,7 @@ Fields:
 - `authProvider`: `phone` or `google`
 - `role`: `user`, `donor`, or `admin`, defaults to `user`
 - `googleId`: hidden unique Google account id
-- `isPhoneVerified`: boolean
+- `phoneVerified`: boolean
 - `isProfileCompleted`: boolean
 - `isBlocked`: boolean
 - `addressText`: optional user address text
@@ -38,7 +38,7 @@ Sensitive fields:
 - OTP fields are selected out by default and never returned in user responses.
 
 Profile completion rule:
-- `isProfileCompleted` is true only when the user has `name`, `phone`, `isPhoneVerified`, `state`, and `city`.
+- `isProfileCompleted` is true when the user has `name`, `phone`, and `phoneVerified`.
 
 ### donorprofiles
 

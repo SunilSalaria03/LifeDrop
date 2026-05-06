@@ -1,6 +1,8 @@
 'use client';
 
 import { HeartHandshake } from 'lucide-react';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/features/auth/hooks/useAuth';
@@ -8,12 +10,19 @@ import { BecomeDonorForm } from '@/features/donors/components/BecomeDonorForm';
 
 export default function BecomeDonorPage() {
   const { meQuery } = useAuth();
+  const router = useRouter();
   const user = meQuery.data;
 
+  useEffect(() => {
+    if (user && !user.phoneVerified) {
+      router.replace('/profile/setup?redirect=/become-donor');
+    }
+  }, [router, user]);
+
   return (
-    <ProtectedRoute requireCompletedProfile>
+    <ProtectedRoute>
       <main className="min-h-screen bg-[linear-gradient(135deg,#f8fbff_0%,#ffffff_48%,#fff5f5_100%)] px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-        <Card className="mx-auto w-full max-w-2xl rounded-2xl border-white/80 bg-white/95 shadow-2xl shadow-red-950/10">
+        <Card className="mx-auto w-full max-w-5xl rounded-2xl border-white/80 bg-white/95 shadow-2xl shadow-red-950/10">
           <CardContent className="grid gap-6 p-5 sm:gap-7 sm:p-8">
             <div className="grid gap-4 text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-600 text-white shadow-lg shadow-red-600/20">
@@ -32,7 +41,7 @@ export default function BecomeDonorPage() {
               </div>
             </div>
 
-            {user ? <BecomeDonorForm user={user} /> : null}
+            {user?.phoneVerified ? <BecomeDonorForm user={user} /> : null}
           </CardContent>
         </Card>
       </main>

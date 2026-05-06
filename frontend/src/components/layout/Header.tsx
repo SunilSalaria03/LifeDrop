@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Droplet, LogOut, Settings } from "lucide-react";
+import { Droplet, Loader2, LogOut, Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LocationSelector } from "@/components/location/LocationSelector";
@@ -27,6 +28,7 @@ function getDisplayName(name?: string, phone?: string, email?: string) {
 }
 
 export function Header() {
+  const router = useRouter();
   const { logoutMutation, meQuery } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -34,7 +36,7 @@ export function Header() {
   const [storedUser, setStoredUser] = useState<AuthUser | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const user = meQuery.data ?? storedUser;
-  const shouldShowBecomeDonor = user?.role !== "donor";
+  const shouldShowBecomeDonor = !user || user.role !== "donor";
 
   useEffect(() => {
     setStoredUser(userStorage.getUser());
@@ -50,10 +52,31 @@ export function Header() {
   }, []);
 
   useEffect(() => {
+    function handleOpenAuthModal(event: Event) {
+      const customEvent = event as CustomEvent<{ phone?: string }>;
+      setAuthModalPhone(customEvent.detail?.phone ?? "");
+      setIsAuthModalOpen(true);
+    }
+
+    window.addEventListener("lifedrop:open-auth-modal", handleOpenAuthModal);
+    return () =>
+      window.removeEventListener(
+        "lifedrop:open-auth-modal",
+        handleOpenAuthModal,
+      );
+  }, []);
+
+  useEffect(() => {
     if (meQuery.data) {
       setStoredUser(meQuery.data);
     }
   }, [meQuery.data]);
+
+  useEffect(() => {
+    if (logoutMutation.isSuccess || logoutMutation.isError) {
+      setStoredUser(null);
+    }
+  }, [logoutMutation.isError, logoutMutation.isSuccess]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -67,9 +90,31 @@ export function Header() {
   }, []);
 
   const handleLogout = () => {
+    if (logoutMutation.isPending) {
+      return;
+    }
+
     setIsMenuOpen(false);
-    setStoredUser(null);
     logoutMutation.mutate();
+  };
+
+  const handleProfileSettings = () => {
+    setIsMenuOpen(false);
+    router.push("/profile");
+  };
+
+  const handleBecomeDonor = () => {
+    if (!user) {
+      openAuthModal();
+      return;
+    }
+
+    if (!user.phoneVerified) {
+      router.push("/profile/setup?redirect=/become-donor");
+      return;
+    }
+
+    router.push("/become-donor");
   };
 
   const openAuthModal = () => {
@@ -149,21 +194,25 @@ export function Header() {
                         {user.email ?? user.phone ?? user.role}
                       </p>
                     </div>
-                    <Link
+                    <button
                       className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-neutral-700 transition hover:bg-red-50 hover:text-red-700"
-                      href="/profile"
-                      onClick={() => setIsMenuOpen(false)}
+                      onClick={handleProfileSettings}
+                      type="button"
                     >
                       <Settings className="h-4 w-4" />
                       Profile Settings
-                    </Link>
+                    </button>
                     <button
                       className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-60"
                       disabled={logoutMutation.isPending}
                       onClick={handleLogout}
                       type="button"
                     >
-                      <LogOut className="h-4 w-4" />
+                      {logoutMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <LogOut className="h-4 w-4" />
+                      )}
                       {logoutMutation.isPending ? "Logging out..." : "Logout"}
                     </button>
                   </div>
@@ -183,11 +232,11 @@ export function Header() {
             )}
             {shouldShowBecomeDonor ? (
               <Button
-                asChild
                 className="h-11 flex-1 rounded-full bg-red-700 px-5 text-white shadow-sm shadow-red-700/20 hover:bg-red-800 sm:flex-none"
-                onClick={openAuthModal}
+                onClick={handleBecomeDonor}
+                type="button"
               >
-                <Link href="">Become a Donor</Link>
+                Become a Donor
               </Button>
             ) : null}
           </nav>

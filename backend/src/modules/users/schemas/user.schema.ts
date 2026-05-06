@@ -14,6 +14,12 @@ export enum UserRole {
   Admin = 'admin',
 }
 
+export enum Gender {
+  Male = 'male',
+  Female = 'female',
+  Other = 'other',
+}
+
 export type GeoPoint = {
   type: 'Point';
   coordinates: [number, number];
@@ -55,7 +61,7 @@ export class User {
   googleId?: string;
 
   @Prop({ default: false })
-  isPhoneVerified: boolean;
+  phoneVerified: boolean;
 
   @Prop({ default: false })
   isProfileCompleted: boolean;
@@ -67,6 +73,30 @@ export class User {
   addressText?: string;
 
   @Prop({ trim: true })
+  bloodGroup?: string;
+
+  @Prop({ type: String, enum: Gender })
+  gender?: Gender;
+
+  @Prop()
+  birthDate?: Date;
+
+  @Prop({ min: 1 })
+  weight?: number;
+
+  @Prop()
+  lastDonationDate?: Date;
+
+  @Prop({ default: false })
+  showMobile?: boolean;
+
+  @Prop({ default: false })
+  smsAlert?: boolean;
+
+  @Prop({ trim: true })
+  pincode?: string;
+
+  @Prop({ trim: true })
   state?: string;
 
   @Prop({ trim: true })
@@ -74,6 +104,9 @@ export class User {
 
   @Prop({ trim: true })
   district?: string;
+
+  @Prop({ trim: true })
+  tehsil?: string;
 
   @Prop({
     type: {
@@ -110,9 +143,11 @@ UserSchema.index({ email: 1 }, { unique: true, sparse: true });
 UserSchema.index({ googleId: 1 }, { unique: true, sparse: true });
 UserSchema.index({ isBlocked: 1 });
 UserSchema.index({ role: 1 });
+UserSchema.index({ bloodGroup: 1 });
 UserSchema.index({ state: 1 });
 UserSchema.index({ city: 1 });
 UserSchema.index({ district: 1 });
+UserSchema.index({ pincode: 1 });
 UserSchema.index(
   { location: '2dsphere' },
   {
