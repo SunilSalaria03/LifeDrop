@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, Droplet, ShieldCheck, X } from 'lucide-react';
 import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ import {
 import { GoogleLoginButton } from './GoogleLoginButton';
 import { useAuth } from '../hooks/useAuth';
 import { AuthUser } from '../types/auth.types';
+import { useProfile } from '@/features/profile/hooks/useProfile';
 import {
   phoneOtpSendSchema,
   phoneOtpVerifySchema,
@@ -25,20 +27,28 @@ type AuthModalProps = {
   onClose: () => void;
   onAuthenticated?: (user: AuthUser) => void;
   initialPhone?: string;
+  profileUser?: AuthUser;
+  profileRedirect?: string;
 };
 
 type AuthStep = 'login' | 'otp';
+type OtpFlow = 'login' | 'profile';
 
 export function AuthModal({
   isOpen,
   onAuthenticated,
   onClose,
   initialPhone = '',
+  profileUser,
+  profileRedirect,
 }: AuthModalProps) {
+  const router = useRouter();
   const { sendOtpMutation, verifyOtpMutation } = useAuth();
+  const { updateProfileMutation, verifyProfilePhoneMutation } = useProfile();
   const { showToast } = useToast();
   const initialNationalPhone = toIndianNationalNumber(initialPhone);
   const [step, setStep] = useState<AuthStep>(initialNationalPhone ? 'otp' : 'login');
+  const [otpFlow, setOtpFlow] = useState<OtpFlow>('login');
   const [phoneForOtp, setPhoneForOtp] = useState(initialNationalPhone);
   const [resendSeconds, setResendSeconds] = useState(0);
 
@@ -58,11 +68,15 @@ export function AuthModal({
   useEffect(() => {
     if (isOpen) {
       const nationalPhone = toIndianNationalNumber(initialPhone);
-      setStep(nationalPhone ? 'otp' : 'login');
-      setPhoneForOtp(nationalPhone);
+      const profilePhone = toIndianNationalNumber(profileUser?.phone);
+      const nextOtpFlow =
+        profileUser && !profileUser.phoneVerified ? 'profile' : 'login';
+      setStep(nextOtpFlow === 'profile' ? 'login' : nationalPhone ? 'otp' : 'login');
+      setOtpFlow(nextOtpFlow);
+      setPhoneForOtp(profilePhone || nationalPhone);
       setResendSeconds(0);
     }
-  }, [initialPhone, isOpen]);
+  }, [initialPhone, isOpen, profileUser]);
 
   useEffect(() => {
     if (!isOpen || step !== 'otp' || resendSeconds <= 0) {
@@ -90,6 +104,12 @@ export function AuthModal({
     enableReinitialize: true,
     validateOnChange: false,
     onSubmit: async (values) => {
+      if (otpFlow === 'profile') {
+        await updateProfileMutation.mutateAsync({
+          phone: toIndianE164(values.phone),
+        });
+      }
+
       await sendOtpMutation.mutateAsync({
         phone: toIndianE164(values.phone),
       });
@@ -107,16 +127,31 @@ export function AuthModal({
     validateOnChange: false,
     onSubmit: async (values) => {
       try {
-        const authResponse = await verifyOtpMutation.mutateAsync({
-          phone: toIndianE164(phoneForOtp),
-          otp: values.otp,
-        });
+        const verifiedUser =
+          otpFlow === 'profile'
+            ? await verifyProfilePhoneMutation.mutateAsync({
+                phone: toIndianE164(phoneForOtp),
+                otp: values.otp,
+              })
+            : (
+                await verifyOtpMutation.mutateAsync({
+                  phone: toIndianE164(phoneForOtp),
+                  otp: values.otp,
+                })
+              ).user;
+
         showToast({
           message: 'OTP verified successfully.',
           title: 'Login successful',
           variant: 'success',
         });
-        onAuthenticated?.(authResponse.user);
+        onAuthenticated?.(verifiedUser);
+
+        if (otpFlow === 'profile') {
+          const redirect = new URLSearchParams(window.location.search).get('redirect');
+          onClose();
+          router.push(redirect || profileRedirect || '/');
+        }
       } catch (error) {
         showToast({
           message: getApiErrorMessage(
@@ -147,14 +182,38 @@ export function AuthModal({
     setResendSeconds(0);
   }
 
+  function handleGoogleAuthenticated(user: AuthUser) {
+    onAuthenticated?.(user);
+
+    if (user.phoneVerified) {
+      onClose();
+      return;
+    }
+
+    const nationalPhone = toIndianNationalNumber(user.phone);
+    setOtpFlow('profile');
+    setPhoneForOtp(nationalPhone);
+    setStep('login');
+    setResendSeconds(0);
+  }
+
   if (!isOpen) {
     return null;
   }
 
-  const title = step === 'login' ? 'Login to LifeDrop' : 'Verify your OTP';
+  const title =
+    otpFlow === 'profile'
+      ? step === 'login'
+        ? 'Verify your phone'
+        : 'Verify your OTP'
+      : step === 'login'
+        ? 'Login to LifeDrop'
+        : 'Verify your OTP';
   const description =
     step === 'login'
-      ? 'Enter your phone number to receive a secure verification code.'
+      ? otpFlow === 'profile'
+        ? 'Enter your verified phone number to receive a secure verification code.'
+        : 'Enter your phone number to receive a secure verification code.'
       : `Use the 6 digit code sent to +91 ${phoneForOtp}.`;
 
   return (
@@ -222,7 +281,7 @@ export function AuthModal({
                   ) : null}
                 </div>
 
-                {sendOtpMutation.isError ? (
+                {sendOtpMutation.isError || updateProfileMutation.isError ? (
                   <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
                     Could not send OTP. Check the number and Twilio setup.
                   </p>
@@ -236,22 +295,26 @@ export function AuthModal({
 
                 <Button
                   className="h-12 rounded-full bg-red-700 text-white shadow-lg shadow-red-700/20 hover:bg-red-800"
-                  disabled={sendOtpMutation.isPending}
+                  disabled={sendOtpMutation.isPending || updateProfileMutation.isPending}
                   type="submit"
                 >
-                  {sendOtpMutation.isPending ? 'Sending OTP...' : 'Send OTP'}
+                  {sendOtpMutation.isPending || updateProfileMutation.isPending ? 'Sending OTP...' : 'Send OTP'}
                 </Button>
               </form>
 
-              <div className="flex items-center gap-3">
-                <span className="h-px flex-1 bg-neutral-200" />
-                <span className="text-xs font-semibold uppercase text-neutral-400">
-                  or continue with
-                </span>
-                <span className="h-px flex-1 bg-neutral-200" />
-              </div>
+              {otpFlow === 'login' ? (
+                <>
+                  <div className="flex items-center gap-3">
+                    <span className="h-px flex-1 bg-neutral-200" />
+                    <span className="text-xs font-semibold uppercase text-neutral-400">
+                      or continue with
+                    </span>
+                    <span className="h-px flex-1 bg-neutral-200" />
+                  </div>
 
-              <GoogleLoginButton onAuthenticated={onAuthenticated} onSuccess={onClose} />
+                  <GoogleLoginButton onAuthenticated={handleGoogleAuthenticated} />
+                </>
+              ) : null}
             </>
           ) : (
             <form className="grid gap-4" onSubmit={verifyFormik.handleSubmit}>
@@ -286,7 +349,7 @@ export function AuthModal({
                 ) : null}
               </div>
 
-              {verifyOtpMutation.isError ? (
+              {verifyOtpMutation.isError || verifyProfilePhoneMutation.isError ? (
                 <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
                   OTP verification failed. Check the code or request a new OTP.
                 </p>
@@ -294,10 +357,14 @@ export function AuthModal({
 
               <Button
                 className="h-12 rounded-full bg-red-700 text-white shadow-lg shadow-red-700/20 hover:bg-red-800"
-                disabled={verifyOtpMutation.isPending || !phoneForOtp}
+                disabled={
+                  verifyOtpMutation.isPending ||
+                  verifyProfilePhoneMutation.isPending ||
+                  !phoneForOtp
+                }
                 type="submit"
               >
-                {verifyOtpMutation.isPending ? 'Verifying...' : 'Verify OTP'}
+                {verifyOtpMutation.isPending || verifyProfilePhoneMutation.isPending ? 'Verifying...' : 'Verify OTP'}
               </Button>
 
               <Button

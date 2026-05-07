@@ -1,23 +1,23 @@
 'use client';
 
 import { HeartHandshake } from 'lucide-react';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Card, CardContent } from '@/components/ui/card';
+import { AuthModal } from '@/features/auth/components/AuthModal';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { BecomeDonorForm } from '@/features/donors/components/BecomeDonorForm';
 
 export default function BecomeDonorPage() {
   const { meQuery } = useAuth();
-  const router = useRouter();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const user = meQuery.data;
 
   useEffect(() => {
     if (user && !user.phoneVerified) {
-      router.replace('/profile/setup?redirect=/become-donor');
+      setIsAuthModalOpen(true);
     }
-  }, [router, user]);
+  }, [user]);
 
   return (
     <ProtectedRoute>
@@ -45,6 +45,14 @@ export default function BecomeDonorPage() {
           </CardContent>
         </Card>
       </main>
+      <AuthModal
+        initialPhone={user?.phone}
+        isOpen={isAuthModalOpen}
+        onAuthenticated={() => setIsAuthModalOpen(false)}
+        onClose={() => setIsAuthModalOpen(false)}
+        profileRedirect="/become-donor"
+        profileUser={user && !user.phoneVerified ? user : undefined}
+      />
     </ProtectedRoute>
   );
 }

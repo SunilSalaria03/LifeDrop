@@ -36,8 +36,7 @@ export async function getDonorById(id: string) {
   try {
     const response = await axiosClient.get<ApiResponse<DonorDetail>>(
       `/donors/${id}`,
-    );
-
+    ); 
     if (!response.data.data) {
       throw new Error('Donor profile was not found.');
     }

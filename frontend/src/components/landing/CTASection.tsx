@@ -23,7 +23,11 @@ export function CTASection() {
     }
 
     if (!user?.phoneVerified) {
-      router.push('/profile/setup?redirect=/become-donor');
+      window.dispatchEvent(
+        new CustomEvent('lifedrop:open-auth-modal', {
+          detail: { phone: user?.phone ?? '', redirect: '/become-donor' },
+        }),
+      );
       return;
     }
 

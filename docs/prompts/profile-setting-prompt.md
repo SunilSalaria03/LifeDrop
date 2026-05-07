@@ -54,3 +54,52 @@ Optional Enhancements:
 - Add upload/change profile picture functionality.
 - Add donor activity/history section.
 - Add emergency contact information section.
+
+
+
+
+
+
+Profile update optimisation--------------
+
+Read existing auth/profile flow before changes.
+
+Update Google Login + Profile/Donor flow:
+
+1. Google Login OTP Flow
+
+* After successful Google login/signup, DO NOT redirect user to any page/component for phone verification.
+* Open same auth modal and directly show OTP verify UI inside modal.
+* Flow should be exactly same as existing phone login OTP flow.
+* Google auth success → ask phone → send OTP → verify OTP in same modal.
+* No separate route/page/component.
+* Reuse existing OTP modal logic/components/apis.
+* After OTP verification complete, continue existing after login flow.
+
+2. Update Profile Changes (Normal User)
+
+* In update profile form:
+
+  * phone/mobile field must always be disabled/read-only because already verified.
+  * when user updates state/city/district, automatically update latitude & longitude as well.
+  * keep existing profile functionality same.
+
+3. Become Donor Flow
+
+* If logged-in user role = normal user:
+
+  * "Become a Donor" button should open/fill only donor-required fields.
+  * phone verification step must NOT appear again because phone already verified.
+  * phone input remains disabled here also.
+  * existing profile data should prefill automatically.
+
+4. Data Rules
+
+* Avoid duplicate keys:
+
+  * use single field only for name
+  * use single field only for phone/mobile
+* Keep existing APIs and auth flow optimized.
+* Do not create unnecessary components/routes.
+* Reuse existing modal, OTP flow, validation, and state management.
+* Response should contain only required code changes, no theory/explanation.

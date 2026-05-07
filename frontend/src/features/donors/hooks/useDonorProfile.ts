@@ -26,11 +26,12 @@ export function useDonorProfile() {
   >({
     mutationFn: createDonorProfile,
     onSuccess: (donorProfile, payload) => {
-      userStorage.updateUser({
+      const updatedUser = userStorage.updateUser({
         role: 'donor',
         name: payload.name,
         email: payload.email,
         phone: payload.phone,
+        isProfileCompleted: true,
         bloodGroup: donorProfile.bloodGroup,
         gender: donorProfile.gender as AuthUser['gender'],
         birthDate: donorProfile.birthDate,
@@ -43,7 +44,11 @@ export function useDonorProfile() {
         district: donorProfile.district,
         tehsil: donorProfile.tehsil,
         pincode: donorProfile.pincode,
+        location: donorProfile.location,
       });
+      if (updatedUser) {
+        queryClient.setQueryData(['auth', 'me'], updatedUser);
+      }
       queryClient.setQueryData(['donors', 'profile', 'me'], donorProfile);
       void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
       void queryClient.invalidateQueries({ queryKey: ['donors', 'profile', 'me'] });

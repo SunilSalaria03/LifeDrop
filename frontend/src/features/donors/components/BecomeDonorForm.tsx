@@ -200,20 +200,9 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
             />
           </div>
           <div className="grid gap-2">
-            <FieldLabel htmlFor="email">Email</FieldLabel>
-            <Input
-              className="h-12 rounded-2xl"
-              id="email"
-              name="email"
-              onChange={formik.handleChange}
-              placeholder="Enter email"
-              type="email"
-              value={formik.values.email}
-            />
-          </div>
-          <div className="grid gap-2">
             <FieldLabel htmlFor="phone">Phone</FieldLabel>
             <IndiaPhoneInput
+              disabled
               name="phone"
               onChange={(phone) =>
                 void formik.setFieldValue("phone", phone, false)

@@ -50,7 +50,10 @@ export function useAuth() {
     mutationFn: async (idToken: string) => authenticateWithGoogle({ idToken }),
     onSuccess: (authResponse) => {
       storeAuthTokens(authResponse);
-      redirectAfterLogin(authResponse, router, getRedirectParam());
+
+      if (authResponse.user.phoneVerified) {
+        redirectAfterLogin(authResponse, router, getRedirectParam());
+      }
     }
   });
 

@@ -6,6 +6,7 @@ import {
   HeartPulse,
   MapPin,
   Navigation,
+  Phone,
   ShieldCheck,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -42,7 +43,29 @@ function formatDate(date?: string) {
     year: 'numeric',
   }).format(new Date(date));
 }
+function formatPhone(phone?: string, showMobile: boolean = false) {
+  if (!phone) {
+    return "Not provided";
+  }
 
+  const cleaned = phone.replace(/\D/g, "");
+
+  let mobile = cleaned;
+
+  if (cleaned.length === 12 && cleaned.startsWith("91")) {
+    mobile = cleaned.slice(2);
+  }
+
+  if (mobile.length !== 10) {
+    return phone;
+  }
+
+  if (showMobile) {
+    return `+91 ${mobile.slice(0, 5)} ${mobile.slice(5)}`;
+  }
+
+  return `+91 XXXXX ${mobile.slice(5)}`;
+}
 function DetailRow({
   icon: Icon,
   label,
@@ -147,11 +170,11 @@ export function DonorCard({ donor }: DonorCardProps) {
               label="Last donation"
               value={formatDate(donor.lastDonationDate)}
             />
-            {donor.nextEligibleDate ? (
+            {donor.phone ? (
               <DetailRow
-                icon={CalendarClock}
-                label="Next eligible"
-                value={formatDate(donor.nextEligibleDate)}
+                icon={Phone}
+                label="Contact"
+                value={formatPhone(donor.phone, donor.showMobile)}
               />
             ) : null}
             {donor.totalDonations !== undefined ? (

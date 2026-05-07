@@ -5,18 +5,18 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-} from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, PipelineStage, Types } from 'mongoose';
-import { CreateDonorProfileDto } from './dto/create-donor-profile.dto';
-import { DonorSearchQueryDto } from './dto/donor-search-query.dto';
-import { UpdateDonorAvailabilityDto } from './dto/update-donor-availability.dto';
-import { UpdateDonorProfileDto } from './dto/update-donor-profile.dto';
+} from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model, PipelineStage, Types } from "mongoose";
+import { CreateDonorProfileDto } from "./dto/create-donor-profile.dto";
+import { DonorSearchQueryDto } from "./dto/donor-search-query.dto";
+import { UpdateDonorAvailabilityDto } from "./dto/update-donor-availability.dto";
+import { UpdateDonorProfileDto } from "./dto/update-donor-profile.dto";
 import {
   DonorProfile,
   DonorProfileDocument,
-} from './schemas/donor-profile.schema';
-import { User, UserDocument, UserRole } from '../users/schemas/user.schema';
+} from "./schemas/donor-profile.schema";
+import { User, UserDocument, UserRole } from "../users/schemas/user.schema";
 
 const DONOR_ELIGIBILITY_DAYS = 90;
 const DEFAULT_SEARCH_RADIUS_KM = 50;
@@ -43,7 +43,7 @@ export class DonorsService {
 
     if (existingProfile) {
       throw new ConflictException(
-        'Donor profile already exists for this user.',
+        "Donor profile already exists for this user.",
       );
     }
 
@@ -51,7 +51,7 @@ export class DonorsService {
       ...this.toDonorProfileData(dto),
       userId: user._id,
       isActive: true,
-      isVerified: false,
+      isVerified: true,
       totalDonations: 0,
     });
 
@@ -69,7 +69,7 @@ export class DonorsService {
 
     if (!existingProfile) {
       throw new NotFoundException(
-        'Donor profile does not exist for this user.',
+        "Donor profile does not exist for this user.",
       );
     }
 
@@ -83,7 +83,7 @@ export class DonorsService {
 
     if (!updatedProfile) {
       throw new NotFoundException(
-        'Donor profile does not exist for this user.',
+        "Donor profile does not exist for this user.",
       );
     }
 
@@ -115,7 +115,7 @@ export class DonorsService {
 
     if (!profile) {
       throw new NotFoundException(
-        'Donor profile does not exist for this user.',
+        "Donor profile does not exist for this user.",
       );
     }
 
@@ -131,8 +131,6 @@ export class DonorsService {
       ? this.buildGeoSearchPipeline(query, radiusKm, baseFilter)
       : this.buildManualSearchPipeline(baseFilter);
 
-    this.logSearchDebug(query, radiusKm, baseFilter, pipeline);
-
     const items = await this.donorProfileModel.aggregate(pipeline).exec();
 
     return {
@@ -144,7 +142,7 @@ export class DonorsService {
 
   async getPublicProfile(id: string) {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid donor profile id.');
+      throw new BadRequestException("Invalid donor profile id.");
     }
 
     const [profile] = await this.donorProfileModel
@@ -152,7 +150,7 @@ export class DonorsService {
       .exec();
 
     if (!profile) {
-      throw new NotFoundException('Donor profile not found.');
+      throw new NotFoundException("Donor profile not found.");
     }
 
     return profile;
@@ -166,7 +164,7 @@ export class DonorsService {
 
     if (dto.lat !== undefined && dto.lng !== undefined) {
       data.location = {
-        type: 'Point',
+        type: "Point",
         coordinates: [Number(dto.lng), Number(dto.lat)],
       };
     }
@@ -217,21 +215,20 @@ export class DonorsService {
       update.phone = nextPhone;
     }
 
-
     for (const field of [
-      'bloodGroup',
-      'gender',
-      'birthDate',
-      'weight',
-      'lastDonationDate',
-      'showMobile',
-      'smsAlert',
-      'pincode',
-      'state',
-      'city',
-      'district',
-      'tehsil',
-      'addressText',
+      "bloodGroup",
+      "gender",
+      "birthDate",
+      "weight",
+      "lastDonationDate",
+      "showMobile",
+      "smsAlert",
+      "pincode",
+      "state",
+      "city",
+      "district",
+      "tehsil",
+      "addressText",
     ] as const) {
       if (profile[field] !== undefined) {
         update[field] = profile[field];
@@ -243,9 +240,7 @@ export class DonorsService {
     }
 
     update.isProfileCompleted = Boolean(
-      nextName &&
-        nextPhone &&
-        user.phoneVerified,
+      nextName && nextPhone && user.phoneVerified,
     );
     update.role = UserRole.Donor;
 
@@ -255,45 +250,44 @@ export class DonorsService {
   private assertUserCanManageDonorProfile(user: UserDocument): void {
     if (user.isBlocked) {
       throw new ForbiddenException(
-        'Blocked users cannot manage donor profiles.',
+        "Blocked users cannot manage donor profiles.",
       );
     }
 
     if (!user.phoneVerified) {
       throw new ForbiddenException(
-        'Verify your phone number before managing donor profiles.',
+        "Verify your phone number before managing donor profiles.",
       );
     }
-
   }
 
   private assertValidSearchMode(query: DonorSearchQueryDto): void {
     if ((query.lat === undefined) !== (query.lng === undefined)) {
       throw new BadRequestException(
-        'Both lat and lng are required for geo search.',
+        "Both lat and lng are required for geo search.",
       );
     }
 
     if (query.lat !== undefined && !Number.isFinite(Number(query.lat))) {
-      throw new BadRequestException('lat must be a valid number.');
+      throw new BadRequestException("lat must be a valid number.");
     }
 
     if (query.lng !== undefined && !Number.isFinite(Number(query.lng))) {
-      throw new BadRequestException('lng must be a valid number.');
+      throw new BadRequestException("lng must be a valid number.");
     }
 
     if (
       query.lat !== undefined &&
       (Number(query.lat) < -90 || Number(query.lat) > 90)
     ) {
-      throw new BadRequestException('lat must be between -90 and 90.');
+      throw new BadRequestException("lat must be between -90 and 90.");
     }
 
     if (
       query.lng !== undefined &&
       (Number(query.lng) < -180 || Number(query.lng) > 180)
     ) {
-      throw new BadRequestException('lng must be between -180 and 180.');
+      throw new BadRequestException("lng must be between -180 and 180.");
     }
 
     if (
@@ -303,7 +297,7 @@ export class DonorsService {
       !query.district
     ) {
       throw new BadRequestException(
-        'Provide lat/lng or at least one location filter.',
+        "Provide lat/lng or at least one location filter.",
       );
     }
   }
@@ -312,11 +306,11 @@ export class DonorsService {
     const normalizedRadius = radiusKm ?? DEFAULT_SEARCH_RADIUS_KM;
 
     if (!Number.isFinite(Number(normalizedRadius))) {
-      throw new BadRequestException('radiusKm must be a valid number.');
+      throw new BadRequestException("radiusKm must be a valid number.");
     }
 
     if (normalizedRadius < 1) {
-      throw new BadRequestException('radiusKm must be at least 1.');
+      throw new BadRequestException("radiusKm must be at least 1.");
     }
 
     if (normalizedRadius > MAX_SEARCH_RADIUS_KM) {
@@ -331,7 +325,7 @@ export class DonorsService {
   private assertValidCoordinatePair(dto: DonorProfileInput): void {
     if ((dto.lat === undefined) !== (dto.lng === undefined)) {
       throw new BadRequestException(
-        'Both lat and lng are required when updating donor coordinates.',
+        "Both lat and lng are required when updating donor coordinates.",
       );
     }
   }
@@ -343,16 +337,10 @@ export class DonorsService {
   }
 
   private buildEligibleFilter(query: DonorSearchQueryDto) {
-    const now = new Date();
     const filter: Record<string, unknown> = {
       bloodGroup: query.bloodGroup,
       isActive: true,
       isAvailable: true,
-      $or: [
-        { nextEligibleDate: { $lte: now } },
-        { nextEligibleDate: null },
-        { nextEligibleDate: { $exists: false } },
-      ],
     };
 
     if (query.state) {
@@ -379,10 +367,10 @@ export class DonorsService {
       {
         $geoNear: {
           near: {
-            type: 'Point',
+            type: "Point",
             coordinates: [Number(query.lng), Number(query.lat)],
           },
-          distanceField: 'distanceMeters',
+          distanceField: "distanceMeters",
           maxDistance: radiusKm * 1000,
           spherical: true,
           query: baseFilter,
@@ -392,7 +380,7 @@ export class DonorsService {
       {
         $addFields: {
           distanceKm: {
-            $round: [{ $divide: ['$distanceMeters', 1000] }, 2],
+            $round: [{ $divide: ["$distanceMeters", 1000] }, 2],
           },
         },
       },
@@ -403,31 +391,6 @@ export class DonorsService {
       },
       ...this.safeDonorProjectionStages(),
     ];
-  }
-
-  private logSearchDebug(
-    query: DonorSearchQueryDto,
-    radiusKm: number,
-    baseFilter: Record<string, unknown>,
-    pipeline: PipelineStage[],
-  ): void {
-    if (process.env.NODE_ENV === 'production') {
-      return;
-    }
-
-    this.logger.debug(
-      JSON.stringify(
-        {
-          message: 'Donor geo/manual search debug',
-          query,
-          radiusKm,
-          baseFilter,
-          pipeline,
-        },
-        null,
-        2,
-      ),
-    );
   }
 
   private buildManualSearchPipeline(
@@ -463,14 +426,14 @@ export class DonorsService {
     return [
       {
         $lookup: {
-          from: 'users',
-          localField: 'userId',
-          foreignField: '_id',
-          as: 'user',
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
         },
       },
-      { $unwind: '$user' },
-      { $match: { 'user.isBlocked': { $ne: true } } },
+      { $unwind: "$user" },
+      { $match: { "user.isBlocked": { $ne: true } } },
     ];
   }
 
@@ -479,14 +442,15 @@ export class DonorsService {
       {
         $project: {
           _id: 0,
-          id: { $toString: '$_id' },
-          userId: { $toString: '$userId' },
-          name: '$user.name',
-          profileImage: '$user.profileImage',
+          id: { $toString: "$_id" },
+          userId: { $toString: "$userId" },
+          name: "$user.name",
+          profileImage: "$user.profileImage",
           bloodGroup: 1,
           state: 1,
           city: 1,
           district: 1,
+          location: 1,
           distanceKm: 1,
           isAvailable: 1,
           isVerified: 1,
@@ -495,6 +459,8 @@ export class DonorsService {
           totalDonations: 1,
           createdAt: 1,
           updatedAt: 1,
+          phone: 1,
+          showMobile: 1,
         },
       },
     ];

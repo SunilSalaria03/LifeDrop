@@ -33,6 +33,7 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalPhone, setAuthModalPhone] = useState("");
+  const [authModalRedirect, setAuthModalRedirect] = useState<string | undefined>();
   const [storedUser, setStoredUser] = useState<AuthUser | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const user = meQuery.data ?? storedUser;
@@ -53,8 +54,9 @@ export function Header() {
 
   useEffect(() => {
     function handleOpenAuthModal(event: Event) {
-      const customEvent = event as CustomEvent<{ phone?: string }>;
+      const customEvent = event as CustomEvent<{ phone?: string; redirect?: string }>;
       setAuthModalPhone(customEvent.detail?.phone ?? "");
+      setAuthModalRedirect(customEvent.detail?.redirect);
       setIsAuthModalOpen(true);
     }
 
@@ -110,7 +112,9 @@ export function Header() {
     }
 
     if (!user.phoneVerified) {
-      router.push("/profile/setup?redirect=/become-donor");
+      setAuthModalPhone(user.phone ?? "");
+      setAuthModalRedirect("/become-donor");
+      setIsAuthModalOpen(true);
       return;
     }
 
@@ -119,11 +123,13 @@ export function Header() {
 
   const openAuthModal = () => {
     setAuthModalPhone("");
+    setAuthModalRedirect(undefined);
     setIsAuthModalOpen(true);
   };
 
   const closeAuthModal = () => {
     setIsAuthModalOpen(false);
+    setAuthModalRedirect(undefined);
 
     const currentUrl = new URL(window.location.href);
     currentUrl.searchParams.delete("auth");
@@ -244,9 +250,11 @@ export function Header() {
       </header>
       <AuthModal
         initialPhone={authModalPhone}
-        isOpen={!user && isAuthModalOpen}
+        isOpen={isAuthModalOpen}
         onAuthenticated={setStoredUser}
         onClose={closeAuthModal}
+        profileRedirect={authModalRedirect}
+        profileUser={user && !user.phoneVerified ? user : undefined}
       />
     </>
   );

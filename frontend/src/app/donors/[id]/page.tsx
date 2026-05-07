@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import {
   ArrowLeft,
   CalendarCheck,
@@ -10,44 +10,67 @@ import {
   HeartPulse,
   MapPin,
   Navigation,
+  Phone,
   ShieldCheck,
   Users,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Footer } from '@/components/layout/Footer';
-import { Header } from '@/components/layout/Header';
-import { useDonorDetails } from '@/features/donors/hooks/useDonorDetails';
-import { DonorDetail } from '@/features/donors/types/donor.types';
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Footer } from "@/components/layout/Footer";
+import { Header } from "@/components/layout/Header";
+import { useDonorDetails } from "@/features/donors/hooks/useDonorDetails";
+import { DonorDetail } from "@/features/donors/types/donor.types";
 
 function getDonorName(name?: string) {
-  return name?.trim() || 'LifeDrop Donor';
+  return name?.trim() || "LifeDrop Donor";
 }
 
 function getInitials(name?: string) {
   return getDonorName(name)
-    .split(' ')
+    .split(" ")
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
-    .join('');
+    .join("");
 }
 
 function formatDate(date?: string) {
   if (!date) {
-    return 'Not provided';
+    return "Not provided";
   }
 
-  return new Intl.DateTimeFormat('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
   }).format(new Date(date));
 }
+function formatPhone(phone?: string, showMobile: boolean = false) {
+  if (!phone) {
+    return "Not provided";
+  }
 
+  const cleaned = phone.replace(/\D/g, "");
+
+  let mobile = cleaned;
+
+  if (cleaned.length === 12 && cleaned.startsWith("91")) {
+    mobile = cleaned.slice(2);
+  }
+
+  if (mobile.length !== 10) {
+    return phone;
+  }
+
+  if (showMobile) {
+    return `+91 ${mobile.slice(0, 5)} ${mobile.slice(5)}`;
+  }
+
+  return `+91 XXXXX ${mobile.slice(5)}`;
+}
 function DetailItem({
   icon: Icon,
   label,
@@ -78,7 +101,7 @@ function DonorProfileHeader({ donor }: { donor: DonorDetail }) {
   const donorName = getDonorName(donor.name);
   const location = [donor.city, donor.district, donor.state]
     .filter(Boolean)
-    .join(', ');
+    .join(", ");
 
   return (
     <Card className="overflow-hidden rounded-2xl border-white/80 bg-white shadow-xl shadow-red-950/10">
@@ -107,7 +130,9 @@ function DonorProfileHeader({ donor }: { donor: DonorDetail }) {
             </div>
             <p className="flex items-start gap-2 text-base text-neutral-600">
               <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
-              <span className="break-words">{location || 'Location not provided'}</span>
+              <span className="break-words">
+                {location || "Location not provided"}
+              </span>
             </p>
           </div>
 
@@ -118,12 +143,12 @@ function DonorProfileHeader({ donor }: { donor: DonorDetail }) {
             <Badge
               className={
                 donor.isAvailable
-                  ? 'gap-1.5 bg-green-50 px-4 py-2 text-green-700 ring-1 ring-green-100'
-                  : 'gap-1.5 bg-neutral-100 px-4 py-2 text-neutral-600 ring-1 ring-neutral-200'
+                  ? "gap-1.5 bg-green-50 px-4 py-2 text-green-700 ring-1 ring-green-100"
+                  : "gap-1.5 bg-neutral-100 px-4 py-2 text-neutral-600 ring-1 ring-neutral-200"
               }
             >
               <CheckCircle2 className="h-4 w-4" />
-              {donor.isAvailable ? 'Available' : 'Not Available'}
+              {donor.isAvailable ? "Available" : "Not Available"}
             </Badge>
             {donor.isVerified ? (
               <Badge className="gap-1.5 bg-red-50 px-4 py-2 text-red-700 ring-1 ring-red-100">
@@ -142,8 +167,7 @@ export default function DonorDetailPage() {
   const params = useParams<{ id: string }>();
   const donorId = params.id;
   const donorQuery = useDonorDetails(donorId);
-  const donor = donorQuery.data;
-
+  const donor = donorQuery.data; 
   return (
     <>
       <Header />
@@ -201,14 +225,20 @@ export default function DonorDetailPage() {
                     <DetailItem
                       icon={MapPin}
                       label="Location"
-                      value={[donor.city, donor.state].filter(Boolean).join(', ')}
+                      value={[donor.city, donor.state]
+                        .filter(Boolean)
+                        .join(", ")}
                     />
                     <DetailItem icon={MapPin} label="City" value={donor.city} />
-                    <DetailItem icon={MapPin} label="State" value={donor.state} />
+                    <DetailItem
+                      icon={MapPin}
+                      label="State"
+                      value={donor.state}
+                    />
                     <DetailItem
                       icon={MapPin}
                       label="District"
-                      value={donor.district ?? 'Not provided'}
+                      value={donor.district ?? "Not provided"}
                     />
                     {donor.distanceKm !== undefined ? (
                       <DetailItem
@@ -237,6 +267,11 @@ export default function DonorDetailPage() {
                       label="Member since"
                       value={formatDate(donor.createdAt)}
                     />
+                    <DetailItem
+                      icon={Phone}
+                      label="Contact"
+                      value={formatPhone(donor.phone , donor.showMobile)}
+                    />
                   </CardContent>
                 </Card>
 
@@ -258,7 +293,11 @@ export default function DonorDetailPage() {
                         Request Blood
                       </Link>
                     </Button>
-                    <Button asChild className="h-12 w-full rounded-full" variant="outline">
+                    <Button
+                      asChild
+                      className="h-12 w-full rounded-full"
+                      variant="outline"
+                    >
                       <Link href="/">Back to Search</Link>
                     </Button>
                   </CardContent>

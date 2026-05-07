@@ -60,11 +60,17 @@ export type DonorListItem = {
   distanceKm?: number;
   isAvailable: boolean;
   isVerified?: boolean;
+  isActive?: boolean;
   lastDonationDate?: string;
   nextEligibleDate?: string;
   totalDonations?: number;
+  location?: {
+    type: 'Point';
+    coordinates: [number, number];
+  };
   createdAt?: string;
   updatedAt?: string;
+  phone?:string;
 };
 
 export type DonorDetail = DonorListItem;

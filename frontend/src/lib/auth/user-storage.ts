@@ -34,13 +34,16 @@ export const userStorage = {
     const currentUser = this.getUser();
 
     if (!currentUser) {
-      return;
+      return null;
     }
 
-    this.setUser({
+    const updatedUser = {
       ...currentUser,
       ...updates,
-    });
+    };
+
+    this.setUser(updatedUser);
+    return updatedUser;
   },
 
   clearUser() {

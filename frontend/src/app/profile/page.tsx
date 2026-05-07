@@ -173,6 +173,8 @@ function ProfileEditForm({
       stateCode: findStateCode(user.state),
       district: user.district ?? user.city ?? "",
       tehsil: user.tehsil ?? "",
+      lat: user.location?.coordinates?.[1],
+      lng: user.location?.coordinates?.[0],
     },
     validationSchema: updateProfileFormSchema,
     enableReinitialize: true,
@@ -188,6 +190,8 @@ function ProfileEditForm({
           city: values.district,
           district: values.district,
           tehsil: values.tehsil || undefined,
+          lat: values.lat,
+          lng: values.lng,
           ...(isDonor
             ? {
                 bloodGroup: values.bloodGroup || undefined,
@@ -235,14 +239,23 @@ function ProfileEditForm({
       state: selectedState?.name ?? "",
       district: "",
       tehsil: "",
+      lat: undefined,
+      lng: undefined,
     });
   };
 
   const handleDistrictChange = (districtName: string) => {
+    const selectedDistrict = districts.find((city) => city.name === districtName);
     void formik.setValues({
       ...formik.values,
       district: districtName,
       tehsil: "",
+      lat: selectedDistrict?.latitude
+        ? Number(selectedDistrict.latitude)
+        : undefined,
+      lng: selectedDistrict?.longitude
+        ? Number(selectedDistrict.longitude)
+        : undefined,
     });
   };
 
@@ -273,6 +286,7 @@ function ProfileEditForm({
             value={formik.values.email}
           />
           <IndiaPhoneInput
+            disabled
             name="phone"
             onBlur={formik.handleBlur}
             onChange={(phone) =>
@@ -617,6 +631,7 @@ function DonorEditForm({
           </SelectContent>
         </Select>
         <IndiaPhoneInput
+          disabled
           name="phone"
           onChange={(phone) => void formik.setFieldValue("phone", phone, false)}
           placeholder="Donor phone"
