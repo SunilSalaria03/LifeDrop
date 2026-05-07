@@ -1,8 +1,12 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
+  type CarouselApi,
   Carousel,
   CarouselContent,
   CarouselItem,
@@ -63,19 +67,33 @@ function getInitials(name: string) {
 }
 
 export function SuccessStories() {
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+
+  useEffect(() => {
+    if (!carouselApi) {
+      return;
+    }
+
+    const autoplay = window.setInterval(() => {
+      carouselApi.scrollNext();
+    }, 3600);
+
+    return () => window.clearInterval(autoplay);
+  }, [carouselApi]);
+
   return (
-    <section className="bg-[linear-gradient(135deg,#fff7f7_0%,#ffffff_45%,#f8fbff_100%)] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-      <div className="mx-auto grid max-w-7xl gap-10">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase text-red-600">
+    <section className="bg-[linear-gradient(135deg,#ffffff_0%,#fff4f4_46%,#f7fbff_100%)] px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
+      <div className="mx-auto grid max-w-7xl gap-8 lg:gap-10">
+        <div className="mx-auto grid max-w-2xl gap-3 text-center">
+          <p className="text-sm font-semibold uppercase text-red-700">
             Success stories
           </p>
 
-          <h2 className="mt-3 text-3xl font-bold tracking-normal text-neutral-950 sm:text-4xl">
+          <h2 className="text-3xl font-bold tracking-normal text-neutral-950 sm:text-4xl">
             Trusted by people who act fast
           </h2>
 
-          <p className="mt-4 text-base leading-7 text-neutral-600">
+          <p className="text-sm font-medium leading-6 text-neutral-600 sm:text-base sm:leading-7">
             Real moments from donors and families using LifeDrop to connect with
             care.
           </p>
@@ -86,24 +104,25 @@ export function SuccessStories() {
             align: "start",
             loop: true,
           }}
+          setApi={setCarouselApi}
           className="mx-auto w-full max-w-7xl"
         >
-          <CarouselContent className="-ml-4">
+          <CarouselContent className="-ml-4 py-2">
             {stories.map((story) => (
               <CarouselItem
                 key={story.name}
                 className="basis-full pl-4 sm:basis-1/2 lg:basis-1/3"
               >
-                <Card className="h-full rounded-2xl border-red-100/70 bg-white/95 shadow-lg shadow-red-950/5 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-red-950/10">
-                  <CardContent className="grid h-full gap-5 p-6 lg:p-7">
+                <Card className="h-full overflow-hidden rounded-2xl border border-white/80 bg-white/95 shadow-lg shadow-red-950/5 transition duration-200 hover:-translate-y-1 hover:border-red-100 hover:shadow-xl hover:shadow-red-950/10">
+                  <CardContent className="grid h-full gap-5 p-5 sm:p-6">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
-                        <Avatar className="h-12 w-12 border border-red-100 bg-red-50">
+                        <Avatar className="h-12 w-12 border border-red-100 bg-red-50 shadow-sm shadow-red-950/5">
                           {story.avatar ? (
                             <AvatarImage alt={story.name} src={story.avatar} />
                           ) : null}
 
-                          <AvatarFallback className="bg-red-50 text-red-700">
+                          <AvatarFallback className="bg-red-50 text-sm font-bold text-red-700">
                             {getInitials(story.name)}
                           </AvatarFallback>
                         </Avatar>
@@ -112,27 +131,32 @@ export function SuccessStories() {
                           <h3 className="truncate text-base font-bold text-neutral-950">
                             {story.name}
                           </h3>
-                          <p className="text-sm text-neutral-500">
+                          <p className="text-sm font-medium text-neutral-500">
                             {story.city}
                           </p>
                         </div>
                       </div>
 
-                      <Badge className="bg-red-50 text-red-700 ring-1 ring-red-100">
+                      <Badge className="shrink-0 rounded-full bg-red-50 px-3 py-1.5 text-red-700 ring-1 ring-red-100">
                         {story.bloodGroup}
                       </Badge>
                     </div>
 
-                    <div
-                      className="flex gap-1 text-red-500"
-                      aria-label="5 star rating"
-                    >
-                      {Array.from({ length: 5 }).map((_, index) => (
-                        <Star className="h-4 w-4 fill-current" key={index} />
-                      ))}
+                    <div className="flex items-center justify-between gap-4 border-y border-neutral-100 py-3">
+                      <div
+                        className="flex gap-1 text-amber-500"
+                        aria-label="5 star rating"
+                      >
+                        {Array.from({ length: 5 }).map((_, index) => (
+                          <Star className="h-4 w-4 fill-current" key={index} />
+                        ))}
+                      </div>
+                      <span className="text-xs font-semibold uppercase text-neutral-400">
+                        Verified story
+                      </span>
                     </div>
 
-                    <p className="text-sm leading-6 text-neutral-600">
+                    <p className="text-sm font-medium leading-6 text-neutral-600">
                       &ldquo;{story.message}&rdquo;
                     </p>
                   </CardContent>
@@ -141,8 +165,8 @@ export function SuccessStories() {
             ))}
           </CarouselContent>
 
-          <CarouselPrevious className="-left-4 hidden border-red-100 text-red-600 hover:bg-red-50 sm:flex" />
-          <CarouselNext className="-right-4 hidden border-red-100 text-red-600 hover:bg-red-50 sm:flex" />
+          <CarouselPrevious className="-left-4 hidden h-10 w-10 border-red-100 bg-white text-red-700 shadow-lg shadow-red-950/5 hover:bg-red-50 sm:flex" />
+          <CarouselNext className="-right-4 hidden h-10 w-10 border-red-100 bg-white text-red-700 shadow-lg shadow-red-950/5 hover:bg-red-50 sm:flex" />
         </Carousel>
       </div>
     </section>

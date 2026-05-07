@@ -6,61 +6,71 @@ const stats = [
     label: 'Registered Donors',
     value: '1,250',
     icon: UsersRound,
-    iconClassName: 'bg-red-50 text-red-600 ring-red-100',
+    iconClassName: 'bg-red-50 text-red-700 ring-red-100',
+    valueClassName: 'text-red-700',
   },
   {
     label: 'Lives Saved',
     value: '380',
     icon: HeartPulse,
-    iconClassName: 'bg-red-50 text-red-600 ring-red-100',
+    iconClassName: 'bg-rose-50 text-rose-700 ring-rose-100',
+    valueClassName: 'text-rose-700',
   },
   {
     label: 'Blood Requests',
     value: '450',
     icon: ClipboardPlus,
-    iconClassName: 'bg-blue-50 text-blue-700 ring-blue-100',
+    iconClassName: 'bg-sky-50 text-sky-700 ring-sky-100',
+    valueClassName: 'text-sky-700',
   },
   {
     label: 'Cities Covered',
     value: '40',
     icon: MapPin,
-    iconClassName: 'bg-emerald-50 text-emerald-600 ring-emerald-100',
+    iconClassName: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+    valueClassName: 'text-emerald-700',
   },
 ];
 
 export function StatsSection() {
   return (
-    <section className="bg-[linear-gradient(135deg,#f8fbff_0%,#ffffff_48%,#fff7f7_100%)] px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-      <div className="mx-auto grid max-w-7xl gap-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase text-red-600">LifeDrop impact</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-normal text-neutral-950 sm:text-4xl">
+    <section className="bg-[linear-gradient(135deg,#ffffff_0%,#f7fbff_48%,#fff4f4_100%)] px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+      <div className="mx-auto grid max-w-7xl gap-8 lg:gap-10">
+        <div className="mx-auto grid max-w-2xl gap-3 text-center">
+          <p className="text-sm font-semibold uppercase text-red-700">
+            LifeDrop impact
+          </p>
+          <h2 className="text-3xl font-bold tracking-normal text-neutral-950 sm:text-4xl">
             Small actions, measurable help
           </h2>
+          <p className="text-sm font-medium leading-6 text-neutral-600 sm:text-base">
+            A quick view of the community activity powering faster donor discovery.
+          </p>
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
           {stats.map((stat) => {
             const Icon = stat.icon;
 
             return (
               <Card
-                className="group overflow-hidden rounded-2xl border-white/80 bg-white/95 shadow-xl shadow-blue-950/10 transition duration-200 hover:-translate-y-1 hover:border-red-100 hover:shadow-2xl hover:shadow-blue-950/15"
+                className="group overflow-hidden rounded-2xl border border-white/80 bg-white/95 shadow-lg shadow-red-950/5 transition duration-200 hover:-translate-y-1 hover:border-red-100 hover:shadow-xl hover:shadow-red-950/10"
                 key={stat.label}
               >
-                <CardContent className="grid gap-5 p-6 text-center lg:p-7">
-                  <div className="mx-auto rounded-2xl bg-[linear-gradient(135deg,#eff6ff_0%,#ffffff_48%,#fff1f2_100%)] p-3 shadow-sm shadow-blue-950/5">
+                <CardContent className="grid gap-5 p-5 sm:p-6">
+                  <div className="flex items-center justify-between gap-4">
                     <div
-                      className={`flex h-14 w-14 items-center justify-center rounded-2xl ring-1 ${stat.iconClassName}`}
+                      className={`flex h-12 w-12 items-center justify-center rounded-2xl ring-1 ${stat.iconClassName}`}
                     >
-                      <Icon className="h-7 w-7" />
+                      <Icon className="h-6 w-6" />
                     </div>
+                    <span className="h-2 w-2 rounded-full bg-neutral-200 transition group-hover:bg-red-300" />
                   </div>
-                  <div>
-                    <p className="text-4xl font-bold tracking-normal text-red-600">
+                  <div className="grid gap-1">
+                    <p className={`text-4xl font-bold tracking-normal ${stat.valueClassName}`}>
                       {stat.value}
                     </p>
-                    <p className="mt-2 text-sm font-semibold text-neutral-500">
+                    <p className="text-sm font-semibold text-neutral-600">
                       {stat.label}
                     </p>
                   </div>
