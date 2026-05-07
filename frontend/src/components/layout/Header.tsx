@@ -1,0 +1,256 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { Droplet, Loader2, LogOut, Settings } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { LocationSelector } from "@/components/location/LocationSelector";
+import { AuthModal } from "@/features/auth/components/AuthModal";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { AuthUser } from "@/features/auth/types/auth.types";
+import { userStorage } from "@/lib/auth/user-storage";
+
+function getInitials(name?: string, phone?: string, email?: string) {
+  const displayValue = name?.trim() || email?.trim() || phone?.trim() || "LD";
+
+  return displayValue
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
+
+function getDisplayName(name?: string, phone?: string, email?: string) {
+  return name?.trim() || phone?.trim() || email?.trim() || "LifeDrop User";
+}
+
+export function Header() {
+  const router = useRouter();
+  const { logoutMutation, meQuery } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalPhone, setAuthModalPhone] = useState("");
+  const [authModalRedirect, setAuthModalRedirect] = useState<string | undefined>();
+  const [storedUser, setStoredUser] = useState<AuthUser | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const user = meQuery.data ?? storedUser;
+  const shouldShowBecomeDonor = !user || user.role !== "donor";
+
+  useEffect(() => {
+    setStoredUser(userStorage.getUser());
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("auth") === "login") {
+      setAuthModalPhone(params.get("phone") ?? "");
+      setIsAuthModalOpen(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    function handleOpenAuthModal(event: Event) {
+      const customEvent = event as CustomEvent<{ phone?: string; redirect?: string }>;
+      setAuthModalPhone(customEvent.detail?.phone ?? "");
+      setAuthModalRedirect(customEvent.detail?.redirect);
+      setIsAuthModalOpen(true);
+    }
+
+    window.addEventListener("lifedrop:open-auth-modal", handleOpenAuthModal);
+    return () =>
+      window.removeEventListener(
+        "lifedrop:open-auth-modal",
+        handleOpenAuthModal,
+      );
+  }, []);
+
+  useEffect(() => {
+    if (meQuery.data) {
+      setStoredUser(meQuery.data);
+    }
+  }, [meQuery.data]);
+
+  useEffect(() => {
+    if (logoutMutation.isSuccess || logoutMutation.isError) {
+      setStoredUser(null);
+    }
+  }, [logoutMutation.isError, logoutMutation.isSuccess]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    if (logoutMutation.isPending) {
+      return;
+    }
+
+    setIsMenuOpen(false);
+    logoutMutation.mutate();
+  };
+
+  const handleBecomeDonor = () => {
+    if (!user) {
+      openAuthModal();
+      return;
+    }
+
+    if (!user.phoneVerified) {
+      setAuthModalPhone(user.phone ?? "");
+      setAuthModalRedirect("/become-donor");
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    router.push("/become-donor");
+  };
+
+  const openAuthModal = () => {
+    setAuthModalPhone("");
+    setAuthModalRedirect(undefined);
+    setIsAuthModalOpen(true);
+  };
+
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
+    setAuthModalRedirect(undefined);
+
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.delete("auth");
+    currentUrl.searchParams.delete("phone");
+    window.history.replaceState(
+      null,
+      "",
+      `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`,
+    );
+  };
+
+  return (
+    <>
+      <header className="sticky top-0 z-40 border-b border-red-100/80 bg-white/90 shadow-sm shadow-red-950/5 backdrop-blur-xl">
+        <div className="mx-auto flex min-h-16 max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:min-h-18 sm:flex-nowrap sm:px-6 lg:px-8">
+          <Link
+            aria-label="LifeDrop home"
+            className="group inline-flex min-w-0 items-center gap-3 rounded-full pr-2 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
+            href="/"
+          >
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-red-700 text-white shadow-lg shadow-red-700/20 transition group-hover:bg-red-800">
+              <Droplet className="h-6 w-6 fill-white/20" strokeWidth={2.4} />
+            </span>
+            <span className="grid leading-none">
+              <span className="text-xl font-bold tracking-normal text-neutral-950 sm:text-2xl">
+                LifeDrop
+              </span>
+              <span className="hidden text-xs font-semibold uppercase tracking-[0.14em] text-red-700 sm:block">
+                Blood donor network
+              </span>
+            </span>
+          </Link>
+
+          <nav className="flex w-full min-w-0 flex-wrap items-center justify-start gap-2 sm:w-auto sm:flex-1 sm:flex-nowrap sm:justify-end sm:gap-3">
+            <LocationSelector />
+            {user ? (
+              <div className="relative" ref={menuRef}>
+                <button
+                  aria-expanded={isMenuOpen}
+                  aria-label="Open account menu"
+                  className="flex h-11 max-w-[14rem] items-center gap-2 rounded-full border border-neutral-200 bg-white px-1.5 pr-3 text-sm font-semibold text-neutral-700 shadow-sm shadow-red-950/5 transition hover:border-red-200 hover:bg-red-50/50"
+                  onClick={() => setIsMenuOpen((current) => !current)}
+                  type="button"
+                >
+                  <Avatar className="h-8 w-8 border border-red-100 bg-red-50">
+                    {user.profileImage ? (
+                      <AvatarImage
+                        alt={getDisplayName(user.name, user.phone, user.email)}
+                        src={user.profileImage}
+                      />
+                    ) : null}
+                    <AvatarFallback className="bg-red-50 text-xs text-red-700">
+                      {getInitials(user.name, user.phone, user.email)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden max-w-28 truncate sm:inline">
+                    {getDisplayName(user.name, user.phone, user.email)}
+                  </span>
+                </button>
+
+                {isMenuOpen ? (
+                  <div className="absolute right-0 mt-3 grid w-[calc(100vw-2rem)] max-w-56 gap-1 rounded-2xl border border-neutral-200 bg-white p-2 shadow-2xl shadow-red-950/10 sm:w-56">
+                    <div className="border-b border-neutral-100 px-3 py-2">
+                      <p className="truncate text-sm font-bold text-neutral-950">
+                        {getDisplayName(user.name, user.phone, user.email)}
+                      </p>
+                      <p className="truncate text-xs text-neutral-500">
+                        {user.email ?? user.phone ?? user.role}
+                      </p>
+                    </div>
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-neutral-700 transition hover:bg-red-50 hover:text-red-700"
+                    >
+                      <Settings className="h-4 w-4" />
+                      Profile Settings
+                    </Link>
+                    <button
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-60"
+                      disabled={logoutMutation.isPending}
+                      onClick={handleLogout}
+                      type="button"
+                    >
+                      {logoutMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <LogOut className="h-4 w-4" />
+                      )}
+                      {logoutMutation.isPending ? "Logging out..." : "Logout"}
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <>
+                <Button
+                  className="h-11 flex-1 rounded-full px-5 text-neutral-700 hover:bg-red-50 hover:text-red-700 sm:flex-none"
+                  onClick={openAuthModal}
+                  type="button"
+                  variant="ghost"
+                >
+                  Login
+                </Button>
+              </>
+            )}
+            {shouldShowBecomeDonor ? (
+              <Button
+                className="h-11 flex-1 rounded-full bg-red-700 px-5 text-white shadow-sm shadow-red-700/20 hover:bg-red-800 sm:flex-none"
+                onClick={handleBecomeDonor}
+                type="button"
+              >
+                Become a Donor
+              </Button>
+            ) : null}
+          </nav>
+        </div>
+      </header>
+      <AuthModal
+        initialPhone={authModalPhone}
+        isOpen={isAuthModalOpen}
+        onAuthenticated={setStoredUser}
+        onClose={closeAuthModal}
+        profileRedirect={authModalRedirect}
+        profileUser={user && !user.phoneVerified ? user : undefined}
+      />
+    </>
+  );
+}

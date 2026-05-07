@@ -1,16 +1,24 @@
+import { CTASection } from '@/components/landing/CTASection';
+import { HeroSection } from '@/components/landing/HeroSection';
+import { HowItWorks } from '@/components/landing/HowItWorks';
+import { StatsSection } from '@/components/landing/StatsSection';
+import { SuccessStories } from '@/components/landing/SuccessStories';
+import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
+
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white px-6 py-10 text-neutral-950">
-      <section className="mx-auto flex max-w-5xl flex-col gap-6">
-        <div>
-          <p className="text-sm font-medium uppercase tracking-wide text-red-700">LifeDrop MVP</p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-normal">Emergency blood help, organized faster.</h1>
-        </div>
-        <p className="max-w-2xl text-base leading-7 text-neutral-700">
-          LifeDrop connects blood requesters, donors, nearby search, and notification-ready workflows in one focused platform.
-        </p>
-      </section>
-    </main>
+    <>
+      <Header />
+      <main className="bg-white text-neutral-950">
+        <HeroSection />
+        {/* <ActionCards /> */}
+        <StatsSection />
+        <SuccessStories />
+        <HowItWorks />
+        <CTASection />
+      </main>
+      <Footer />
+    </>
   );
 }
-

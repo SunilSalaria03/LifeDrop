@@ -41,7 +41,7 @@ backend/
       blood-requests/
       notifications/
       admin/
-      location/
+      locations/
 ```
 
 Backend responsibilities:
@@ -56,19 +56,34 @@ Backend responsibilities:
 Implemented foundation:
 - `main.ts` configures `/api/v1`, CORS, validation pipe, response interceptor, and global exception filter.
 - `app.module.ts` configures global environment variables and MongoDB through `MongooseModule`.
-- `modules/auth` contains the initial auth controller and service skeleton.
+- `modules/auth` contains OTP send/verify, Google auth, token refresh, logout, current-user auth, JWT guard, and JWT strategy.
+- `modules/users` contains the Mongoose user schema, profile read/update APIs, and user persistence service used by auth.
+- `modules/donors` contains donor profile creation, updates, availability, public profile details, and DB-backed donor search.
+- `modules/locations` contains DB-backed state, district, city, location search, and admin location create APIs.
+- `modules/blood-requests` and `modules/notifications` contain persistence schemas and indexes for request and notification collections.
 
 ## Backend Module Responsibilities
-- `auth`: registration, login, JWT issuing, current-user auth flow, password hashing, and auth guards.
+- `auth`: registration, login, JWT issuing, current-user auth flow, phone/Google verification, and auth guards.
 - `users`: user profile, onboarding data, contact preferences, and safe public user views.
 - `donors`: donor profile, blood group, availability, last donation date, eligibility, and donor location.
 - `blood-requests`: request creation, request lifecycle, urgency, blood group need, hospital/contact details, and requester ownership.
 - `notifications`: notification-ready event records and future SMS/email/push integration boundaries.
 - `admin`: role-protected operational views and moderation-ready workflows.
-- `location`: geospatial helpers, distance calculations, and reusable location validation.
+- `locations`: DB-backed state/city/district records, geospatial location records, and reusable location validation.
 
 ## Auth And Access Flow
-- Public users can register and login.
+- Public users can signup/login using phone OTP or Google only.
+- Email/password login is not part of the MVP auth architecture.
+- Phone signup/login starts on the frontend with a phone number. The backend creates or finds a minimal phone user, sends OTP through Twilio, and the frontend routes to OTP verification. Tokens are returned only after OTP verification succeeds.
+- Phone OTP remains valid for 10 minutes and resend is throttled to one request every 60 seconds.
+- User roles are `user`, `donor`, and `admin`; new auth users start as `user`.
+- Google signup/login starts on the frontend through Google Identity Services using `NEXT_PUBLIC_GOOGLE_CLIENT_ID` and is verified on the backend with `GOOGLE_CLIENT_ID`. The backend also supports Firebase Google sign-in tokens.
+- Google users without `phoneVerified` are sent to `/profile/setup` to add and verify a phone number with OTP.
+- Normal users are not required to complete donor-style profile details; donor details are collected only when they become donors.
+- Successful auth returns an access token, refresh token, and safe user object.
+- Access tokens protect `/auth/me`, `/auth/logout`, and future private endpoints through Passport JWT.
+- Refresh tokens are hashed before storing in the user document and are never exposed in user responses.
+- Blocked users cannot login or refresh tokens.
 - Authenticated users can manage their own profile, donor profile, and blood requests.
 - Donor search must reveal only approved and safe donor information.
 - Admin routes must require an admin role.
@@ -94,6 +109,10 @@ Lifecycle changes must be handled in services and recorded in API contracts when
 ## Location And Nearby Search
 - Store donor and request locations as MongoDB GeoJSON points.
 - Use `2dsphere` indexes for nearby donor and request search.
+- Store GeoJSON coordinates in `[lng, lat]` order everywhere.
+- Donor search is fully database-driven from the `donorprofiles` collection and joined `users` collection.
+- Manual donor search filters real donor profiles by state, city, and district from MongoDB.
+- Header location selection uses automatic frontend browser geolocation and OpenStreetMap Nominatim reverse geocoding.
 - Keep exact donor location private unless explicitly authorized by a feature.
 - Search APIs should accept distance/radius inputs with documented limits.
 
@@ -118,6 +137,7 @@ frontend/
       ui/
       common/
       forms/
+      landing/
       layout/
     features/
       auth/
@@ -151,9 +171,35 @@ Implemented foundation:
 - `app` contains routes and route layouts.
 - `features` contains feature-specific API hooks, components, and state helpers when needed.
 - `components` contains reusable UI, layout, common, and form components.
+- `components/landing` contains reusable landing-page sections for the home page.
 - `lib/api` contains shared API clients and low-level request helpers.
 - `lib/validations` contains Yup schemas only.
 - `types` contains shared TypeScript interfaces and API models.
+
+## Frontend Auth Flow
+- `/auth/login` accepts phone numbers, calls the backend Twilio OTP send flow, and routes to `/auth/otp`.
+- `/auth/otp` verifies OTP with the backend, shows a resend timer, stores returned tokens, and redirects to `/profile/setup` when `phoneVerified` is false.
+- Auth guest pages redirect already logged-in users to `/profile/setup`, the requested redirect target, or dashboard depending on profile state.
+- `/profile/setup` is protected by a frontend auth guard and redirects unauthenticated users to login.
+- `/become-donor` redirects guests to login, redirects unverified users to `/profile/setup?redirect=/become-donor`, and shows a single protected donor form once `phoneVerified` is true. The form collects basic profile, contact, and donor details in one submit, then promotes the account to donor.
+- `/auth/google` provides a focused Google auth entry point using Google Identity Services.
+- `/profile/setup` is the redirect target when phone verification is required.
+- Auth mutations live in `features/auth/hooks/useAuth.ts`.
+- Auth API calls live in `features/auth/api/auth.api.ts`.
+- Auth validation lives in `features/auth/validations/auth.validation.ts`.
+- Auth types live in `features/auth/types/auth.types.ts`.
+- Tokens are stored through `lib/auth/token-storage.ts`.
+- Axios attaches access tokens automatically, refreshes expired access tokens once, and avoids recursive refresh calls on `/auth/refresh`.
+
+## Frontend Landing Page
+- `/` renders the public LifeDrop landing page.
+- `/donors/[id]` renders a public privacy-safe donor profile detail page from `GET /donors/:id`.
+- Landing sections live under `components/landing`.
+- The simplified current landing page includes a transparent sticky header, functional hero donor search, action cards, and footer.
+- The header includes automatic browser geolocation detection with persisted localStorage selection.
+- The hero search uses reusable blood group selection and saved GPS coordinates, then calls donor search through TanStack Query and the shared Axios client.
+- Donor search targets `GET /api/v1/donors/search` and renders only backend database records.
+- Landing CTA buttons route to `/request-blood` and `/become-donor`; the hero `Find Blood` action routes to `/request-blood` with selected search query values.
 
 ## Deployment Shape
 - Frontend and backend deploy independently.

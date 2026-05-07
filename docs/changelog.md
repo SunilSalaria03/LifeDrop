@@ -1,5 +1,30 @@
 # LifeDrop Changelog
 
+## 2026-05-05
+- Normalized auth/profile/donor keys to `name`, `phone`, `phoneVerified`, and `pincode`; Google users and donor CTAs now require phone OTP verification before donor registration.
+- Refactored profile and donor onboarding so normal users keep basic fields only, donor fields appear only for donor accounts, and `/become-donor` uses one complete form that promotes the user to donor on save.
+- Added the profile setup flow at `/profile/setup`, including Google-user phone OTP verification and required profile completion before dashboard access.
+- Added the protected Become Donor flow at `/become-donor`; guests are redirected to login, and logged-in users can save a complete donor profile in one submit.
+- Added protected profile-phone verification with `POST /api/v1/auth/otp/verify-profile-phone` and tightened donor profile APIs so blocked or phone-unverified users cannot manage donor profiles.
+- Refined the login page/card UI with LifeDrop branding, cleaner phone OTP styling, Google login treatment, and trust helper text.
+- Added a static landing impact metrics section for registered donors, lives saved, blood requests, and cities covered.
+- Added landing page How It Works, Success Stories, and final Join Community CTA sections.
+- Fixed donor geo-search default radius metadata so omitted `radiusKm` searches up to 50 km.
+- Split frontend location behavior: header now auto-detects GPS location with OpenStreetMap Nominatim, while hero donor search uses manual state/city dropdowns from `country-state-city` and sends selected city coordinates to the MongoDB-backed donor search API.
+- Improved the available donor card UI with avatars, badges, dates, donation stats, and profile links.
+- Added the public donor detail route `/donors/[id]` with `GET /donors/:id` frontend integration and privacy-safe contact messaging.
+- Added `npm run seed:admin` to create or promote an admin user in MongoDB from backend env values.
+- Added DB-driven donor profile backend with protected create, update, current-profile, availability, public profile, and donor search APIs.
+- Added `donorprofiles` schema with GeoJSON `[lng, lat]`, eligibility dates, visibility flags, privacy-safe projections, and donor search indexes.
+- Added DB-driven location module with `locations` schema, states, districts, cities, search, admin create, admin bulk upsert, and optional reverse-geocode placeholder API.
+- Added `bloodrequests` and `notifications` persistence schemas with collection names and indexes.
+- Expanded the user schema with address, state, city, district, and optional geospatial profile location fields.
+- Added protected user profile read/update APIs backed by the `users` collection.
+- Added Swagger setup at `/api/v1/docs` and installed the backend Swagger dependency.
+- Updated frontend landing dropdowns to fetch states and cities from backend location APIs instead of hardcoded location arrays.
+- Updated frontend donor search parsing to consume the backend `{ items, count, radiusKm }` response and removed placeholder reverse-geocode city data.
+- Verified backend build and frontend TypeScript check; frontend production build is blocked locally by a Windows `spawn EPERM` from Next.
+
 ## 2026-05-04
 - Created AI-first project documentation structure.
 - Defined initial frontend and backend architecture.
@@ -12,3 +37,27 @@
 - Expanded core AI-first docs with security, data design, geospatial search, notification readiness, testing, deployment, and MVP acceptance guidance.
 - Ignored generated log files.
 - Updated README with tech stack and local frontend/backend run commands.
+- Implemented complete auth module foundation with phone OTP verification, Google auth, access tokens, refresh tokens, logout, current-user endpoint, JWT guard, and Passport JWT strategy.
+- Added user schema and users service for phone and Google auth.
+- Added frontend auth login, OTP, Google, and onboarding pages with `useFormik`, Firebase client auth, TanStack Query mutations, Axios bearer-token attachment, refresh-token preparation, and token storage.
+- Updated auth API contracts, database design, feature status, architecture, skills, and rules.
+- Fixed Google login by sending the Firebase user ID token from the frontend and allowing the backend Google endpoint to verify Firebase Google tokens before falling back to direct Google OAuth token verification.
+- Updated Google login frontend to use Google Identity Services directly with `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, and added local frontend env defaults for Google login.
+- Fixed Google auth user creation by preventing incomplete default GeoJSON location values from being indexed.
+- Improved backend database error responses for duplicate account conflicts.
+- Made user `location` fully optional during auth user creation and exposed Mongoose validation errors as 400 responses.
+- Replaced Firebase phone verification with a Twilio phone signup flow that creates/fetches the minimal phone user and sends OTP SMS.
+- Removed frontend Firebase dependency and Firebase phone OTP client flow.
+- Fixed phone OTP routing so `/auth/otp/send` sends Twilio OTP and routes to verification, while tokens are issued only after `/auth/otp/verify` succeeds.
+- Added auth guest-route protection so logged-in users cannot visit login or OTP pages.
+- Added user roles, OTP validity metadata, 10-minute OTP expiry, 60-second resend cooldown, failed-attempt tracking, and frontend OTP resend timer.
+- Handled Twilio max-send-attempt and provider errors as clean HTTP responses so the server and unrelated APIs keep working.
+- Reviewed auth flow and applied safe hardening: prevented recursive refresh-token retries, protected onboarding with an auth guard, and added guest protection to the Google auth page.
+- Added future regression-prevention guidance to skills and agents for auth, OTP, route guards, provider errors, sensitive fields, and Mongoose indexes.
+- Created responsive LifeDrop landing page with sticky header, hero search, quick chips, action cards, donor preview, how-it-works steps, impact stats, and footer.
+- Refined landing page spacing, typography, card treatments, hero hierarchy, search bar, header, and stats presentation for a more modern SaaS visual style.
+- Applied Roboto as the global frontend font family.
+- Updated landing page navbar to use a transparent sticky style.
+- Simplified landing page render to show only hero and action cards for now.
+- Added production-ready landing hero search with browser location display, blood group/state/city filters, TanStack Query donor lookup, Axios integration, temporary API-failure handling, and reusable donor list cards.
+- Improved landing donor search UX with debounced requests, loading skeleton cards, no-results empty state, and API failure messaging.

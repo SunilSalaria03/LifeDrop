@@ -1,78 +1,116 @@
 # LifeDrop
 
-LifeDrop is a location-based blood donation platform that connects donors with people in need, making it easier to save lives in real time.
+LifeDrop is a blood donation platform that helps people search nearby donors, request blood, and register as donors through a real MongoDB-backed system.
+
+## Repository
+
+```bash
+git clone https://github.com/SunilSalaria03/LifeDrop.git
+cd LifeDrop
+```
 
 ## Tech Stack
 
 ### Frontend
+
 - Next.js App Router
+- React
 - TypeScript
 - Tailwind CSS
-- shadcn/ui
+- shadcn/ui-style components
+- Radix UI
 - TanStack Query
 - Axios
-- React Hook Form or Formik with `useFormik`
+- Formik with `useFormik`
 - Yup validation
+- Lucide React icons
+- `country-state-city` for India state/city dropdowns
+- OpenStreetMap Nominatim for browser-location reverse geocoding
+- Google Identity Services
 
-### Backend 
+### Backend
+
 - NestJS
 - TypeScript
-- MongoDB Atlas
+- MongoDB Atlas or local MongoDB
 - Mongoose
+- MongoDB GeoJSON and `$geoNear`
 - JWT authentication
-- class-validator
+- Passport JWT
+- Twilio SMS OTP
+- Google ID token verification
+- Firebase Admin fallback for Firebase Google tokens
+- Swagger API docs
+- class-validator and class-transformer
 
 ## Project Structure
 
 ```text
 LifeDrop/
-  docs/
   backend/
   frontend/
+  docs/
 ```
 
-The frontend and backend run as separate projects. Each project has its own `package.json`, `package-lock.json`, and `node_modules`.
+The backend and frontend are separate projects. Run install commands inside each folder.
 
-## Backend Local Setup
+## Environment Files
 
-Go to the backend folder:
+Use `.env.example` as the template and create `.env` in each app.
 
 ```bash
 cd backend
-```
+copy .env.example .env
 
-Install dependencies:
-
-```bash
-npm install
-```
-
-Create a local environment file:
-
-```bash
+cd ../frontend
 copy .env.example .env
 ```
 
-Update `backend/.env` with your real values:
+Do not commit real `.env` values.
+
+## Backend Setup
+
+Open a terminal:
+
+```bash
+cd backend
+npm install
+```
+
+Update `backend/.env` with your local values. Important values:
 
 ```env
 NODE_ENV=development
 PORT=5000
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/lifedrop
-JWT_SECRET=replace-with-secure-secret
+JWT_ACCESS_SECRET=replace-with-secure-access-secret
+JWT_REFRESH_SECRET=replace-with-secure-refresh-secret
+JWT_ACCESS_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
 FRONTEND_ORIGIN=http://localhost:3000
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+TWILIO_ACCOUNT_SID=your-twilio-account-sid
+TWILIO_AUTH_TOKEN=your-twilio-auth-token
+TWILIO_PHONE_NUMBER=+10000000000
+TWILIO_VERIFY_SERVICE_SID=your-twilio-verify-service-sid
 ```
 
-Run backend in development mode:
+Run backend:
 
 ```bash
 npm run start:dev
 ```
 
-Backend API base URL:
+Backend URL:
 
 ```text
 http://localhost:5000/api/v1
+```
+
+Swagger docs:
+
+```text
+http://localhost:5000/api/v1/docs
 ```
 
 Health check:
@@ -81,89 +119,104 @@ Health check:
 GET http://localhost:5000/api/v1/auth/health
 ```
 
-Build backend:
+Useful backend commands:
 
 ```bash
 npm run build
-```
-
-Start built backend:
-
-```bash
+npm run seed:admin
 npm run start
 ```
 
-## Frontend Local Setup
+## Frontend Setup
 
-Open a new terminal and go to the frontend folder:
+Open another terminal:
 
 ```bash
 cd frontend
-```
-
-Install dependencies:
-
-```bash
 npm install
 ```
 
-Create a local environment file:
-
-```bash
-copy .env.example .env.local
-```
-
-Update `frontend/.env.local` if needed:
+Update `frontend/.env`:
 
 ```env
 NEXT_PUBLIC_API_BASE_URL=http://localhost:5000/api/v1
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 ```
 
-Run frontend in development mode:
+Run frontend:
 
 ```bash
 npm run dev
 ```
 
-Frontend local URL:
+Frontend URL:
 
 ```text
 http://localhost:3000
 ```
 
-Build frontend:
+Useful frontend commands:
 
 ```bash
 npm run build
-```
-
-Start built frontend:
-
-```bash
 npm run start
 ```
 
-## Useful Commands
+## Run Both Apps Locally
 
-Backend:
+Terminal 1:
 
 ```bash
 cd backend
 npm run start:dev
-npm run build
 ```
 
-Frontend:
+Terminal 2:
 
 ```bash
 cd frontend
 npm run dev
-npm run build
 ```
+
+Then open:
+
+```text
+http://localhost:3000
+```
+
+## MongoDB Compass Setup
+
+1. Open `backend/.env`.
+2. Copy the value of `MONGODB_URI`.
+3. Open MongoDB Compass.
+4. Click `Add new connection`.
+5. Paste the copied MongoDB connection string.
+6. Save the connection.
+7. Click `Connect`.
+
+After backend APIs create data, you should see collections such as:
+
+- `users`
+- `donorprofiles`
+- `bloodrequests`
+- `notifications`
+
+## Main Features
+
+- Phone OTP login/signup
+- Google login/signup
+- Profile setup after login
+- Google users verify phone before profile completion
+- Become donor flow with protected donor form
+- Donor profiles stored in MongoDB
+- Nearby donor search using GeoJSON and `$geoNear`
+- Header GPS location detection through browser geolocation and Nominatim
+- Manual hero search with blood group, state, and city
+- Public donor cards and donor detail page
 
 ## Notes
 
-- Keep real `.env` files out of Git.
-- Backend must have a valid `MONGODB_URI` before it can connect to MongoDB Atlas.
-- Frontend reads the backend URL from `NEXT_PUBLIC_API_BASE_URL`.
+- Backend must run before frontend API calls work.
+- Keep `backend/.env` and `frontend/.env` private.
 - If PowerShell blocks `npm`, use `npm.cmd` instead.
+- For local development without real Twilio Verify, check backend OTP development behavior in the auth service and environment values.
