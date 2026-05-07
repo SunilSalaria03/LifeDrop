@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 import {
   ArrowLeft,
   CalendarCheck,
@@ -21,8 +22,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { RequestBloodModal } from "@/features/donors/components/RequestBloodModal";
 import { useDonorDetails } from "@/features/donors/hooks/useDonorDetails";
 import { DonorDetail } from "@/features/donors/types/donor.types";
+import { tokenStorage } from "@/lib/auth/token-storage";
 
 function getDonorName(name?: string) {
   return name?.trim() || "LifeDrop Donor";
@@ -166,8 +170,23 @@ function DonorProfileHeader({ donor }: { donor: DonorDetail }) {
 export default function DonorDetailPage() {
   const params = useParams<{ id: string }>();
   const donorId = params.id;
+  const { meQuery } = useAuth();
   const donorQuery = useDonorDetails(donorId);
-  const donor = donorQuery.data; 
+  const donor = donorQuery.data;
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+  const isOwnDonorProfile = Boolean(
+    donor?.userId && meQuery.data?.id && donor.userId === meQuery.data.id,
+  );
+
+  const handleRequestBlood = () => {
+    if (!tokenStorage.getAccessToken()) {
+      window.dispatchEvent(new CustomEvent("lifedrop:open-auth-modal"));
+      return;
+    }
+
+    setIsRequestModalOpen(true);
+  };
+
   return (
     <>
       <Header />
@@ -285,14 +304,16 @@ export default function DonorDetailPage() {
                     <p className="rounded-2xl border border-red-100 bg-red-50 p-4 text-sm font-medium leading-6 text-red-800">
                       Contact details are shared only after request approval.
                     </p>
-                    <Button
-                      asChild
-                      className="h-12 w-full rounded-full bg-red-600 text-white hover:bg-red-700"
-                    >
-                      <Link href={`/request-blood?donorId=${donor.id}`}>
+                    {!isOwnDonorProfile ? (
+                      <Button
+                        className="h-12 w-full rounded-full bg-red-600 text-white hover:bg-red-700"
+                        disabled={!donor.isAvailable}
+                        onClick={handleRequestBlood}
+                        type="button"
+                      >
                         Request Blood
-                      </Link>
-                    </Button>
+                      </Button>
+                    ) : null}
                     <Button
                       asChild
                       className="h-12 w-full rounded-full"
@@ -303,6 +324,12 @@ export default function DonorDetailPage() {
                   </CardContent>
                 </Card>
               </div>
+              <RequestBloodModal
+                donor={donor}
+                onOpenChange={setIsRequestModalOpen}
+                onSuccess={() => setIsRequestModalOpen(false)}
+                open={isRequestModalOpen}
+              />
             </>
           ) : null}
         </div>

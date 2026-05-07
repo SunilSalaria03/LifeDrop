@@ -100,11 +100,6 @@ export function Header() {
     logoutMutation.mutate();
   };
 
-  const handleProfileSettings = () => {
-    setIsMenuOpen(false);
-    router.push("/profile");
-  };
-
   const handleBecomeDonor = () => {
     if (!user) {
       openAuthModal();
@@ -200,14 +195,14 @@ export function Header() {
                         {user.email ?? user.phone ?? user.role}
                       </p>
                     </div>
-                    <button
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsMenuOpen(false)}
                       className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-neutral-700 transition hover:bg-red-50 hover:text-red-700"
-                      onClick={handleProfileSettings}
-                      type="button"
                     >
                       <Settings className="h-4 w-4" />
                       Profile Settings
-                    </button>
+                    </Link>
                     <button
                       className="flex items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-60"
                       disabled={logoutMutation.isPending}

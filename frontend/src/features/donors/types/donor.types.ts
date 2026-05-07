@@ -70,7 +70,7 @@ export type DonorListItem = {
   };
   createdAt?: string;
   updatedAt?: string;
-  phone?:string;
+  phone?: string;
 };
 
 export type DonorDetail = DonorListItem;
@@ -85,4 +85,26 @@ export type DonorSearchResponse = {
   items: DonorListItem[];
   count: number;
   radiusKm: number;
+};
+
+export type DonorSmsAlertPayload = {
+  donorId: string;
+  bloodGroup: string;
+  sendSms: boolean;
+  sendWhatsapp?: boolean;
+  consentToShareContact: boolean;
+  message?: string;
+};
+
+export type DonorSmsAlertResponse = {
+  bloodRequestId: string;
+  smsStatus: 'pending' | 'sent' | 'failed';
+  status: 'pending' | 'sent' | 'failed' | 'accepted' | 'rejected' | 'expired';
+  smsProvider?: string;
+  smsProviderMessageId?: string;
+  smsError?: string;
+  whatsappStatus: 'pending' | 'sent' | 'failed' | 'skipped';
+  whatsappProvider?: 'twilio';
+  whatsappProviderMessageId?: string;
+  whatsappError?: string;
 };

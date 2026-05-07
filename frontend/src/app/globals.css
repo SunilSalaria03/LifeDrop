@@ -23,4 +23,7 @@ body {
   color: var(--foreground);
   font-family: var(--font-roboto), Arial, Helvetica, sans-serif;
 }
+a , button {
+  cursor: pointer;
+}
 

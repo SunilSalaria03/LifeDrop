@@ -1,6 +1,12 @@
+'use client';
+
+import { useState } from 'react';
 import { UsersRound } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { RequestBloodModal } from '@/features/donors/components/RequestBloodModal';
 import { DonorListItem } from '@/features/donors/types/donor.types';
+import { tokenStorage } from '@/lib/auth/token-storage';
 import { DonorCard } from './DonorCard';
 
 type DonorListProps = {
@@ -36,11 +42,33 @@ function DonorSkeletonCard() {
 }
 
 export function DonorList({ donors, isLoading, hasSearched, errorMessage }: DonorListProps) {
+  const { meQuery } = useAuth();
+  const [selectedDonor, setSelectedDonor] = useState<DonorListItem | null>(null);
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+
   if (!hasSearched) {
     return null;
   }
 
   const donorCountLabel = isLoading ? 'Searching...' : `${donors.length} donors found`;
+
+  const handleRequest = (donor: DonorListItem) => {
+    if (!tokenStorage.getAccessToken()) {
+      window.dispatchEvent(new CustomEvent('lifedrop:open-auth-modal'));
+      return;
+    }
+
+    setSelectedDonor(donor);
+    setIsRequestModalOpen(true);
+  };
+
+  const handleModalOpenChange = (open: boolean) => {
+    setIsRequestModalOpen(open);
+
+    if (!open) {
+      setSelectedDonor(null);
+    }
+  };
 
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-5 text-left">
@@ -83,10 +111,24 @@ export function DonorList({ donors, isLoading, hasSearched, errorMessage }: Dono
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {donors.map((donor) => (
-            <DonorCard donor={donor} key={donor.id} />
+            <DonorCard
+              donor={donor}
+              hideRequestButton={Boolean(
+                meQuery.data?.id && donor.userId === meQuery.data.id,
+              )}
+              key={donor.id}
+              onRequest={handleRequest}
+            />
           ))}
         </div>
       )}
+
+      <RequestBloodModal
+        donor={selectedDonor}
+        onOpenChange={handleModalOpenChange}
+        onSuccess={() => handleModalOpenChange(false)}
+        open={isRequestModalOpen}
+      />
     </div>
   );
 }

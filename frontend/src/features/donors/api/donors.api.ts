@@ -1,19 +1,16 @@
 import { AxiosError } from 'axios';
 import { axiosClient } from '@/lib/api/axios-client';
+import { getApiErrorMessage } from '@/lib/api/error-message';
 import { ApiResponse } from '@/types/api';
 import {
   DonorDetail,
   DonorProfilePayload,
+  DonorSmsAlertPayload,
+  DonorSmsAlertResponse,
   DonorSearchFilters,
   DonorSearchResponse,
   MyDonorProfile,
 } from '../types/donor.types';
-
-function getApiErrorMessage(error: unknown, fallback: string) {
-  return error instanceof AxiosError
-    ? (error.response?.data?.message ?? fallback)
-    : fallback;
-}
 
 export async function searchDonors(params: DonorSearchFilters) {
   try {
@@ -89,4 +86,25 @@ export async function updateDonorProfile(payload: Partial<DonorProfilePayload>) 
   }
 
   return response.data.data;
+}
+
+export async function sendDonorSmsAlert(payload: DonorSmsAlertPayload) {
+  const response = await axiosClient.post<ApiResponse<DonorSmsAlertResponse>>(
+    '/blood-requests/send-sms-alert',
+    payload,
+  );
+
+  const responseData = response.data.data;
+
+  if (!responseData) {
+    throw new Error('SMS alert response was empty.');
+  }
+
+  if (responseData.smsStatus === 'failed' || responseData.status === 'failed') {
+    throw new Error(
+      response.data.message ?? 'SMS alert could not be sent. Please try again.',
+    );
+  }
+
+  return responseData;
 }

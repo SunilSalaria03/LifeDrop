@@ -1,46 +1,35 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Schema as MongooseSchema, Types } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import { BloodGroup } from '../../donors/schemas/donor-profile.schema';
 import { User } from '../../users/schemas/user.schema';
 
 export type BloodRequestDocument = HydratedDocument<BloodRequest>;
 
-export enum UrgencyLevel {
-  Low = 'LOW',
-  Medium = 'MEDIUM',
-  High = 'HIGH',
-  Emergency = 'EMERGENCY',
-}
-
 export enum BloodRequestStatus {
-  Open = 'OPEN',
-  Matched = 'MATCHED',
-  Contacted = 'CONTACTED',
-  Fulfilled = 'FULFILLED',
-  Cancelled = 'CANCELLED',
-  Expired = 'EXPIRED',
+  Pending = 'pending',
+  Sent = 'sent',
+  Failed = 'failed',
+  Accepted = 'accepted',
+  Rejected = 'rejected',
+  Expired = 'expired',
 }
 
-export type GeoPoint = {
-  type: 'Point';
-  coordinates: [number, number];
-};
+export enum SmsStatus {
+  Pending = 'pending',
+  Sent = 'sent',
+  Failed = 'failed',
+}
 
-const GeoPointSchema = new MongooseSchema<GeoPoint>(
-  {
-    type: {
-      type: String,
-      enum: ['Point'],
-      default: 'Point',
-      required: true,
-    },
-    coordinates: {
-      type: [Number],
-      required: true,
-    },
-  },
-  { _id: false },
-);
+export enum WhatsappStatus {
+  Pending = 'pending',
+  Sent = 'sent',
+  Failed = 'failed',
+  Skipped = 'skipped',
+}
+
+export enum WhatsappProvider {
+  Twilio = 'twilio',
+}
 
 @Schema({
   timestamps: true,
@@ -59,58 +48,66 @@ export class BloodRequest {
   @Prop({ type: Types.ObjectId, ref: User.name, required: true })
   requesterId: Types.ObjectId;
 
+  @Prop({ type: Types.ObjectId, ref: User.name, required: true })
+  donorId: Types.ObjectId;
+
   @Prop({ type: String, enum: BloodGroup, required: true })
   bloodGroup: BloodGroup;
-
-  @Prop({ required: true, min: 1 })
-  unitsRequired: number;
-
-  @Prop({ trim: true })
-  patientName?: string;
-
-  @Prop({ trim: true })
-  hospitalName?: string;
-
-  @Prop({ required: true, trim: true })
-  contactPhone: string;
-
-  @Prop({ required: true, trim: true })
-  state: string;
-
-  @Prop({ required: true, trim: true })
-  city: string;
-
-  @Prop({ trim: true })
-  district?: string;
-
-  @Prop({ trim: true })
-  addressText?: string;
-
-  @Prop({ type: GeoPointSchema, required: true })
-  location: GeoPoint;
-
-  @Prop({ type: String, enum: UrgencyLevel, default: UrgencyLevel.Medium })
-  urgencyLevel: UrgencyLevel;
-
-  @Prop({ trim: true })
-  message?: string;
 
   @Prop({
     type: String,
     enum: BloodRequestStatus,
-    default: BloodRequestStatus.Open,
+    default: BloodRequestStatus.Pending,
   })
   status: BloodRequestStatus;
 
+  @Prop({ default: true })
+  sendSms: boolean;
+
   @Prop({ required: true })
-  expiresAt: Date;
+  consentToShareContact: boolean;
+
+  @Prop({ type: String, enum: SmsStatus, default: SmsStatus.Pending })
+  smsStatus: SmsStatus;
+
+  @Prop({ trim: true })
+  smsProvider?: string;
+
+  @Prop({ trim: true })
+  smsProviderMessageId?: string;
+
+  @Prop({ trim: true })
+  smsError?: string;
+
+  @Prop({ default: false })
+  sendWhatsapp: boolean;
+
+  @Prop({
+    type: String,
+    enum: WhatsappStatus,
+    default: WhatsappStatus.Skipped,
+  })
+  whatsappStatus: WhatsappStatus;
+
+  @Prop({ type: String, enum: WhatsappProvider })
+  whatsappProvider?: WhatsappProvider;
+
+  @Prop({ trim: true })
+  whatsappProviderMessageId?: string;
+
+  @Prop({ trim: true })
+  whatsappError?: string;
+
+  @Prop({ trim: true, maxlength: 500 })
+  message?: string;
 }
 
 export const BloodRequestSchema = SchemaFactory.createForClass(BloodRequest);
 
-BloodRequestSchema.index({ location: '2dsphere' });
+BloodRequestSchema.index({ requesterId: 1 });
+BloodRequestSchema.index({ donorId: 1 });
 BloodRequestSchema.index({ bloodGroup: 1 });
 BloodRequestSchema.index({ status: 1 });
-BloodRequestSchema.index({ state: 1 });
-BloodRequestSchema.index({ city: 1 });
-BloodRequestSchema.index({ expiresAt: 1 });
+BloodRequestSchema.index({ smsStatus: 1 });
+BloodRequestSchema.index({ whatsappStatus: 1 });
+BloodRequestSchema.index({ createdAt: -1 });
