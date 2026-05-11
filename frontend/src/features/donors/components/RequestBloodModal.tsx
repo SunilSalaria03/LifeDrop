@@ -5,20 +5,10 @@ import { Droplet, MapPin, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
+import { getDonorName } from '@/components/landing/landing.helpers';
 import { getApiErrorMessage } from '@/lib/api/error-message';
 import { sendDonorSmsAlert } from '../api/donors.api';
-import { DonorListItem } from '../types/donor.types';
-
-type RequestBloodModalProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  donor: DonorListItem | null;
-  onSuccess?: () => void;
-};
-
-function getDonorName(name?: string) {
-  return name?.trim() || 'LifeDrop Donor';
-}
+import { RequestBloodModalProps } from '../donor-component.types';
 
 export function RequestBloodModal({
   donor,

@@ -19,7 +19,6 @@ import {
   UserRound,
   X,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { IndiaPhoneInput } from "@/components/forms/IndiaPhoneInput";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -46,63 +45,13 @@ import { bloodGroups } from "@/lib/constants/locations";
 import { getApiErrorMessage } from "@/lib/api/error-message";
 import { toIndianE164, toIndianNationalNumber } from "@/lib/phone/india-phone";
 import { useToast } from "@/components/ui/toast";
-
-type InfoItemProps = {
-  icon: LucideIcon;
-  label: string;
-  value?: string;
-};
-
-function getInitials(name?: string, email?: string, phone?: string) {
-  const displayValue = name?.trim() || email?.trim() || phone?.trim() || "LD";
-
-  return displayValue
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-}
-
-function getDisplayName(user?: AuthUser) {
-  return (
-    user?.name?.trim() ||
-    user?.email?.trim() ||
-    user?.phone?.trim() ||
-    "LifeDrop User"
-  );
-}
-
-function findStateCode(stateName?: string) {
-  return (
-    State.getStatesOfCountry("IN").find((state) => state.name === stateName)
-      ?.isoCode ?? ""
-  );
-}
-
-function formatDate(date?: string) {
-  if (!date) {
-    return "Not provided";
-  }
-
-  return new Intl.DateTimeFormat("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(date));
-}
-
-function formatDateInputValue(date?: string) {
-  if (!date) {
-    return "";
-  }
-
-  return date.slice(0, 10);
-}
-
-function booleanSelectValue(value?: boolean) {
-  return value ? "true" : "false";
-}
+import {
+  booleanSelectValue,
+  findStateCode,
+  formatDateInputValue,
+} from "@/features/profile/profile.helpers";
+import { formatDate, getDisplayName, getInitials } from "./profile-page.helpers";
+import { InfoItemProps } from "./profile-page.types";
 
 function InfoItem({ icon: Icon, label, value }: InfoItemProps) {
   return (

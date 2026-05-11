@@ -15,46 +15,25 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
-import { AuthUser } from "@/features/auth/types/auth.types";
 import { getApiErrorMessage } from "@/lib/api/error-message";
 import { bloodGroups } from "@/lib/constants/locations";
 import {
   toIndianE164,
   toIndianNationalNumber,
 } from "@/lib/phone/india-phone";
+import {
+  booleanSelectValue,
+  findStateCode,
+  formatDateInputValue,
+} from "@/features/profile/profile.helpers";
+import { BecomeDonorFormProps, FieldLabelProps } from "../donor-component.types";
 import { useDonorProfile } from "../hooks/useDonorProfile";
 import { donorProfileSchema } from "../validations/donor.validation";
-
-type BecomeDonorFormProps = {
-  user: AuthUser;
-};
-
-function findStateCode(stateName?: string) {
-  return (
-    State.getStatesOfCountry("IN").find((state) => state.name === stateName)
-      ?.isoCode ?? ""
-  );
-}
-
-function formatDateInputValue(date?: string) {
-  if (!date) {
-    return "";
-  }
-
-  return date.slice(0, 10);
-}
-
-function booleanSelectValue(value?: boolean) {
-  return value ? "true" : "false";
-}
 
 function FieldLabel({
   children,
   htmlFor,
-}: {
-  children: string;
-  htmlFor?: string;
-}) {
+}: FieldLabelProps) {
   return (
     <label
       className="grid gap-2 text-sm font-semibold text-neutral-700"

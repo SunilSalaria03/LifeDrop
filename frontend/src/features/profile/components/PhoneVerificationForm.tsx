@@ -6,18 +6,14 @@ import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/toast';
-import { AuthUser } from '@/features/auth/types/auth.types';
 import { getApiErrorMessage } from '@/lib/api/error-message';
 import {
   toIndianE164,
   toIndianNationalNumber,
 } from '@/lib/phone/india-phone';
 import { useProfile } from '../hooks/useProfile';
+import { PhoneVerificationFormProps } from '../profile-component.types';
 import { profilePhoneSchema } from '../validations/profile.validation';
-
-type PhoneVerificationFormProps = {
-  user: AuthUser;
-};
 
 export function PhoneVerificationForm({ user }: PhoneVerificationFormProps) {
   const router = useRouter();

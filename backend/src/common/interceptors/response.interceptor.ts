@@ -1,13 +1,6 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Observable, map } from 'rxjs';
-
-type ApiResponse<T> = {
-  success: boolean;
-  message?: string;
-  data?: T;
-  timestamp: string;
-  path: string;
-};
+import { ApiResponse } from './response.types';
 
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponse<T>> {

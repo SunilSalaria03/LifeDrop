@@ -25,7 +25,11 @@ Act as an AI-first senior full-stack engineer for LifeDrop.
 - Follow documented architecture before adding code.
 - Keep controllers thin and move business logic into services.
 - Require DTOs for backend requests.
-- Keep frontend API clients, validation schemas, constants, utilities, and types separate.
+- Keep frontend API clients, validation schemas, constants, utilities, helpers, and types separate.
+- When working in this project, do not leave TypeScript types/interfaces inside components, pages, hooks, services, controllers, guards, or API clients; move them into nearby `*.types.ts`, `*.interfaces.ts`, `*.validation.types.ts`, or `*.schema.types.ts` files.
+- Do not leave reusable constants inside components or logic files; move them into nearby `*.constants.ts` files or existing shared constants files.
+- Do not leave reusable helper functions inside components or logic files; move them into nearby `*.helpers.ts` files.
+- Prefer feature-local extraction over unnecessary folder restructuring so existing behavior and module boundaries remain stable.
 - Update required documentation whenever features, APIs, schemas, or structure change.
 
 ## Security Skills

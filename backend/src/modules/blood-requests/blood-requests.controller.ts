@@ -1,14 +1,9 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
-import { Request } from 'express';
+import { AuthenticatedRequest } from '../auth/auth.types';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { UserDocument } from '../users/schemas/user.schema';
 import { BloodRequestService } from './blood-request.service';
 import { SendSmsAlertDto } from './dto/send-sms-alert.dto';
-
-type AuthenticatedRequest = Request & {
-  user: UserDocument;
-};
 
 @ApiTags('blood-requests')
 @Controller('blood-requests')

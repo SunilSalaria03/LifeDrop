@@ -37,5 +37,3 @@ export const donorProfileSchema = yup.object({
   lng: yup.number().required('District coordinates are required.'),
   isAvailable: yup.boolean().optional(),
 });
-
-export type DonorProfileValues = yup.InferType<typeof donorProfileSchema>;

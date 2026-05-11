@@ -15,6 +15,3 @@ export const phoneOtpVerifySchema = yup.object({
     .matches(/^\d{6}$/, 'Enter the 6 digit OTP.')
     .required('OTP is required.')
 });
-
-export type PhoneOtpSendValues = yup.InferType<typeof phoneOtpSendSchema>;
-export type PhoneOtpVerifyValues = yup.InferType<typeof phoneOtpVerifySchema>;

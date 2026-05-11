@@ -1,36 +1,5 @@
-import { ClipboardPlus, HeartPulse, MapPin, UsersRound } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-
-const stats = [
-  {
-    label: 'Registered Donors',
-    value: '1,250',
-    icon: UsersRound,
-    iconClassName: 'bg-red-50 text-red-700 ring-red-100',
-    valueClassName: 'text-red-700',
-  },
-  {
-    label: 'Lives Saved',
-    value: '380',
-    icon: HeartPulse,
-    iconClassName: 'bg-rose-50 text-rose-700 ring-rose-100',
-    valueClassName: 'text-rose-700',
-  },
-  {
-    label: 'Blood Requests',
-    value: '450',
-    icon: ClipboardPlus,
-    iconClassName: 'bg-sky-50 text-sky-700 ring-sky-100',
-    valueClassName: 'text-sky-700',
-  },
-  {
-    label: 'Cities Covered',
-    value: '40',
-    icon: MapPin,
-    iconClassName: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
-    valueClassName: 'text-emerald-700',
-  },
-];
+import { landingStats } from './landing.constants';
 
 export function StatsSection() {
   return (
@@ -49,7 +18,7 @@ export function StatsSection() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
-          {stats.map((stat) => {
+          {landingStats.map((stat) => {
             const Icon = stat.icon;
 
             return (

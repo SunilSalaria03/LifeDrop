@@ -1,0 +1,3 @@
+export const DONOR_ELIGIBILITY_DAYS = 90;
+export const DEFAULT_SEARCH_RADIUS_KM = 50;
+export const MAX_SEARCH_RADIUS_KM = 50;

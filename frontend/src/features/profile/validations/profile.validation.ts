@@ -69,7 +69,3 @@ export const profilePhoneSchema = yup.object({
     .required('Phone number is required.'),
   otp: yup.string().trim().matches(/^\d{6}$/, 'Enter the 6 digit OTP.').optional(),
 });
-
-export type ProfileSetupValues = yup.InferType<typeof profileSetupSchema>;
-export type UpdateProfileFormValues = yup.InferType<typeof updateProfileFormSchema>;
-export type ProfilePhoneValues = yup.InferType<typeof profilePhoneSchema>;

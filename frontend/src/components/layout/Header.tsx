@@ -11,21 +11,7 @@ import { AuthModal } from "@/features/auth/components/AuthModal";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { AuthUser } from "@/features/auth/types/auth.types";
 import { userStorage } from "@/lib/auth/user-storage";
-
-function getInitials(name?: string, phone?: string, email?: string) {
-  const displayValue = name?.trim() || email?.trim() || phone?.trim() || "LD";
-
-  return displayValue
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-}
-
-function getDisplayName(name?: string, phone?: string, email?: string) {
-  return name?.trim() || phone?.trim() || email?.trim() || "LifeDrop User";
-}
+import { getDisplayName, getInitials } from "./header.helpers";
 
 export function Header() {
   const router = useRouter();

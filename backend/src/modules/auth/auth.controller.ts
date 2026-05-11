@@ -1,26 +1,19 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
-import { CookieOptions, Request, Response } from 'express';
+import { CookieOptions, Response } from 'express';
+import {
+  ACCESS_TOKEN_COOKIE,
+  ACCESS_TOKEN_MAX_AGE_MS,
+  REFRESH_TOKEN_COOKIE,
+  REFRESH_TOKEN_MAX_AGE_MS,
+} from './auth.constants';
 import { AuthService } from './auth.service';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { PhoneOtpSendDto } from './dto/phone-otp-send.dto';
 import { PhoneOtpVerifyDto } from './dto/phone-otp-verify.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { UserDocument } from '../users/schemas/user.schema';
-
-type AuthenticatedRequest = Request & {
-  user: UserDocument;
-};
-
-type CookieRequest = Request & {
-  cookies?: Record<string, string | undefined>;
-};
-
-const ACCESS_TOKEN_COOKIE = 'access_token';
-const REFRESH_TOKEN_COOKIE = 'refresh_token';
-const ACCESS_TOKEN_MAX_AGE_MS = 15 * 60 * 1000;
-const REFRESH_TOKEN_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+import { AuthenticatedRequest, CookieRequest } from './auth.types';
 
 @ApiTags('auth')
 @Controller('auth')

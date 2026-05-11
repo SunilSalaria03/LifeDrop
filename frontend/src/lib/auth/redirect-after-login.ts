@@ -1,8 +1,5 @@
 import { AuthResponse } from '@/features/auth/types/auth.types';
-
-type RouterLike = {
-  push: (href: string) => void;
-};
+import { RouterLike } from './auth.types';
 
 export function redirectAfterLogin(
   authResponse: AuthResponse,

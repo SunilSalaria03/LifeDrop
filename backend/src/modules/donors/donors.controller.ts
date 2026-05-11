@@ -11,18 +11,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiCookieAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { Request } from 'express';
 import { CreateDonorProfileDto } from './dto/create-donor-profile.dto';
 import { DonorSearchQueryDto } from './dto/donor-search-query.dto';
 import { UpdateDonorAvailabilityDto } from './dto/update-donor-availability.dto';
 import { UpdateDonorProfileDto } from './dto/update-donor-profile.dto';
 import { DonorsService } from './donors.service';
+import { AuthenticatedRequest } from '../auth/auth.types';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { UserDocument } from '../users/schemas/user.schema';
-
-type AuthenticatedRequest = Request & {
-  user: UserDocument;
-};
 
 @ApiTags('donors')
 @Controller('donors')

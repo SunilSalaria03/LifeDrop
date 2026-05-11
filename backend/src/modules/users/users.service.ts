@@ -10,20 +10,10 @@ import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 import {
   AuthProvider,
   User,
-  UserDocument,
   UserRole,
 } from './schemas/user.schema';
-
-export type CreatePhoneUserInput = {
-  phone: string;
-};
-
-export type CreateGoogleUserInput = {
-  googleId: string;
-  email?: string;
-  name?: string;
-  profileImage?: string;
-};
+import { UserDocument } from './schemas/user.schema.types';
+import { CreateGoogleUserInput, CreatePhoneUserInput } from './users.types';
 
 @Injectable()
 export class UsersService {

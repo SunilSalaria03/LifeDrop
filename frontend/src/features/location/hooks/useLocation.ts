@@ -9,29 +9,11 @@ import {
   subscribeToLocationChanges,
 } from '@/lib/location/location-storage';
 import { reverseGeocodeLocation } from '@/lib/location/reverse-geocode';
-
-const GEOLOCATION_OPTIONS: PositionOptions = {
-  enableHighAccuracy: false,
-  maximumAge: 300000,
-  timeout: 10000,
-};
-
-function isGeolocationError(error: unknown): error is GeolocationPositionError {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    typeof (error as { code?: unknown }).code === 'number'
-  );
-}
-
-function getGeolocationErrorMessage(error: GeolocationPositionError) {
-  if (error.code === 1) {
-    return 'Location permission denied';
-  }
-
-  return 'Unable to detect location';
-}
+import { GEOLOCATION_OPTIONS } from '../location.constants';
+import {
+  getGeolocationErrorMessage,
+  isGeolocationError,
+} from '../location.helpers';
 
 export function useSelectedLocation() {
   const [location, setLocation] = useState<SelectedLocation | null>(null);

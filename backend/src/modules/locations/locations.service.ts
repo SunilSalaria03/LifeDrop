@@ -4,7 +4,8 @@ import { FilterQuery, Model } from 'mongoose';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { LocationQueryDto } from './dto/location-query.dto';
 import { ReverseGeocodeDto } from './dto/reverse-geocode.dto';
-import { Location, LocationDocument } from './schemas/location.schema';
+import { Location } from './schemas/location.schema';
+import { LocationDocument } from './schemas/location.schema.types';
 
 @Injectable()
 export class LocationsService {

@@ -1,9 +1,9 @@
 import {
   AuthProvider,
   Gender,
-  GeoPoint,
   UserRole,
 } from '../../users/schemas/user.schema';
+import { GeoPoint } from '../../users/schemas/user.schema.types';
 
 export interface AuthUser {
   id: string;

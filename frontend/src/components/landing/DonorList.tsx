@@ -8,13 +8,7 @@ import { RequestBloodModal } from '@/features/donors/components/RequestBloodModa
 import { DonorListItem } from '@/features/donors/types/donor.types';
 import { userStorage } from '@/lib/auth/user-storage';
 import { DonorCard } from './DonorCard';
-
-type DonorListProps = {
-  donors: DonorListItem[];
-  isLoading: boolean;
-  hasSearched: boolean;
-  errorMessage?: string;
-};
+import { DonorListProps } from './landing.types';
 
 function DonorSkeletonCard() {
   return (

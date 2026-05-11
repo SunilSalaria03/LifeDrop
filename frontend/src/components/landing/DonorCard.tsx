@@ -12,61 +12,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { DonorListItem } from "@/features/donors/types/donor.types";
-
-type DonorCardProps = {
-  donor: DonorListItem;
-  hideRequestButton?: boolean;
-  onRequest?: (donor: DonorListItem) => void;
-};
-
-function getDonorName(name?: string) {
-  return name?.trim() || "LifeDrop Donor";
-}
-
-function getInitials(name?: string) {
-  return getDonorName(name)
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-}
-
-function formatDate(date?: string) {
-  if (!date) {
-    return "Not provided";
-  }
-
-  return new Intl.DateTimeFormat("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(date));
-}
-function formatPhone(phone?: string, showMobile: boolean = false) {
-  if (!phone) {
-    return "Not provided";
-  }
-
-  const cleaned = phone.replace(/\D/g, "");
-
-  let mobile = cleaned;
-
-  if (cleaned.length === 12 && cleaned.startsWith("91")) {
-    mobile = cleaned.slice(2);
-  }
-
-  if (mobile.length !== 10) {
-    return phone;
-  }
-
-  if (showMobile) {
-    return `+91 ${mobile.slice(0, 5)} ${mobile.slice(5)}`;
-  }
-
-  return `+91 XXXXX ${mobile.slice(5)}`;
-}
+import {
+  formatDonorDate,
+  formatDonorPhone,
+  getDonorName,
+  getInitials,
+} from "./landing.helpers";
+import { DonorCardProps } from "./landing.types";
 function DetailRow({
   icon: Icon,
   label,
@@ -172,16 +124,16 @@ export function DonorCard({
                 value={`${donor.distanceKm} km away`}
               />
             ) : null}
-            <DetailRow
-              icon={CalendarCheck}
-              label="Last donation"
-              value={formatDate(donor.lastDonationDate)}
-            />
+              <DetailRow
+                icon={CalendarCheck}
+                label="Last donation"
+                value={formatDonorDate(donor.lastDonationDate)}
+              />
             {donor.phone ? (
               <DetailRow
                 icon={Phone}
                 label="Contact"
-                value={formatPhone(donor.phone, donor.showMobile)}
+                value={formatDonorPhone(donor.phone, donor.showMobile)}
               />
             ) : null}
             {donor.totalDonations !== undefined ? (

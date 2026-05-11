@@ -8,36 +8,27 @@ import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Twilio } from 'twilio';
+import { SMS_ALERT_COOLDOWN_MS } from './blood-request.constants';
+import {
+  SmsAlertResult,
+  SmsMessageInput,
+  WhatsappAlertInput,
+} from './blood-request.types';
 import { SendSmsAlertDto } from './dto/send-sms-alert.dto';
 import {
   BloodRequest,
-  BloodRequestDocument,
   BloodRequestStatus,
   SmsStatus,
   WhatsappProvider,
   WhatsappStatus,
 } from './schemas/blood-request.schema';
+import { BloodRequestDocument } from './schemas/blood-request.schema.types';
 import {
   DonorProfile,
-  DonorProfileDocument,
 } from '../donors/schemas/donor-profile.schema';
-import { User, UserDocument } from '../users/schemas/user.schema';
-
-const SMS_ALERT_COOLDOWN_MS = 30 * 60 * 1000;
-
-type SmsAlertResult = {
-  bloodRequestId: string;
-  message: string;
-  smsStatus: SmsStatus;
-  status: BloodRequestStatus;
-  smsProvider?: string;
-  smsProviderMessageId?: string;
-  smsError?: string;
-  whatsappStatus: WhatsappStatus;
-  whatsappProvider?: WhatsappProvider;
-  whatsappProviderMessageId?: string;
-  whatsappError?: string;
-};
+import { DonorProfileDocument } from '../donors/schemas/donor-profile.schema.types';
+import { User } from '../users/schemas/user.schema';
+import { UserDocument } from '../users/schemas/user.schema.types';
 
 @Injectable()
 export class BloodRequestService {
@@ -260,12 +251,7 @@ export class BloodRequestService {
     donorPhone,
     message,
     requesterPhone,
-  }: {
-    bloodGroup: string;
-    donorPhone: string;
-    message?: string;
-    requesterPhone: string;
-  }) {
+  }: SmsMessageInput) {
     const fromPhone = this.toIndianE164(
       this.configService.get<string>('TWILIO_PHONE_NUMBER'),
     );
@@ -290,14 +276,7 @@ export class BloodRequestService {
     message,
     requesterPhone,
     sendWhatsapp,
-  }: {
-    bloodGroup: string;
-    bloodRequest: BloodRequestDocument;
-    donorPhone: string;
-    message?: string;
-    requesterPhone: string;
-    sendWhatsapp: boolean;
-  }) {
+  }: WhatsappAlertInput) {
     if (!sendWhatsapp) {
       bloodRequest.whatsappStatus = WhatsappStatus.Skipped;
       return;
@@ -336,11 +315,7 @@ export class BloodRequestService {
     bloodGroup,
     message,
     requesterPhone,
-  }: {
-    bloodGroup: string;
-    message?: string;
-    requesterPhone: string;
-  }) {
+  }: Pick<SmsMessageInput, 'bloodGroup' | 'message' | 'requesterPhone'>) {
     return [
       `LifeDrop blood request: ${bloodGroup} blood is needed.`,
       `Requester contact: ${requesterPhone}.`,

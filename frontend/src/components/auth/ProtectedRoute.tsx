@@ -1,15 +1,11 @@
 'use client';
 
-import { ReactNode, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { userStorage } from '@/lib/auth/user-storage';
-
-type ProtectedRouteProps = {
-  children: ReactNode;
-  requireCompletedProfile?: boolean;
-};
+import { ProtectedRouteProps } from './protected-route.types';
 
 export function ProtectedRoute({
   children,

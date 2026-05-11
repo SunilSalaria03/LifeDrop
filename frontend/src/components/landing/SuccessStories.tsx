@@ -13,58 +13,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-
-const stories = [
-  {
-    name: "Chaman Singh",
-    city: "Mohali",
-    bloodGroup: "O+",
-    message:
-      "LifeDrop helped us find a nearby donor quickly during an emergency. The search was simple and reassuring.",
-    avatar: "",
-  },
-  {
-    name: "Rohit Sharma",
-    city: "Chandigarh",
-    bloodGroup: "A+",
-    message:
-      "I registered as a donor and got connected with a real request in my city. The process felt clear and respectful.",
-    avatar: "",
-  },
-  {
-    name: "Aniket Sharma",
-    city: "Panchkula",
-    bloodGroup: "B+",
-    message:
-      "The donor details were easy to review, and the privacy note made the experience feel trustworthy.",
-    avatar: "",
-  },
-  {
-    name: "Shivam Plaha",
-    city: "Chandigarh",
-    bloodGroup: "A+",
-    message:
-      "I registered as a donor and got connected with a real request in my city. The process felt clear and respectful.",
-    avatar: "",
-  },
-  {
-    name: "Sachin Arora",
-    city: "Panchkula",
-    bloodGroup: "B+",
-    message:
-      "The donor details were easy to review, and the privacy note made the experience feel trustworthy.",
-    avatar: "",
-  },
-];
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-}
+import { successStories } from "./landing.constants";
+import { getInitials } from "./landing.helpers";
 
 export function SuccessStories() {
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
@@ -108,7 +58,7 @@ export function SuccessStories() {
           className="mx-auto w-full max-w-7xl"
         >
           <CarouselContent className="-ml-4 py-2">
-            {stories.map((story) => (
+            {successStories.map((story) => (
               <CarouselItem
                 key={story.name}
                 className="basis-full pl-4 sm:basis-1/2 lg:basis-1/3"

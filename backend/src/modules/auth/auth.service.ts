@@ -18,15 +18,17 @@ import { Twilio } from 'twilio';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { PhoneOtpSendDto } from './dto/phone-otp-send.dto';
 import { PhoneOtpVerifyDto } from './dto/phone-otp-verify.dto';
+import {
+  OTP_MAX_FAILED_ATTEMPTS,
+  OTP_RESEND_COOLDOWN_MS,
+  OTP_VALIDITY_MS,
+  TWILIO_MAX_SEND_ATTEMPTS_CODE,
+} from './auth.constants';
 import { AuthResponse, AuthUser } from './interfaces/auth-response.interface';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
-import { UserDocument, UserRole } from '../users/schemas/user.schema';
+import { UserRole } from '../users/schemas/user.schema';
+import { UserDocument } from '../users/schemas/user.schema.types';
 import { UsersService } from '../users/users.service';
-
-const OTP_VALIDITY_MS = 10 * 60 * 1000;
-const OTP_RESEND_COOLDOWN_MS = 60 * 1000;
-const OTP_MAX_FAILED_ATTEMPTS = 5;
-const TWILIO_MAX_SEND_ATTEMPTS_CODE = 60203;
 
 @Injectable()
 export class AuthService {

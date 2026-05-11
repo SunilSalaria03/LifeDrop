@@ -1,7 +1,8 @@
 import { SelectedLocation } from '@/features/location/types/location.types';
-
-export const LOCATION_STORAGE_KEY = 'lifedrop_detected_location';
-const LOCATION_CHANGED_EVENT = 'lifedrop-location-changed';
+import {
+  LOCATION_CHANGED_EVENT,
+  LOCATION_STORAGE_KEY,
+} from './location.constants';
 
 export function getStoredLocation(): SelectedLocation | null {
   if (typeof window === 'undefined') {

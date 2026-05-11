@@ -12,22 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { bloodGroups } from '@/lib/constants/locations';
-
-export type DonorSearchFormValues = {
-  bloodGroup: string;
-  state: string;
-  stateCode: string;
-  city: string;
-  lat?: number;
-  lng?: number;
-};
-
-type SearchBarProps = {
-  values: DonorSearchFormValues;
-  isSearching: boolean;
-  onChange: (values: DonorSearchFormValues) => void;
-  onSearch: () => void;
-};
+import { SearchBarProps } from './landing.types';
 
 export function SearchBar({
   values,

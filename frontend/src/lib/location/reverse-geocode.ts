@@ -1,21 +1,5 @@
 import { SelectedLocation } from '@/features/location/types/location.types';
-
-type NominatimAddress = {
-  city?: string;
-  town?: string;
-  village?: string;
-  municipality?: string;
-  county?: string;
-  state_district?: string;
-  state?: string;
-  country?: string;
-  country_code?: string;
-  postcode?: string;
-};
-
-type NominatimResponse = {
-  address?: NominatimAddress;
-};
+import { NominatimResponse } from './reverse-geocode.types';
 
 export async function reverseGeocodeLocation(
   lat: number,

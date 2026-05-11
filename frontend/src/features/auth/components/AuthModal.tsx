@@ -16,23 +16,12 @@ import {
 import { GoogleLoginButton } from './GoogleLoginButton';
 import { useAuth } from '../hooks/useAuth';
 import { AuthUser } from '../types/auth.types';
+import { AuthModalProps, AuthStep, OtpFlow } from '../auth-component.types';
 import { useProfile } from '@/features/profile/hooks/useProfile';
 import {
   phoneOtpSendSchema,
   phoneOtpVerifySchema,
 } from '../validations/auth.validation';
-
-type AuthModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  onAuthenticated?: (user: AuthUser) => void;
-  initialPhone?: string;
-  profileUser?: AuthUser;
-  profileRedirect?: string;
-};
-
-type AuthStep = 'login' | 'otp';
-type OtpFlow = 'login' | 'profile';
 
 export function AuthModal({
   isOpen,

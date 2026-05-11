@@ -1,5 +1,8 @@
 # LifeDrop Changelog
 
+## 2026-05-11
+- Added project rules and engineering skills requiring TypeScript types/interfaces, constants, and reusable helpers to live in nearby module-level `*.types.ts`, `*.constants.ts`, and `*.helpers.ts` files instead of components or logic files.
+
 ## 2026-05-08
 - Migrated JWT transport from frontend token storage to HttpOnly cookie authentication with 15-minute access cookies and 7-day refresh cookies.
 - Updated backend login, Google auth, refresh, logout, CORS, and JWT strategy handling so tokens are set/read/cleared through cookies and never returned in response bodies.

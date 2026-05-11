@@ -10,21 +10,9 @@ import {
   sendPhoneOtp,
   verifyPhoneOtp
 } from '../api/auth.api';
-import { AuthResponse } from '../types/auth.types';
+import { getRedirectParam, storeAuthTokens } from '../auth.helpers';
 import { userStorage } from '@/lib/auth/user-storage';
 import { redirectAfterLogin } from '@/lib/auth/redirect-after-login';
-
-function storeAuthTokens(authResponse: AuthResponse) {
-  userStorage.setUser(authResponse.user);
-}
-
-function getRedirectParam() {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  return new URLSearchParams(window.location.search).get('redirect');
-}
 
 export function useAuth() {
   const router = useRouter();

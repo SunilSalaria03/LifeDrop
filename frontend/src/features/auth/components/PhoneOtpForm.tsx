@@ -14,10 +14,7 @@ import {
 } from '@/lib/phone/india-phone';
 import { phoneOtpSendSchema, phoneOtpVerifySchema } from '../validations/auth.validation';
 import { useAuth } from '../hooks/useAuth';
-
-type PhoneOtpFormProps = {
-  mode: 'send' | 'verify';
-};
+import { PhoneOtpFormProps } from '../auth-component.types';
 
 export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
   const router = useRouter();

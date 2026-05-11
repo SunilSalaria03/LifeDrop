@@ -1,36 +1,5 @@
-import { BadgeCheck, HeartPulse, Search, UserPlus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-
-const steps = [
-  {
-    title: "Register",
-    description:
-      "Create your LifeDrop account and add your basic donor or requester details.",
-    icon: UserPlus,
-    iconClassName: "bg-red-50 text-red-700 ring-red-100",
-  },
-  {
-    title: "Verify",
-    description:
-      "Confirm your profile so nearby blood requests stay trusted and reliable.",
-    icon: BadgeCheck,
-    iconClassName: "bg-emerald-50 text-emerald-700 ring-emerald-100",
-  },
-  {
-    title: "Connect",
-    description:
-      "Search by blood group and location to find eligible donors around you.",
-    icon: Search,
-    iconClassName: "bg-sky-50 text-sky-700 ring-sky-100",
-  },
-  {
-    title: "Save Lives",
-    description:
-      "Coordinate quickly and help someone get blood when every minute matters.",
-    icon: HeartPulse,
-    iconClassName: "bg-rose-50 text-rose-700 ring-rose-100",
-  },
-];
+import { landingSteps } from "./landing.constants";
 
 export function HowItWorks() {
   return (
@@ -49,7 +18,7 @@ export function HowItWorks() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
-          {steps.map((step, index) => {
+          {landingSteps.map((step, index) => {
             const Icon = step.icon;
 
             return (

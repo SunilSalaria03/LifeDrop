@@ -1,12 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { AuthUser } from '@/features/auth/types/auth.types';
+import { TokenRefreshResponse } from './api.types';
 import { userStorage } from '@/lib/auth/user-storage';
-
-type TokenRefreshResponse = {
-  data?: {
-    user?: AuthUser;
-  };
-};
 
 export const axiosClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,

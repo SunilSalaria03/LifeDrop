@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { Droplet, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
-
-const footerLinks = ['About', 'Contact', 'Privacy Policy'];
+import { footerLinks } from './footer.constants';
 
 export function Footer() {
   return (

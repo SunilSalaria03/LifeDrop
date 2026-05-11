@@ -14,24 +14,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { AuthUser } from '@/features/auth/types/auth.types';
 import {
   toIndianE164,
   toIndianNationalNumber,
 } from '@/lib/phone/india-phone';
+import { findStateCode } from '../profile.helpers';
+import { ProfileSetupFormProps } from '../profile-component.types';
 import { useProfile } from '../hooks/useProfile';
 import { profileSetupSchema } from '../validations/profile.validation';
-
-type ProfileSetupFormProps = {
-  user: AuthUser;
-};
-
-function findStateCode(stateName?: string) {
-  return (
-    State.getStatesOfCountry('IN').find((state) => state.name === stateName)
-      ?.isoCode ?? ''
-  );
-}
 
 export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
   const router = useRouter();

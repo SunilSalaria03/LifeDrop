@@ -1,15 +1,12 @@
 'use client';
 
-import { ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getMe } from '../api/auth.api';
+import { AuthGuardProps } from '../auth-component.types';
 import { userStorage } from '@/lib/auth/user-storage';
 
-type AuthGuestGuardProps = {
-  children: ReactNode;
-};
-
-export function AuthGuestGuard({ children }: AuthGuestGuardProps) {
+export function AuthGuestGuard({ children }: AuthGuardProps) {
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(true);
   const [canShow, setCanShow] = useState(false);
