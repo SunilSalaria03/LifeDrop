@@ -1,9 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { BloodGroup } from '../../donors/schemas/donor-profile.schema';
 import { User } from '../../users/schemas/user.schema';
-
-export type BloodRequestDocument = HydratedDocument<BloodRequest>;
 
 export enum BloodRequestStatus {
   Pending = 'pending',

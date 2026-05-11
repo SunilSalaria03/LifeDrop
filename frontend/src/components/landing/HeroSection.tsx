@@ -6,21 +6,14 @@ import { HeartPulse } from "lucide-react";
 import { searchDonors } from "@/features/donors/api/donors.api";
 import { DonorSearchFilters } from "@/features/donors/types/donor.types";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { initialDonorSearchFilters } from "./landing.constants";
 import { DonorList } from "./DonorList";
-import { DonorSearchFormValues, SearchBar } from "./SearchBar";
-
-const initialFilters: DonorSearchFormValues = {
-  bloodGroup: "",
-  state: "",
-  stateCode: "",
-  city: "",
-  lat: undefined,
-  lng: undefined,
-};
+import { SearchBar } from "./SearchBar";
+import { DonorSearchFormValues } from "./landing.types";
 
 export function HeroSection() {
   const [filters, setFilters] =
-    useState<DonorSearchFormValues>(initialFilters);
+    useState<DonorSearchFormValues>(initialDonorSearchFilters);
   const [searchFilters, setSearchFilters] = useState<DonorSearchFilters | null>(
     null,
   );

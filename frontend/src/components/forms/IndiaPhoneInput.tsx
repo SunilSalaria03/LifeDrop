@@ -3,14 +3,7 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { toIndianNationalNumber } from '@/lib/phone/india-phone';
-
-type IndiaPhoneInputProps = Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  'onChange' | 'value'
-> & {
-  value: string;
-  onChange: (value: string) => void;
-};
+import { IndiaPhoneInputProps } from './india-phone-input.types';
 
 export const IndiaPhoneInput = React.forwardRef<HTMLInputElement, IndiaPhoneInputProps>(
   ({ className, disabled, onChange, placeholder = '9876543210', value, ...props }, ref) => {

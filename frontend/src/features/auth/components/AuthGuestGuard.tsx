@@ -1,35 +1,26 @@
 'use client';
 
-import { ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getMe } from '../api/auth.api';
-import { tokenStorage } from '@/lib/auth/token-storage';
+import { AuthGuardProps } from '../auth-component.types';
+import { userStorage } from '@/lib/auth/user-storage';
 
-type AuthGuestGuardProps = {
-  children: ReactNode;
-};
-
-export function AuthGuestGuard({ children }: AuthGuestGuardProps) {
+export function AuthGuestGuard({ children }: AuthGuardProps) {
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(true);
   const [canShow, setCanShow] = useState(false);
 
   useEffect(() => {
-    const accessToken = tokenStorage.getAccessToken();
     const redirect = new URLSearchParams(window.location.search).get('redirect');
 
-    if (!accessToken) {
-      setCanShow(true);
-      setIsChecking(false);
-      return;
-    }
-
     getMe()
-      .then(() => {
+      .then((user) => {
+        userStorage.setUser(user);
         router.replace(redirect || '/');
       })
       .catch(() => {
-        tokenStorage.clearTokens();
+        userStorage.clearUser();
         setCanShow(true);
       })
       .finally(() => {

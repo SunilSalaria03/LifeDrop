@@ -1,34 +1,24 @@
 'use client';
 
-import { ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getMe } from '../api/auth.api';
-import { tokenStorage } from '@/lib/auth/token-storage';
+import { AuthGuardProps } from '../auth-component.types';
+import { userStorage } from '@/lib/auth/user-storage';
 
-type AuthProtectedGuardProps = {
-  children: ReactNode;
-};
-
-export function AuthProtectedGuard({ children }: AuthProtectedGuardProps) {
+export function AuthProtectedGuard({ children }: AuthGuardProps) {
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(true);
   const [canShow, setCanShow] = useState(false);
 
   useEffect(() => {
-    const accessToken = tokenStorage.getAccessToken();
-
-    if (!accessToken) {
-      router.replace('/?auth=login');
-      setIsChecking(false);
-      return;
-    }
-
     getMe()
-      .then(() => {
+      .then((user) => {
+        userStorage.setUser(user);
         setCanShow(true);
       })
       .catch(() => {
-        tokenStorage.clearTokens();
+        userStorage.clearUser();
         router.replace('/?auth=login');
       })
       .finally(() => {

@@ -6,31 +6,23 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DonorProfile } from '../donors/schemas/donor-profile.schema';
+import { DonorProfileDocument } from '../donors/schemas/donor-profile.schema.types';
+import type { AuthDonorProfile } from '../auth/interfaces/auth-response.interface';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 import {
   AuthProvider,
   User,
-  UserDocument,
   UserRole,
 } from './schemas/user.schema';
-
-export type CreatePhoneUserInput = {
-  phone: string;
-};
-
-export type CreateGoogleUserInput = {
-  googleId: string;
-  email?: string;
-  name?: string;
-  profileImage?: string;
-};
+import { UserDocument } from './schemas/user.schema.types';
+import { CreateGoogleUserInput, CreatePhoneUserInput } from './users.types';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(DonorProfile.name)
-    private readonly donorProfileModel: Model<DonorProfile>,
+    private readonly donorProfileModel: Model<DonorProfileDocument>,
   ) {}
 
   findById(id: string): Promise<UserDocument | null> {
@@ -244,7 +236,27 @@ export class UsersService {
 
     await this.syncDonorProfileFromUser(updatedUser, dto);
 
-    return this.toSafeUser(updatedUser);
+    return this.toSafeUserWithDonorProfile(updatedUser);
+  }
+
+  async toSafeUserWithDonorProfile(user: UserDocument) {
+    const safeUser = this.toSafeUser(user);
+
+    if (user.role !== UserRole.Donor) {
+      return {
+        ...safeUser,
+        donorProfile: null,
+      };
+    }
+
+    const donorProfile = await this.donorProfileModel
+      .findOne({ userId: user._id })
+      .exec();
+
+    return {
+      ...safeUser,
+      donorProfile: donorProfile ? this.toSafeDonorProfile(donorProfile) : null,
+    };
   }
 
   private async syncDonorProfileFromUser(
@@ -331,6 +343,36 @@ export class UsersService {
       location: user.location,
       createdAt: user.get('createdAt') as Date | undefined,
       updatedAt: user.get('updatedAt') as Date | undefined,
+    };
+  }
+
+  private toSafeDonorProfile(donorProfile: DonorProfileDocument): AuthDonorProfile {
+    return {
+      id: donorProfile.id,
+      userId: donorProfile.userId?.toString(),
+      bloodGroup: donorProfile.bloodGroup,
+      gender: donorProfile.gender,
+      birthDate: donorProfile.birthDate,
+      weight: donorProfile.weight,
+      phone: donorProfile.phone,
+      alternatePhone: donorProfile.alternatePhone,
+      state: donorProfile.state,
+      city: donorProfile.city,
+      district: donorProfile.district,
+      tehsil: donorProfile.tehsil,
+      addressText: donorProfile.addressText,
+      showMobile: donorProfile.showMobile,
+      smsAlert: donorProfile.smsAlert,
+      pincode: donorProfile.pincode,
+      location: donorProfile.location,
+      lastDonationDate: donorProfile.lastDonationDate,
+      nextEligibleDate: donorProfile.nextEligibleDate,
+      isAvailable: donorProfile.isAvailable,
+      isActive: donorProfile.isActive,
+      isVerified: donorProfile.isVerified,
+      totalDonations: donorProfile.totalDonations,
+      createdAt: donorProfile.get('createdAt') as Date | undefined,
+      updatedAt: donorProfile.get('updatedAt') as Date | undefined,
     };
   }
 }

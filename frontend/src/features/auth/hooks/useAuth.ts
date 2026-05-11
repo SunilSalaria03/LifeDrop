@@ -10,23 +10,9 @@ import {
   sendPhoneOtp,
   verifyPhoneOtp
 } from '../api/auth.api';
-import { AuthResponse } from '../types/auth.types';
-import { tokenStorage } from '@/lib/auth/token-storage';
+import { getRedirectParam, storeAuthTokens } from '../auth.helpers';
 import { userStorage } from '@/lib/auth/user-storage';
 import { redirectAfterLogin } from '@/lib/auth/redirect-after-login';
-
-function storeAuthTokens(authResponse: AuthResponse) {
-  tokenStorage.setTokens(authResponse.accessToken, authResponse.refreshToken);
-  userStorage.setUser(authResponse.user);
-}
-
-function getRedirectParam() {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  return new URLSearchParams(window.location.search).get('redirect');
-}
 
 export function useAuth() {
   const router = useRouter();
@@ -64,7 +50,6 @@ export function useAuth() {
       void queryClient.cancelQueries({ queryKey: ['donors', 'profile', 'me'] });
     },
     onSettled: () => {
-      tokenStorage.clearTokens();
       userStorage.clearUser();
       queryClient.removeQueries({ queryKey: ['auth'] });
       queryClient.removeQueries({ queryKey: ['donors', 'profile', 'me'] });
@@ -75,7 +60,6 @@ export function useAuth() {
   const meQuery = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: getMe,
-    enabled: Boolean(tokenStorage.getAccessToken()),
     retry: false
   });
 

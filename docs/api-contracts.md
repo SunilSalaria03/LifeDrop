@@ -67,7 +67,7 @@ Behavior:
 
 ```http
 POST /api/v1/auth/otp/verify-profile-phone
-Authorization: Bearer access_token
+Cookie: access_token=<HttpOnly cookie>
 ```
 
 Request:
@@ -105,7 +105,8 @@ Behavior:
 - Verify locally stored development OTP only when Twilio Verify is not configured and the app is not production.
 - Reject expired OTPs after 10 minutes.
 - Reject verification after repeated invalid attempts.
-- Return safe user, access token, and refresh token.
+- Set HttpOnly `access_token` and `refresh_token` cookies.
+- Return only the safe user object.
 - Frontend redirects to `/profile/setup` when `phoneVerified` is false.
 
 ### Google Auth
@@ -129,6 +130,7 @@ Behavior:
 - Create user when missing.
 - Login existing user when found.
 - Blocked users cannot login.
+- Set HttpOnly `access_token` and `refresh_token` cookies and return only the safe user object.
 
 ### Refresh Token
 
@@ -136,24 +138,18 @@ Behavior:
 POST /api/v1/auth/refresh
 ```
 
-Request:
-
-```json
-{
-  "refreshToken": "token"
-}
-```
-
 Behavior:
+- Read the refresh token from the HttpOnly `refresh_token` cookie.
 - Verify refresh token using `JWT_REFRESH_SECRET`.
 - Compare token hash with the stored user refresh token.
-- Return a new access token and refresh token.
+- Rotate the refresh token by storing the new refresh-token hash.
+- Set a new HttpOnly cookie pair and return only the safe user object.
 
 ### Logout
 
 ```http
 POST /api/v1/auth/logout
-Authorization: Bearer access_token
+Cookie: access_token=<HttpOnly cookie>
 ```
 
 Response:
@@ -171,23 +167,23 @@ Response:
 
 ```http
 GET /api/v1/auth/me
-Authorization: Bearer access_token
+Cookie: access_token=<HttpOnly cookie>
 ```
 
-Response data is the logged-in safe user object. It never includes `refreshToken` or hidden provider identifiers.
+Response data is the logged-in safe user object. When the user is a donor, the response includes `donorProfile` with the current donor profile fields so profile screens do not need a second read request. Non-donor users receive `donorProfile: null`. It never includes `refreshToken`, OTP fields, or hidden provider identifiers.
 
 ### User Profile
 
 ```http
 GET /api/v1/users/profile
-Authorization: Bearer access_token
+Cookie: access_token=<HttpOnly cookie>
 ```
 
-Returns the logged-in user's safe profile from MongoDB.
+Returns the logged-in user's safe profile from MongoDB. Donor users include `donorProfile`; non-donor users receive `donorProfile: null`.
 
 ```http
 PUT /api/v1/users/profile
-Authorization: Bearer access_token
+Cookie: access_token=<HttpOnly cookie>
 ```
 
 Updates the logged-in user's real profile fields in the `users` collection, including name, contact fields, address text, state, city, district, and optional GeoJSON location. Coordinates must be supplied together as `lat` and `lng` and are stored as `[lng, lat]`. The response never includes `refreshToken`, OTP fields, or hidden provider identifiers.
@@ -222,7 +218,7 @@ Returns active cities from MongoDB. `district` can be supplied to narrow the res
 
 ```http
 POST /api/v1/locations
-Authorization: Bearer admin_access_token
+Cookie: access_token=<HttpOnly admin cookie>
 ```
 
 Admin-only. Creates a location record with optional GeoJSON coordinates stored as `[lng, lat]`.
@@ -231,7 +227,7 @@ Admin-only. Creates a location record with optional GeoJSON coordinates stored a
 
 ```http
 POST /api/v1/locations/bulk
-Authorization: Bearer admin_access_token
+Cookie: access_token=<HttpOnly admin cookie>
 ```
 
 Admin-only. Upserts location records into the `locations` collection.
@@ -248,7 +244,7 @@ Returns active city, district, state, or pincode matches from MongoDB.
 
 ```http
 POST /api/v1/donors/profile
-Authorization: Bearer access_token
+Cookie: access_token=<HttpOnly cookie>
 ```
 
 Creates the logged-in user's donor profile in `donorprofiles`, stores location as GeoJSON `[lng, lat]`, calculates `nextEligibleDate` from `lastDonationDate + 90 days` when supplied, syncs safe profile/location fields back to the linked user, and promotes the user role to `donor`. Blocked users cannot create donor profiles. A user can have only one donor profile.
@@ -257,7 +253,7 @@ Creates the logged-in user's donor profile in `donorprofiles`, stores location a
 
 ```http
 PUT /api/v1/donors/profile
-Authorization: Bearer access_token
+Cookie: access_token=<HttpOnly cookie>
 ```
 
 Updates only the logged-in user's donor profile. Coordinates must be supplied as both `lat` and `lng` when changing donor location.
@@ -266,7 +262,7 @@ Updates only the logged-in user's donor profile. Coordinates must be supplied as
 
 ```http
 GET /api/v1/donors/profile/me
-Authorization: Bearer access_token
+Cookie: access_token=<HttpOnly cookie>
 ```
 
 Returns the logged-in user's donor profile.
@@ -275,7 +271,7 @@ Returns the logged-in user's donor profile.
 
 ```http
 PATCH /api/v1/donors/profile/availability
-Authorization: Bearer access_token
+Cookie: access_token=<HttpOnly cookie>
 ```
 
 Request:
@@ -340,6 +336,14 @@ Returns a privacy-safe donor profile for the `/donors/[id]` frontend route. Phon
 
 Response data includes safe public fields such as donor id, user id, name, profile image, blood group, state, city, district, availability, verification status, last donation date, next eligible date, total donations, and timestamps. It does not include `phone` or `alternatePhone`.
 
+### Auth Cookie Settings
+
+The backend stores tokens in cookies that are not readable by frontend JavaScript:
+
+- `access_token`: HttpOnly, `sameSite: "lax"`, `path: "/"`, 15 minute max age
+- `refresh_token`: HttpOnly, `sameSite: "lax"`, `path: "/"`, 7 day max age
+- `secure: true` only in production
+
 ### Auth Success Response Shape
 
 ```json
@@ -357,9 +361,7 @@ Response data includes safe public fields such as donor id, user id, name, profi
       "phoneVerified": true,
       "isProfileCompleted": false,
       "isBlocked": false
-    },
-    "accessToken": "jwt-access-token",
-    "refreshToken": "jwt-refresh-token"
+    }
   },
   "timestamp": "2026-05-04T00:00:00.000Z",
   "path": "/api/v1/auth/otp/verify"

@@ -18,16 +18,17 @@ import { Twilio } from 'twilio';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { PhoneOtpSendDto } from './dto/phone-otp-send.dto';
 import { PhoneOtpVerifyDto } from './dto/phone-otp-verify.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
+import {
+  OTP_MAX_FAILED_ATTEMPTS,
+  OTP_RESEND_COOLDOWN_MS,
+  OTP_VALIDITY_MS,
+  TWILIO_MAX_SEND_ATTEMPTS_CODE,
+} from './auth.constants';
 import { AuthResponse, AuthUser } from './interfaces/auth-response.interface';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
-import { UserDocument, UserRole } from '../users/schemas/user.schema';
+import { UserRole } from '../users/schemas/user.schema';
+import { UserDocument } from '../users/schemas/user.schema.types';
 import { UsersService } from '../users/users.service';
-
-const OTP_VALIDITY_MS = 10 * 60 * 1000;
-const OTP_RESEND_COOLDOWN_MS = 60 * 1000;
-const OTP_MAX_FAILED_ATTEMPTS = 5;
-const TWILIO_MAX_SEND_ATTEMPTS_CODE = 60203;
 
 @Injectable()
 export class AuthService {
@@ -232,10 +233,14 @@ export class AuthService {
     };
   }
 
-  async refreshTokens(refreshTokenDto: RefreshTokenDto): Promise<AuthResponse> {
+  async refreshTokens(refreshToken?: string): Promise<AuthResponse> {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token is missing.');
+    }
+
     const refreshSecret = this.getRequiredConfig('JWT_REFRESH_SECRET');
     const payload = await this.jwtService
-      .verifyAsync<JwtPayload>(refreshTokenDto.refreshToken, {
+      .verifyAsync<JwtPayload>(refreshToken, {
         secret: refreshSecret,
       })
       .catch(() => {
@@ -250,13 +255,30 @@ export class AuthService {
 
     this.assertCanLogin(user);
 
-    if (this.hashToken(refreshTokenDto.refreshToken) !== user.refreshToken) {
+    if (this.hashToken(refreshToken) !== user.refreshToken) {
       throw new UnauthorizedException(
         'Refresh token does not match active session.',
       );
     }
 
     return this.createAuthResponse(user);
+  }
+
+  async logoutByRefreshToken(refreshToken?: string) {
+    if (refreshToken) {
+      const refreshSecret = this.getRequiredConfig('JWT_REFRESH_SECRET');
+      const payload = await this.jwtService
+        .verifyAsync<JwtPayload>(refreshToken, { secret: refreshSecret })
+        .catch(() => null);
+
+      if (payload?.sub) {
+        await this.usersService.clearRefreshToken(payload.sub);
+      }
+    }
+
+    return {
+      message: 'Logged out successfully',
+    };
   }
 
   async logout(userId: string) {
@@ -267,8 +289,8 @@ export class AuthService {
     };
   }
 
-  getMe(user: UserDocument): AuthUser {
-    return this.toAuthUser(user);
+  getMe(user: UserDocument): Promise<AuthUser> {
+    return this.usersService.toSafeUserWithDonorProfile(user);
   }
 
   private async createAuthResponse(user: UserDocument): Promise<AuthResponse> {
@@ -291,42 +313,9 @@ export class AuthService {
     );
 
     return {
-      user: this.toAuthUser(user),
+      user: await this.usersService.toSafeUserWithDonorProfile(user),
       accessToken,
       refreshToken,
-    };
-  }
-
-  private toAuthUser(user: UserDocument): AuthUser {
-    const isDonor = (user.role ?? UserRole.User) === UserRole.Donor;
-
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      profileImage: "https://picsum.photos/200",
-      authProvider: user.authProvider,
-      role: user.role ?? UserRole.User,
-      phoneVerified: user.phoneVerified,
-      isProfileCompleted: user.isProfileCompleted,
-      isBlocked: user.isBlocked,
-      addressText: isDonor ? user.addressText : undefined,
-      bloodGroup: isDonor ? user.bloodGroup : undefined,
-      gender: isDonor ? user.gender : undefined,
-      birthDate: isDonor ? user.birthDate : undefined,
-      weight: isDonor ? user.weight : undefined,
-      lastDonationDate: isDonor ? user.lastDonationDate : undefined,
-      showMobile: isDonor ? user.showMobile : undefined,
-      smsAlert: isDonor ? user.smsAlert : undefined,
-      pincode: user.pincode,
-      state: user.state,
-      city: user.city,
-      district: user.district,
-      tehsil: user.tehsil,
-      location: user.location,
-      createdAt: user.get('createdAt') as Date | undefined,
-      updatedAt: user.get('updatedAt') as Date | undefined,
     };
   }
 

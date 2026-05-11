@@ -1,7 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
-
-export type UserDocument = HydratedDocument<User>;
+import { GeoPoint } from './user.schema.types';
 
 export enum AuthProvider {
   Phone = 'phone',
@@ -19,11 +17,6 @@ export enum Gender {
   Female = 'female',
   Other = 'other',
 }
-
-export type GeoPoint = {
-  type: 'Point';
-  coordinates: [number, number];
-};
 
 @Schema({
   timestamps: true,

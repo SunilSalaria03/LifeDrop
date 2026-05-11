@@ -1,9 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { BloodRequest } from '../../blood-requests/schemas/blood-request.schema';
 import { User } from '../../users/schemas/user.schema';
-
-export type NotificationDocument = HydratedDocument<Notification>;
 
 export enum NotificationChannel {
   Sms = 'SMS',

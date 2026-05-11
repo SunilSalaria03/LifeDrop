@@ -8,19 +8,7 @@ import {
   useState,
 } from 'react';
 import { CheckCircle2, XCircle } from 'lucide-react';
-
-type ToastVariant = 'success' | 'error';
-
-type Toast = {
-  id: number;
-  message: string;
-  title?: string;
-  variant: ToastVariant;
-};
-
-type ToastContextValue = {
-  showToast: (toast: Omit<Toast, 'id'>) => void;
-};
+import { Toast, ToastContextValue } from './toast.types';
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 

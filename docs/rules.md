@@ -14,6 +14,9 @@ Whenever adding, updating, or removing a feature:
 ## Backend Rules
 - Controllers only handle request and response.
 - Services contain business logic.
+- Keep TypeScript types and interfaces out of controllers, services, guards, interceptors, and other logic files. Put them in nearby module files such as `*.types.ts`, `*.interfaces.ts`, `*.dto.ts`, or `*.schema.types.ts`.
+- Keep module constants out of controllers and services. Put shared constants in nearby `*.constants.ts` files, or in an existing shared constants file when the constant is genuinely cross-cutting.
+- Keep reusable helper functions out of controllers and services. Put helpers in nearby `*.helpers.ts` files and import them where needed.
 - DTOs are required for every request body/query/param contract.
 - Use `class-validator` for DTO validation.
 - Use a response interceptor.
@@ -43,7 +46,10 @@ Whenever adding, updating, or removing a feature:
 - Use TanStack Query for API state.
 - Keep API calls in `lib/api` or feature API files.
 - Keep validation schemas in `lib/validations`.
-- Keep interfaces and types separate.
+- Keep interfaces and types separate from pages, components, hooks, API clients, and logic files. Use nearby feature/module files such as `*.types.ts`, `*.interfaces.ts`, `*.validation.types.ts`, or `*.schema.types.ts`.
+- Keep constants out of pages, components, hooks, API clients, and logic files. Use nearby `*.constants.ts` files or existing shared constants files.
+- Keep reusable helper functions out of pages, components, hooks, API clients, and logic files. Use nearby `*.helpers.ts` files.
+- Keep extracted files close to the feature/module they support; do not create broad shared folders unless the code is truly reused across features.
 - Use clean responsive UI.
 - Do not hardcode API URLs; use environment variables.
 - Do not place Yup schemas inside page, form, or component files.

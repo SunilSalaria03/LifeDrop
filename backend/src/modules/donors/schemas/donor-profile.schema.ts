@@ -1,9 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Schema as MongooseSchema, Types } from 'mongoose';
+import { Schema as MongooseSchema, Types } from 'mongoose';
 import { User } from '../../users/schemas/user.schema';
 import { Gender } from '../../users/schemas/user.schema';
-
-export type DonorProfileDocument = HydratedDocument<DonorProfile>;
+import { GeoPoint } from './donor-profile.schema.types';
 
 export enum BloodGroup {
   APositive = 'A+',
@@ -15,11 +14,6 @@ export enum BloodGroup {
   OPositive = 'O+',
   ONegative = 'O-',
 }
-
-export type GeoPoint = {
-  type: 'Point';
-  coordinates: [number, number];
-};
 
 const GeoPointSchema = new MongooseSchema<GeoPoint>(
   {

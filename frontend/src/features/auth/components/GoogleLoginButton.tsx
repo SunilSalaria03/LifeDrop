@@ -1,53 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AxiosError } from "axios";
+import "../google.types";
+import { getGoogleLoginErrorMessage } from "../google.helpers";
 import { useAuth } from "../hooks/useAuth";
-import { AuthUser } from "../types/auth.types";
-
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        id: {
-          initialize: (config: {
-            client_id: string;
-            callback: (response: { credential?: string }) => void;
-          }) => void;
-          renderButton: (
-            element: HTMLElement,
-            options: Record<string, string | number | boolean>,
-          ) => void;
-        };
-      };
-    };
-  }
-}
-
-function getErrorMessage(error: unknown) {
-  if (error instanceof AxiosError) {
-    const message = error.response?.data?.message;
-
-    if (Array.isArray(message)) {
-      return message.join(" ");
-    }
-
-    if (typeof message === "string") {
-      return message;
-    }
-  }
-
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return "Google login failed. Please try again.";
-}
-
-type GoogleLoginButtonProps = {
-  onAuthenticated?: (user: AuthUser) => void;
-  onSuccess?: () => void;
-};
+import { GoogleLoginButtonProps } from "../auth-component.types";
 
 export function GoogleLoginButton({
   onAuthenticated,
@@ -113,7 +70,7 @@ export function GoogleLoginButton({
     }
   }, [googleClientId, mutateAsync, onAuthenticated]);
 
-  const errorMessage = scriptError ?? (isError ? getErrorMessage(error) : null);
+  const errorMessage = scriptError ?? (isError ? getGoogleLoginErrorMessage(error) : null);
 
   useEffect(() => {
     if (googleMutation.isSuccess) {

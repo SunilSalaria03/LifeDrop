@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-
-type BadgeProps = React.HTMLAttributes<HTMLSpanElement>;
+import { BadgeProps } from './badge.types';
 
 function Badge({ className, ...props }: BadgeProps) {
   return (
@@ -13,4 +12,3 @@ function Badge({ className, ...props }: BadgeProps) {
 }
 
 export { Badge };
-

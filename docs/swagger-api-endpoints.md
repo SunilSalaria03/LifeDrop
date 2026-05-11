@@ -16,13 +16,7 @@ http://localhost:5000/api/v1
 
 Use no token for public APIs.
 
-Use JWT access token for protected user APIs:
-
-```http
-Authorization: Bearer <accessToken>
-```
-
-In Swagger UI, click **Authorize** and paste only the raw `accessToken` value. Do not paste `Bearer ` before it; Swagger adds that prefix automatically for the HTTP bearer scheme.
+Protected user APIs read the JWT access token from the HttpOnly `access_token` cookie set by login, Google auth, or refresh.
 
 Admin APIs require:
 - Valid JWT access token
@@ -95,10 +89,8 @@ Payload:
 
 Returns:
 - Safe user object
-- `accessToken`
-- `refreshToken`
 
-Use `accessToken` as the bearer token for protected APIs.
+Also sets HttpOnly `access_token` and `refresh_token` cookies.
 
 ### Google Auth
 
@@ -118,8 +110,8 @@ Payload:
 
 Returns:
 - Safe user object
-- `accessToken`
-- `refreshToken`
+
+Also sets HttpOnly `access_token` and `refresh_token` cookies.
 
 ### Refresh Token
 
@@ -129,21 +121,15 @@ POST /auth/refresh
 
 Access: Public
 
-Payload:
+Payload: none
 
-```json
-{
-  "refreshToken": "refresh-token-from-login"
-}
-```
-
-Returns a new token pair.
+Reads the HttpOnly `refresh_token` cookie, rotates the refresh token, sets a new cookie pair, and returns the safe user object.
 
 ### Logout
 
 ```http
 POST /auth/logout
-Authorization: Bearer <accessToken>
+Cookie: access_token=<HttpOnly cookie>
 ```
 
 Access: Protected
@@ -156,7 +142,7 @@ Payload: none
 
 ```http
 GET /auth/me
-Authorization: Bearer <accessToken>
+Cookie: access_token=<HttpOnly cookie>
 ```
 
 Access: Protected
@@ -171,7 +157,7 @@ Payload: none
 
 ```http
 GET /users/profile
-Authorization: Bearer <accessToken>
+Cookie: access_token=<HttpOnly cookie>
 ```
 
 Access: Protected
@@ -189,7 +175,7 @@ Sensitive fields not returned:
 
 ```http
 PUT /users/profile
-Authorization: Bearer <accessToken>
+Cookie: access_token=<HttpOnly cookie>
 ```
 
 Access: Protected
@@ -225,7 +211,7 @@ Notes:
 
 ```http
 POST /donors/profile
-Authorization: Bearer <accessToken>
+Cookie: access_token=<HttpOnly cookie>
 ```
 
 Access: Protected
@@ -275,7 +261,7 @@ Notes:
 
 ```http
 PUT /donors/profile
-Authorization: Bearer <accessToken>
+Cookie: access_token=<HttpOnly cookie>
 ```
 
 Access: Protected
@@ -309,7 +295,7 @@ Notes:
 
 ```http
 GET /donors/profile/me
-Authorization: Bearer <accessToken>
+Cookie: access_token=<HttpOnly cookie>
 ```
 
 Access: Protected
@@ -322,7 +308,7 @@ Payload: none
 
 ```http
 PATCH /donors/profile/availability
-Authorization: Bearer <accessToken>
+Cookie: access_token=<HttpOnly cookie>
 ```
 
 Access: Protected
@@ -480,7 +466,7 @@ Notes:
 
 ```http
 POST /locations
-Authorization: Bearer <adminAccessToken>
+Cookie: access_token=<HttpOnly admin cookie>
 ```
 
 Access: Protected
@@ -523,7 +509,7 @@ Notes:
 
 ```http
 POST /locations/bulk
-Authorization: Bearer <adminAccessToken>
+Cookie: access_token=<HttpOnly admin cookie>
 ```
 
 Access: Protected

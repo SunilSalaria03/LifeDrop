@@ -13,16 +13,17 @@ import { DonorSearchQueryDto } from "./dto/donor-search-query.dto";
 import { UpdateDonorAvailabilityDto } from "./dto/update-donor-availability.dto";
 import { UpdateDonorProfileDto } from "./dto/update-donor-profile.dto";
 import {
+  DEFAULT_SEARCH_RADIUS_KM,
+  DONOR_ELIGIBILITY_DAYS,
+  MAX_SEARCH_RADIUS_KM,
+} from "./donors.constants";
+import { DonorProfileInput } from "./donors.types";
+import {
   DonorProfile,
-  DonorProfileDocument,
 } from "./schemas/donor-profile.schema";
-import { User, UserDocument, UserRole } from "../users/schemas/user.schema";
-
-const DONOR_ELIGIBILITY_DAYS = 90;
-const DEFAULT_SEARCH_RADIUS_KM = 50;
-const MAX_SEARCH_RADIUS_KM = 50;
-
-type DonorProfileInput = CreateDonorProfileDto | UpdateDonorProfileDto;
+import { DonorProfileDocument } from "./schemas/donor-profile.schema.types";
+import { User, UserRole } from "../users/schemas/user.schema";
+import { UserDocument } from "../users/schemas/user.schema.types";
 
 @Injectable()
 export class DonorsService {

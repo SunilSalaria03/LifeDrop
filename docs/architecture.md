@@ -80,8 +80,11 @@ Implemented foundation:
 - Google signup/login starts on the frontend through Google Identity Services using `NEXT_PUBLIC_GOOGLE_CLIENT_ID` and is verified on the backend with `GOOGLE_CLIENT_ID`. The backend also supports Firebase Google sign-in tokens.
 - Google users without `phoneVerified` are sent to `/profile/setup` to add and verify a phone number with OTP.
 - Normal users are not required to complete donor-style profile details; donor details are collected only when they become donors.
-- Successful auth returns an access token, refresh token, and safe user object.
-- Access tokens protect `/auth/me`, `/auth/logout`, and future private endpoints through Passport JWT.
+- Successful auth sets `access_token` and `refresh_token` as HttpOnly cookies and returns only the safe user object.
+- Access tokens expire after 15 minutes and refresh tokens expire after 7 days.
+- Access tokens protect `/auth/me` and future private endpoints through Passport JWT by reading the HttpOnly cookie.
+- Refresh uses the `refresh_token` cookie, rotates the stored refresh-token hash, and sets a new cookie pair.
+- Logout clears both auth cookies and removes the active refresh-token hash when a refresh cookie is available.
 - Refresh tokens are hashed before storing in the user document and are never exposed in user responses.
 - Blocked users cannot login or refresh tokens.
 - Authenticated users can manage their own profile, donor profile, and blood requests.
@@ -188,8 +191,8 @@ Implemented foundation:
 - Auth API calls live in `features/auth/api/auth.api.ts`.
 - Auth validation lives in `features/auth/validations/auth.validation.ts`.
 - Auth types live in `features/auth/types/auth.types.ts`.
-- Tokens are stored through `lib/auth/token-storage.ts`.
-- Axios attaches access tokens automatically, refreshes expired access tokens once, and avoids recursive refresh calls on `/auth/refresh`.
+- Axios sends credentials for cookie auth, refreshes expired access cookies once, and avoids recursive refresh calls on `/auth/refresh`.
+- Frontend auth state stores only the current safe user in memory and restores sessions through `/auth/me`.
 
 ## Frontend Landing Page
 - `/` renders the public LifeDrop landing page.

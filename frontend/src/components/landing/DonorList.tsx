@@ -6,15 +6,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { RequestBloodModal } from '@/features/donors/components/RequestBloodModal';
 import { DonorListItem } from '@/features/donors/types/donor.types';
-import { tokenStorage } from '@/lib/auth/token-storage';
+import { userStorage } from '@/lib/auth/user-storage';
 import { DonorCard } from './DonorCard';
-
-type DonorListProps = {
-  donors: DonorListItem[];
-  isLoading: boolean;
-  hasSearched: boolean;
-  errorMessage?: string;
-};
+import { DonorListProps } from './landing.types';
 
 function DonorSkeletonCard() {
   return (
@@ -53,7 +47,7 @@ export function DonorList({ donors, isLoading, hasSearched, errorMessage }: Dono
   const donorCountLabel = isLoading ? 'Searching...' : `${donors.length} donors found`;
 
   const handleRequest = (donor: DonorListItem) => {
-    if (!tokenStorage.getAccessToken()) {
+    if (!meQuery.data && !userStorage.getUser()) {
       window.dispatchEvent(new CustomEvent('lifedrop:open-auth-modal'));
       return;
     }

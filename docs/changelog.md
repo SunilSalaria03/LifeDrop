@@ -1,5 +1,15 @@
 # LifeDrop Changelog
 
+## 2026-05-11
+- Added project rules and engineering skills requiring TypeScript types/interfaces, constants, and reusable helpers to live in nearby module-level `*.types.ts`, `*.constants.ts`, and `*.helpers.ts` files instead of components or logic files.
+- Updated authenticated user/profile reads to include `donorProfile` for donor users and changed `/profile` to use that single read source instead of separately fetching the current donor profile.
+
+## 2026-05-08
+- Migrated JWT transport from frontend token storage to HttpOnly cookie authentication with 15-minute access cookies and 7-day refresh cookies.
+- Updated backend login, Google auth, refresh, logout, CORS, and JWT strategy handling so tokens are set/read/cleared through cookies and never returned in response bodies.
+- Updated the frontend Axios client and auth guards to use credentialed requests, one-flight refresh retry, session restore via `/auth/me`, and user-only in-memory auth state.
+- Verified backend and frontend production builds after the auth migration.
+
 ## 2026-05-05
 - Normalized auth/profile/donor keys to `name`, `phone`, `phoneVerified`, and `pincode`; Google users and donor CTAs now require phone OTP verification before donor registration.
 - Refactored profile and donor onboarding so normal users keep basic fields only, donor fields appear only for donor accounts, and `/become-donor` uses one complete form that promotes the user to donor on save.

@@ -1,26 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import mongoose, { Schema } from 'mongoose';
-
-enum AuthProvider {
-  Phone = 'phone',
-  Google = 'google',
-}
-
-enum UserRole {
-  Admin = 'admin',
-}
-
-type UserRecord = {
-  name?: string;
-  email?: string;
-  phone?: string;
-  authProvider: AuthProvider;
-  role: UserRole;
-  phoneVerified: boolean;
-  isProfileCompleted: boolean;
-  isBlocked: boolean;
-};
+import { normalizeOptional } from './seed-admin.helpers';
+import { AuthProvider, UserRecord, UserRole } from './seed-admin.types';
 
 const userSchema = new Schema<UserRecord>(
   {
@@ -104,11 +86,6 @@ async function seedAdmin() {
   process.stdout.write(
     `Admin user ready. id: ${admin.id}, email: ${admin.email ?? 'not set'}, phone: ${admin.phone ?? 'not set'}\n`,
   );
-}
-
-function normalizeOptional(value: string | undefined): string | undefined {
-  const trimmedValue = value?.trim();
-  return trimmedValue ? trimmedValue : undefined;
 }
 
 async function loadLocalEnv(): Promise<void> {

@@ -1,12 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
-
-export type LocationDocument = HydratedDocument<Location>;
-
-export type GeoPoint = {
-  type: 'Point';
-  coordinates: [number, number];
-};
+import { GeoPoint } from './location.schema.types';
 
 @Schema({
   timestamps: true,

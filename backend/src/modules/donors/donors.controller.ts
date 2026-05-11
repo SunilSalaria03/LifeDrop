@@ -10,19 +10,14 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { Request } from 'express';
+import { ApiCookieAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CreateDonorProfileDto } from './dto/create-donor-profile.dto';
 import { DonorSearchQueryDto } from './dto/donor-search-query.dto';
 import { UpdateDonorAvailabilityDto } from './dto/update-donor-availability.dto';
 import { UpdateDonorProfileDto } from './dto/update-donor-profile.dto';
 import { DonorsService } from './donors.service';
+import { AuthenticatedRequest } from '../auth/auth.types';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { UserDocument } from '../users/schemas/user.schema';
-
-type AuthenticatedRequest = Request & {
-  user: UserDocument;
-};
 
 @ApiTags('donors')
 @Controller('donors')
@@ -30,7 +25,7 @@ export class DonorsController {
   constructor(private readonly donorsService: DonorsService) {}
 
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiCookieAuth('access_token')
   @Post('profile')
   createProfile(
     @Req() request: AuthenticatedRequest,
@@ -43,7 +38,7 @@ export class DonorsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiCookieAuth('access_token')
   @Put('profile')
   updateProfile(
     @Req() request: AuthenticatedRequest,
@@ -56,14 +51,14 @@ export class DonorsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiCookieAuth('access_token')
   @Get('profile/me')
   getMyProfile(@Req() request: AuthenticatedRequest) {
     return this.donorsService.getMyProfile(request.user);
   }
 
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiCookieAuth('access_token')
   @Patch('profile/availability')
   updateAvailability(
     @Req() request: AuthenticatedRequest,

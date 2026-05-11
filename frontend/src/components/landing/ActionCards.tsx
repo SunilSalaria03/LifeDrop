@@ -1,31 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { AlertTriangle, HeartHandshake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { tokenStorage } from '@/lib/auth/token-storage';
 import { userStorage } from '@/lib/auth/user-storage';
-
-const actions = [
-  {
-    title: 'Request Blood',
-    description: 'Create an urgent request and reach nearby donors who match your blood need.',
-    buttonLabel: 'Request Now',
-    href: '/request-blood',
-    icon: AlertTriangle,
-    accent: 'text-[#E74C3C]',
-    button: 'bg-[#E74C3C] hover:bg-red-600'
-  },
-  {
-    title: 'Donate Blood',
-    description: 'Register as a donor and make yourself available for people in your city.',
-    buttonLabel: 'Become a Donor',
-    href: '/become-donor',
-    icon: HeartHandshake,
-    accent: 'text-[#27AE60]',
-    button: 'bg-[#27AE60] hover:bg-green-700'
-  }
-];
+import { landingActions } from './landing.constants';
 
 export function ActionCards() {
   const router = useRouter();
@@ -38,7 +16,7 @@ export function ActionCards() {
 
     const user = userStorage.getUser();
 
-    if (!tokenStorage.getAccessToken()) {
+    if (!user) {
       window.dispatchEvent(new CustomEvent('lifedrop:open-auth-modal'));
       return;
     }
@@ -63,7 +41,7 @@ export function ActionCards() {
   return (
     <section className="bg-white px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
       <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2">
-        {actions.map((action) => {
+        {landingActions.map((action) => {
           const Icon = action.icon;
 
           return (

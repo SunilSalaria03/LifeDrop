@@ -15,7 +15,6 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,65 +24,19 @@ import { Header } from "@/components/layout/Header";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { RequestBloodModal } from "@/features/donors/components/RequestBloodModal";
 import { useDonorDetails } from "@/features/donors/hooks/useDonorDetails";
-import { DonorDetail } from "@/features/donors/types/donor.types";
-import { tokenStorage } from "@/lib/auth/token-storage";
-
-function getDonorName(name?: string) {
-  return name?.trim() || "LifeDrop Donor";
-}
-
-function getInitials(name?: string) {
-  return getDonorName(name)
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-}
-
-function formatDate(date?: string) {
-  if (!date) {
-    return "Not provided";
-  }
-
-  return new Intl.DateTimeFormat("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(date));
-}
-function formatPhone(phone?: string, showMobile: boolean = false) {
-  if (!phone) {
-    return "Not provided";
-  }
-
-  const cleaned = phone.replace(/\D/g, "");
-
-  let mobile = cleaned;
-
-  if (cleaned.length === 12 && cleaned.startsWith("91")) {
-    mobile = cleaned.slice(2);
-  }
-
-  if (mobile.length !== 10) {
-    return phone;
-  }
-
-  if (showMobile) {
-    return `+91 ${mobile.slice(0, 5)} ${mobile.slice(5)}`;
-  }
-
-  return `+91 XXXXX ${mobile.slice(5)}`;
-}
+import { userStorage } from "@/lib/auth/user-storage";
+import {
+  formatDonorDate,
+  formatDonorPhone,
+  getDonorName,
+  getInitials,
+} from "@/components/landing/landing.helpers";
+import { DetailItemProps, DonorProfileHeaderProps } from "./donor-detail-page.types";
 function DetailItem({
   icon: Icon,
   label,
   value,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string;
-}) {
+}: DetailItemProps) {
   return (
     <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-neutral-100 bg-neutral-50/80 p-4">
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-red-600 shadow-sm shadow-neutral-950/5">
@@ -101,7 +54,7 @@ function DetailItem({
   );
 }
 
-function DonorProfileHeader({ donor }: { donor: DonorDetail }) {
+function DonorProfileHeader({ donor }: DonorProfileHeaderProps) {
   const donorName = getDonorName(donor.name);
   const location = [donor.city, donor.district, donor.state]
     .filter(Boolean)
@@ -179,7 +132,7 @@ export default function DonorDetailPage() {
   );
 
   const handleRequestBlood = () => {
-    if (!tokenStorage.getAccessToken()) {
+    if (!meQuery.data && !userStorage.getUser()) {
       window.dispatchEvent(new CustomEvent("lifedrop:open-auth-modal"));
       return;
     }
@@ -269,12 +222,12 @@ export default function DonorDetailPage() {
                     <DetailItem
                       icon={CalendarCheck}
                       label="Last donation"
-                      value={formatDate(donor.lastDonationDate)}
+                      value={formatDonorDate(donor.lastDonationDate)}
                     />
                     <DetailItem
                       icon={CalendarClock}
                       label="Next eligible"
-                      value={formatDate(donor.nextEligibleDate)}
+                      value={formatDonorDate(donor.nextEligibleDate)}
                     />
                     <DetailItem
                       icon={HeartPulse}
@@ -284,12 +237,12 @@ export default function DonorDetailPage() {
                     <DetailItem
                       icon={Users}
                       label="Member since"
-                      value={formatDate(donor.createdAt)}
+                      value={formatDonorDate(donor.createdAt)}
                     />
                     <DetailItem
                       icon={Phone}
                       label="Contact"
-                      value={formatPhone(donor.phone , donor.showMobile)}
+                      value={formatDonorPhone(donor.phone , donor.showMobile)}
                     />
                   </CardContent>
                 </Card>
