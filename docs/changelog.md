@@ -2,6 +2,7 @@
 
 ## 2026-05-11
 - Added project rules and engineering skills requiring TypeScript types/interfaces, constants, and reusable helpers to live in nearby module-level `*.types.ts`, `*.constants.ts`, and `*.helpers.ts` files instead of components or logic files.
+- Updated authenticated user/profile reads to include `donorProfile` for donor users and changed `/profile` to use that single read source instead of separately fetching the current donor profile.
 
 ## 2026-05-08
 - Migrated JWT transport from frontend token storage to HttpOnly cookie authentication with 15-minute access cookies and 7-day refresh cookies.

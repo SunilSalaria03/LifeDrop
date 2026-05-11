@@ -1,3 +1,5 @@
+import type { MyDonorProfile } from '@/features/donors/types/donor.types';
+
 export type AuthProvider = 'phone' | 'google';
 export type UserRole = 'user' | 'donor' | 'admin';
 export type Gender = 'male' | 'female' | 'other';
@@ -32,6 +34,7 @@ export type AuthUser = {
   district?: string;
   tehsil?: string;
   location?: LocationPoint;
+  donorProfile?: MyDonorProfile | null;
   createdAt?: string;
   updatedAt?: string;
 };

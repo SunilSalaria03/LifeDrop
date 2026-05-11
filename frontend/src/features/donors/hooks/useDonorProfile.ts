@@ -8,12 +8,16 @@ import {
 } from '../api/donors.api';
 import { AuthUser } from '@/features/auth/types/auth.types';
 import { DonorProfilePayload, MyDonorProfile } from '../types/donor.types';
+import { UseDonorProfileOptions } from '../donor-hook.types';
 import { userStorage } from '@/lib/auth/user-storage';
 
-export function useDonorProfile() {
+export function useDonorProfile({
+  myDonorProfileEnabled = false,
+}: UseDonorProfileOptions = {}) {
   const queryClient = useQueryClient();
 
   const myDonorProfileQuery = useQuery({
+    enabled: myDonorProfileEnabled,
     queryKey: ['donors', 'profile', 'me'],
     queryFn: getMyDonorProfile,
     retry: false,
@@ -45,6 +49,7 @@ export function useDonorProfile() {
         tehsil: donorProfile.tehsil,
         pincode: donorProfile.pincode,
         location: donorProfile.location,
+        donorProfile,
       });
       if (updatedUser) {
         queryClient.setQueryData(['auth', 'me'], updatedUser);
@@ -61,7 +66,20 @@ export function useDonorProfile() {
     Partial<DonorProfilePayload>
   >({
     mutationFn: updateDonorProfile,
-    onSuccess: () => {
+    onSuccess: (donorProfile) => {
+      const currentUser = userStorage.getUser();
+
+      if (currentUser) {
+        const updatedUser = {
+          ...currentUser,
+          donorProfile,
+        };
+
+        userStorage.setUser(updatedUser);
+        queryClient.setQueryData(['auth', 'me'], updatedUser);
+      }
+
+      void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] });
       void queryClient.invalidateQueries({ queryKey: ['donors', 'profile', 'me'] });
     },
   });

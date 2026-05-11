@@ -3,7 +3,36 @@ import {
   Gender,
   UserRole,
 } from '../../users/schemas/user.schema';
+import type { BloodGroup } from '../../donors/schemas/donor-profile.schema';
 import { GeoPoint } from '../../users/schemas/user.schema.types';
+
+export interface AuthDonorProfile {
+  id: string;
+  userId?: string;
+  bloodGroup: BloodGroup;
+  gender?: Gender;
+  birthDate?: Date;
+  weight?: number;
+  phone?: string;
+  alternatePhone?: string;
+  state: string;
+  city: string;
+  district?: string;
+  tehsil?: string;
+  addressText?: string;
+  showMobile?: boolean;
+  smsAlert?: boolean;
+  pincode?: string;
+  location?: GeoPoint;
+  lastDonationDate?: Date;
+  nextEligibleDate?: Date;
+  isAvailable: boolean;
+  isActive?: boolean;
+  isVerified?: boolean;
+  totalDonations?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 export interface AuthUser {
   id: string;
@@ -30,6 +59,7 @@ export interface AuthUser {
   district?: string;
   tehsil?: string;
   location?: GeoPoint;
+  donorProfile?: AuthDonorProfile | null;
   createdAt?: Date;
   updatedAt?: Date;
 }

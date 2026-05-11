@@ -170,7 +170,7 @@ GET /api/v1/auth/me
 Cookie: access_token=<HttpOnly cookie>
 ```
 
-Response data is the logged-in safe user object. It never includes `refreshToken` or hidden provider identifiers.
+Response data is the logged-in safe user object. When the user is a donor, the response includes `donorProfile` with the current donor profile fields so profile screens do not need a second read request. Non-donor users receive `donorProfile: null`. It never includes `refreshToken`, OTP fields, or hidden provider identifiers.
 
 ### User Profile
 
@@ -179,7 +179,7 @@ GET /api/v1/users/profile
 Cookie: access_token=<HttpOnly cookie>
 ```
 
-Returns the logged-in user's safe profile from MongoDB.
+Returns the logged-in user's safe profile from MongoDB. Donor users include `donorProfile`; non-donor users receive `donorProfile: null`.
 
 ```http
 PUT /api/v1/users/profile

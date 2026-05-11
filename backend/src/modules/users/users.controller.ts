@@ -14,7 +14,7 @@ export class UsersController {
   @ApiCookieAuth('access_token')
   @Get('profile')
   getProfile(@Req() request: AuthenticatedRequest) {
-    return this.usersService.toSafeUser(request.user);
+    return this.usersService.toSafeUserWithDonorProfile(request.user);
   }
 
   @UseGuards(JwtAuthGuard)

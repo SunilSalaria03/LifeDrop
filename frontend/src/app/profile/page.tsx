@@ -708,12 +708,11 @@ function DonorEditForm({
 
 export default function ProfilePage() {
   const { meQuery } = useAuth();
-  const { myDonorProfileQuery } = useDonorProfile();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isEditingDonor, setIsEditingDonor] = useState(false);
   const user = meQuery.data;
-  const donor = myDonorProfileQuery.data;
-  const isLoading = meQuery.isLoading || myDonorProfileQuery.isLoading;
+  const donor = user?.donorProfile ?? null;
+  const isLoading = meQuery.isLoading;
   const isDonor = user?.role === "donor";
   const completedItems = [
     Boolean(user?.name),
@@ -936,11 +935,7 @@ export default function ProfilePage() {
                   </div>
                 </CardHeader>
                 <CardContent className="grid gap-4 p-5 pt-0 sm:p-6 sm:pt-0">
-                  {myDonorProfileQuery.isError ? (
-                    <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
-                      Donor details could not be loaded.
-                    </p>
-                  ) : donor ? (
+                  {donor ? (
                     <>
                       <div className="grid gap-3">
                         <InfoItem

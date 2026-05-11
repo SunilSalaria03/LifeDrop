@@ -289,8 +289,8 @@ export class AuthService {
     };
   }
 
-  getMe(user: UserDocument): AuthUser {
-    return this.toAuthUser(user);
+  getMe(user: UserDocument): Promise<AuthUser> {
+    return this.usersService.toSafeUserWithDonorProfile(user);
   }
 
   private async createAuthResponse(user: UserDocument): Promise<AuthResponse> {
@@ -313,42 +313,9 @@ export class AuthService {
     );
 
     return {
-      user: this.toAuthUser(user),
+      user: await this.usersService.toSafeUserWithDonorProfile(user),
       accessToken,
       refreshToken,
-    };
-  }
-
-  private toAuthUser(user: UserDocument): AuthUser {
-    const isDonor = (user.role ?? UserRole.User) === UserRole.Donor;
-
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      profileImage: "https://picsum.photos/200",
-      authProvider: user.authProvider,
-      role: user.role ?? UserRole.User,
-      phoneVerified: user.phoneVerified,
-      isProfileCompleted: user.isProfileCompleted,
-      isBlocked: user.isBlocked,
-      addressText: isDonor ? user.addressText : undefined,
-      bloodGroup: isDonor ? user.bloodGroup : undefined,
-      gender: isDonor ? user.gender : undefined,
-      birthDate: isDonor ? user.birthDate : undefined,
-      weight: isDonor ? user.weight : undefined,
-      lastDonationDate: isDonor ? user.lastDonationDate : undefined,
-      showMobile: isDonor ? user.showMobile : undefined,
-      smsAlert: isDonor ? user.smsAlert : undefined,
-      pincode: user.pincode,
-      state: user.state,
-      city: user.city,
-      district: user.district,
-      tehsil: user.tehsil,
-      location: user.location,
-      createdAt: user.get('createdAt') as Date | undefined,
-      updatedAt: user.get('updatedAt') as Date | undefined,
     };
   }
 
