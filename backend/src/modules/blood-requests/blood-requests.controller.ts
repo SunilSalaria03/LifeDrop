@@ -1,5 +1,5 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserDocument } from '../users/schemas/user.schema';
@@ -16,7 +16,7 @@ export class BloodRequestsController {
   constructor(private readonly bloodRequestService: BloodRequestService) {}
 
   @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @ApiCookieAuth('access_token')
   @Post('send-sms-alert')
   sendSmsAlert(
     @Req() request: AuthenticatedRequest,

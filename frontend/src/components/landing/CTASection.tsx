@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation';
 import { Droplet, HeartHandshake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { tokenStorage } from '@/lib/auth/token-storage';
 import { userStorage } from '@/lib/auth/user-storage';
 
 export function CTASection() {
@@ -12,7 +11,7 @@ export function CTASection() {
   const handleBecomeDonor = () => {
     const user = userStorage.getUser();
 
-    if (!tokenStorage.getAccessToken()) {
+    if (!user) {
       window.dispatchEvent(new CustomEvent('lifedrop:open-auth-modal'));
       return;
     }

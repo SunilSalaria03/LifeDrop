@@ -36,6 +36,7 @@ Act as an AI-first senior full-stack engineer for LifeDrop.
 - Never return passwords, secrets, tokens, or sensitive internal fields in API responses.
 - Treat donor contact and location data as sensitive user information.
 - Prevent auth refresh loops by excluding refresh endpoints from automatic retry logic.
+- Use HttpOnly cookie authentication for JWT access and refresh tokens; never store or expose tokens in frontend JavaScript state or browser storage.
 - Protect guest-only routes from logged-in users and protected routes from anonymous users.
 - Convert third-party provider failures into clean HTTP errors without blocking unrelated APIs.
 
@@ -73,6 +74,6 @@ Act as an AI-first senior full-stack engineer for LifeDrop.
 - Backend scaffold supports NestJS build, Swagger at `/api/v1/docs`, global prefix, CORS, ConfigModule, MongoDB connection setup, response interception, exception filtering, Twilio phone OTP signup/login with validity/cooldown tracking, Google auth, access tokens, refresh tokens, role-aware users, protected current-user lookup, and logout.
 - Backend donor and location APIs are database-driven with `users`, `donorprofiles`, `bloodrequests`, `locations`, and `notifications` collections.
 - Backend profile and donor APIs require JWT ownership, block blocked users, keep donor-only fields out of normal user profile updates, and promote users to donor when the single donor form is saved.
-- Frontend scaffold supports Next.js App Router, Tailwind CSS, shadcn/ui conventions, Axios bearer-token client, refresh-token preparation, TanStack Query provider, Google auth, `useFormik` auth forms, and typed auth feature structure.
+- Frontend scaffold supports Next.js App Router, Tailwind CSS, shadcn/ui conventions, Axios credentialed cookie client, refresh-token retry preparation, TanStack Query provider, Google auth, `useFormik` auth forms, and typed auth feature structure.
 - Frontend includes `/profile/setup` for phone/profile support and `/become-donor` for a protected single-submit donor profile form.
 - Landing page supports automatic header location detection with browser geolocation, OpenStreetMap Nominatim reverse geocoding, manual hero state/city dropdowns from `country-state-city`, debounced donor search through the shared Axios client, modern donor result cards, public donor detail links, and clear loading, empty, and API failure states.

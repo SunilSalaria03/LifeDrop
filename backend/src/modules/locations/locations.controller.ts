@@ -7,7 +7,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -56,7 +56,7 @@ export class LocationsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiBearerAuth()
+  @ApiCookieAuth('access_token')
   @Roles(UserRole.Admin)
   @Post()
   create(@Body() createLocationDto: CreateLocationDto) {
@@ -64,7 +64,7 @@ export class LocationsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiBearerAuth()
+  @ApiCookieAuth('access_token')
   @Roles(UserRole.Admin)
   @Post('bulk')
   bulkCreate(

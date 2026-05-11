@@ -18,7 +18,6 @@ import { Twilio } from 'twilio';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { PhoneOtpSendDto } from './dto/phone-otp-send.dto';
 import { PhoneOtpVerifyDto } from './dto/phone-otp-verify.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthResponse, AuthUser } from './interfaces/auth-response.interface';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { UserDocument, UserRole } from '../users/schemas/user.schema';
@@ -232,10 +231,14 @@ export class AuthService {
     };
   }
 
-  async refreshTokens(refreshTokenDto: RefreshTokenDto): Promise<AuthResponse> {
+  async refreshTokens(refreshToken?: string): Promise<AuthResponse> {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token is missing.');
+    }
+
     const refreshSecret = this.getRequiredConfig('JWT_REFRESH_SECRET');
     const payload = await this.jwtService
-      .verifyAsync<JwtPayload>(refreshTokenDto.refreshToken, {
+      .verifyAsync<JwtPayload>(refreshToken, {
         secret: refreshSecret,
       })
       .catch(() => {
@@ -250,13 +253,30 @@ export class AuthService {
 
     this.assertCanLogin(user);
 
-    if (this.hashToken(refreshTokenDto.refreshToken) !== user.refreshToken) {
+    if (this.hashToken(refreshToken) !== user.refreshToken) {
       throw new UnauthorizedException(
         'Refresh token does not match active session.',
       );
     }
 
     return this.createAuthResponse(user);
+  }
+
+  async logoutByRefreshToken(refreshToken?: string) {
+    if (refreshToken) {
+      const refreshSecret = this.getRequiredConfig('JWT_REFRESH_SECRET');
+      const payload = await this.jwtService
+        .verifyAsync<JwtPayload>(refreshToken, { secret: refreshSecret })
+        .catch(() => null);
+
+      if (payload?.sub) {
+        await this.usersService.clearRefreshToken(payload.sub);
+      }
+    }
+
+    return {
+      message: 'Logged out successfully',
+    };
   }
 
   async logout(userId: string) {

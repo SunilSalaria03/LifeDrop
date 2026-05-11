@@ -26,7 +26,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { RequestBloodModal } from "@/features/donors/components/RequestBloodModal";
 import { useDonorDetails } from "@/features/donors/hooks/useDonorDetails";
 import { DonorDetail } from "@/features/donors/types/donor.types";
-import { tokenStorage } from "@/lib/auth/token-storage";
+import { userStorage } from "@/lib/auth/user-storage";
 
 function getDonorName(name?: string) {
   return name?.trim() || "LifeDrop Donor";
@@ -179,7 +179,7 @@ export default function DonorDetailPage() {
   );
 
   const handleRequestBlood = () => {
-    if (!tokenStorage.getAccessToken()) {
+    if (!meQuery.data && !userStorage.getUser()) {
       window.dispatchEvent(new CustomEvent("lifedrop:open-auth-modal"));
       return;
     }

@@ -38,8 +38,6 @@ export type AuthUser = {
 
 export type AuthResponse = {
   user: AuthUser;
-  accessToken: string;
-  refreshToken: string;
 };
 
 export type PhoneOtpSendPayload = {
@@ -55,6 +53,4 @@ export type GoogleAuthPayload = {
   idToken: string;
 };
 
-export type RefreshTokenPayload = {
-  refreshToken: string;
-};
+export type RefreshTokenPayload = Record<string, never>;

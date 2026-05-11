@@ -4,7 +4,7 @@ import { ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { tokenStorage } from '@/lib/auth/token-storage';
+import { userStorage } from '@/lib/auth/user-storage';
 
 type ProtectedRouteProps = {
   children: ReactNode;
@@ -17,15 +17,13 @@ export function ProtectedRoute({
 }: ProtectedRouteProps) {
   const router = useRouter();
   const { meQuery } = useAuth();
-  const accessToken = tokenStorage.getAccessToken();
 
   useEffect(() => {
     const redirect = new URLSearchParams(window.location.search).get('redirect');
 
-    if (!accessToken) {
+    if (meQuery.isError) {
       const currentPath = window.location.pathname;
       router.replace(`/?auth=login&redirect=${encodeURIComponent(redirect || currentPath)}`);
-      return;
     }
 
     if (
@@ -36,16 +34,15 @@ export function ProtectedRoute({
       const target = redirect || window.location.pathname;
       router.replace(`/profile/setup?redirect=${encodeURIComponent(target)}`);
     }
-  }, [accessToken, meQuery.data, requireCompletedProfile, router]);
+  }, [meQuery.data, meQuery.isError, requireCompletedProfile, router]);
 
   useEffect(() => {
     if (meQuery.isError) {
-      tokenStorage.clearTokens();
-      router.replace('/?auth=login');
+      userStorage.clearUser();
     }
-  }, [meQuery.isError, router]);
+  }, [meQuery.isError]);
 
-  if (!accessToken || meQuery.isLoading) {
+  if (meQuery.isLoading) {
     return (
       <main className="min-h-screen bg-neutral-50 px-4 py-10">
         <Card className="mx-auto max-w-md rounded-2xl">

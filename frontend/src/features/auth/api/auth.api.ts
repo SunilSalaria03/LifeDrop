@@ -4,8 +4,7 @@ import {
   AuthResponse,
   GoogleAuthPayload,
   PhoneOtpSendPayload,
-  PhoneOtpVerifyPayload,
-  RefreshTokenPayload
+  PhoneOtpVerifyPayload
 } from '../types/auth.types';
 
 function requireData<T>(response: ApiResponse<T>): T {
@@ -36,8 +35,8 @@ export async function authenticateWithGoogle(payload: GoogleAuthPayload) {
   return requireData(response.data);
 }
 
-export async function refreshAuthToken(payload: RefreshTokenPayload) {
-  const response = await axiosClient.post<ApiResponse<AuthResponse>>('/auth/refresh', payload);
+export async function refreshAuthToken() {
+  const response = await axiosClient.post<ApiResponse<AuthResponse>>('/auth/refresh');
 
   return requireData(response.data);
 }

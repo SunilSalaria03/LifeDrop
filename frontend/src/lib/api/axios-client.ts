@@ -1,13 +1,10 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { tokenStorage } from '@/lib/auth/token-storage';
 import { AuthUser } from '@/features/auth/types/auth.types';
 import { userStorage } from '@/lib/auth/user-storage';
 
 type TokenRefreshResponse = {
   data?: {
     user?: AuthUser;
-    accessToken?: string;
-    refreshToken?: string;
   };
 };
 
@@ -21,30 +18,19 @@ export const axiosClient = axios.create({
 
 let refreshRequest: Promise<string | null> | null = null;
 
-axiosClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const accessToken = tokenStorage.getAccessToken();
-
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
-  }
-
-  return config;
-});
-
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
     const requestUrl = originalRequest?.url ?? '';
 
-    if (error.response?.status !== 401 || !originalRequest || originalRequest._retry || requestUrl.includes('/auth/refresh')) {
-      return Promise.reject(error);
-    }
-
-    const refreshToken = tokenStorage.getRefreshToken();
-
-    if (!refreshToken) {
-      tokenStorage.clearTokens();
+    if (
+      error.response?.status !== 401 ||
+      !originalRequest ||
+      originalRequest._retry ||
+      requestUrl.includes('/auth/refresh') ||
+      requestUrl.includes('/auth/logout')
+    ) {
       return Promise.reject(error);
     }
 
@@ -52,38 +38,32 @@ axiosClient.interceptors.response.use(
     refreshRequest =
       refreshRequest ??
       axiosClient
-        .post('/auth/refresh', { refreshToken })
+        .post('/auth/refresh')
         .then((response) => {
           const refreshResponse = response.data as TokenRefreshResponse;
           const nextUser = refreshResponse.data?.user;
-          const nextAccessToken = refreshResponse.data?.accessToken;
-          const nextRefreshToken = refreshResponse.data?.refreshToken;
 
-          if (!nextAccessToken || !nextRefreshToken) {
-            throw new Error('Refresh response did not include tokens.');
+          if (!nextUser) {
+            throw new Error('Refresh response did not include a user.');
           }
 
-          tokenStorage.setTokens(nextAccessToken, nextRefreshToken);
-          if (nextUser) {
-            userStorage.setUser(nextUser);
-          }
-          return nextAccessToken;
+          userStorage.setUser(nextUser);
+          return 'refreshed';
         })
         .catch(() => {
-          tokenStorage.clearTokens();
+          userStorage.clearUser();
           return null;
         })
         .finally(() => {
           refreshRequest = null;
         });
 
-    const nextAccessToken = await refreshRequest;
+    const refreshed = await refreshRequest;
 
-    if (!nextAccessToken) {
+    if (!refreshed) {
       return Promise.reject(error);
     }
 
-    originalRequest.headers.Authorization = `Bearer ${nextAccessToken}`;
     return axiosClient(originalRequest);
   }
 );
