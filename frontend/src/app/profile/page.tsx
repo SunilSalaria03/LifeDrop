@@ -218,6 +218,7 @@ function ProfileEditForm({
         </h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <Input
+            aria-label="Full name"
             className="h-12 rounded-2xl"
             name="name"
             onBlur={formik.handleBlur}
@@ -226,6 +227,7 @@ function ProfileEditForm({
             value={formik.values.name}
           />
           <Input
+            aria-label="Email"
             className="h-12 rounded-2xl"
             name="email"
             onBlur={formik.handleBlur}
@@ -235,6 +237,7 @@ function ProfileEditForm({
             value={formik.values.email}
           />
           <IndiaPhoneInput
+            aria-label="Mobile number"
             disabled
             name="phone"
             onBlur={formik.handleBlur}
@@ -259,7 +262,7 @@ function ProfileEditForm({
             }
             value={formik.values.bloodGroup}
           >
-            <SelectTrigger className="h-12 rounded-2xl">
+            <SelectTrigger aria-label="Blood group" className="h-12 rounded-2xl">
               <SelectValue placeholder="Blood group" />
             </SelectTrigger>
             <SelectContent>
@@ -276,7 +279,7 @@ function ProfileEditForm({
             }
             value={formik.values.gender}
           >
-            <SelectTrigger className="h-12 rounded-2xl">
+            <SelectTrigger aria-label="Gender" className="h-12 rounded-2xl">
               <SelectValue placeholder="Gender" />
             </SelectTrigger>
             <SelectContent>
@@ -286,6 +289,7 @@ function ProfileEditForm({
             </SelectContent>
           </Select>
           <Input
+            aria-label="Weight"
             className="h-12 rounded-2xl"
             inputMode="numeric"
             name="weight"
@@ -296,6 +300,7 @@ function ProfileEditForm({
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <Input
+            aria-label="Birth date"
             className="h-12 rounded-2xl"
             name="birthDate"
             onChange={formik.handleChange}
@@ -303,6 +308,7 @@ function ProfileEditForm({
             value={formik.values.birthDate}
           />
           <Input
+            aria-label="Last donation date"
             className="h-12 rounded-2xl"
             name="lastDonationDate"
             onChange={formik.handleChange}
@@ -325,7 +331,7 @@ function ProfileEditForm({
             }
             value={booleanSelectValue(formik.values.showMobile)}
           >
-            <SelectTrigger className="h-12 rounded-2xl">
+            <SelectTrigger aria-label="Show mobile" className="h-12 rounded-2xl">
               <SelectValue placeholder="Show mobile" />
             </SelectTrigger>
             <SelectContent>
@@ -341,7 +347,7 @@ function ProfileEditForm({
             }
             value={booleanSelectValue(formik.values.smsAlert)}
           >
-            <SelectTrigger className="h-12 rounded-2xl">
+            <SelectTrigger aria-label="SMS alert" className="h-12 rounded-2xl">
               <SelectValue placeholder="SMS alert" />
             </SelectTrigger>
             <SelectContent>
@@ -351,6 +357,7 @@ function ProfileEditForm({
           </Select>
           ) : null}
           <Input
+            aria-label="Pin code"
             className="h-12 rounded-2xl"
             inputMode="numeric"
             maxLength={6}
@@ -365,7 +372,7 @@ function ProfileEditForm({
             onValueChange={handleStateChange}
             value={formik.values.stateCode}
           >
-            <SelectTrigger className="h-12 rounded-2xl">
+            <SelectTrigger aria-label="State" className="h-12 rounded-2xl">
               <SelectValue placeholder="State" />
             </SelectTrigger>
             <SelectContent>
@@ -382,7 +389,7 @@ function ProfileEditForm({
             onValueChange={handleDistrictChange}
             value={formik.values.district}
           >
-            <SelectTrigger className="h-12 rounded-2xl">
+            <SelectTrigger aria-label="District" className="h-12 rounded-2xl">
               <SelectValue placeholder="District" />
             </SelectTrigger>
             <SelectContent>
@@ -403,7 +410,7 @@ function ProfileEditForm({
             }
             value={formik.values.tehsil}
           >
-            <SelectTrigger className="h-12 rounded-2xl">
+            <SelectTrigger aria-label="Tehsil" className="h-12 rounded-2xl">
               <SelectValue placeholder="Tehsil" />
             </SelectTrigger>
             <SelectContent>

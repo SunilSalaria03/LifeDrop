@@ -129,7 +129,7 @@ export function Header() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-40 border-b border-red-100/80 bg-transparent shadow-sm shadow-red-950/5 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-red-100/80 bg-white/90 shadow-sm shadow-red-950/5 backdrop-blur-xl">
         <div className="mx-auto flex min-h-16 max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:min-h-18 sm:flex-nowrap sm:px-6 lg:px-8">
           <Link
             aria-label="LifeDrop home"
@@ -223,13 +223,22 @@ export function Header() {
               </>
             )}
             {shouldShowBecomeDonor ? (
-              <Button
-                className="h-11 flex-1 rounded-full bg-red-700 px-5 text-white shadow-sm shadow-red-700/20 hover:bg-red-800 sm:flex-none"
-                onClick={handleBecomeDonor}
-                type="button"
-              >
-                Become a Donor
-              </Button>
+              user?.phoneVerified ? (
+                <Button
+                  asChild
+                  className="h-11 flex-1 rounded-full bg-red-700 px-5 text-white shadow-sm shadow-red-700/20 hover:bg-red-800 sm:flex-none"
+                >
+                  <Link href="/become-donor">Become a Donor</Link>
+                </Button>
+              ) : (
+                <Button
+                  className="h-11 flex-1 rounded-full bg-red-700 px-5 text-white shadow-sm shadow-red-700/20 hover:bg-red-800 sm:flex-none"
+                  onClick={handleBecomeDonor}
+                  type="button"
+                >
+                  Become a Donor
+                </Button>
+              )
             ) : null}
           </nav>
         </div>

@@ -58,7 +58,7 @@ export function CTASection() {
               </Button>
               <Button
                 className="h-12 w-full rounded-full border border-white/35 bg-white/10 px-6 font-semibold text-white shadow-lg shadow-red-950/10 hover:bg-white/20 sm:w-auto"
-                onClick={() => router.push('/request-blood')}
+                // onClick={() => router.push('/request-blood')}
                 type="button"
               >
                 <Droplet className="h-5 w-5" />
