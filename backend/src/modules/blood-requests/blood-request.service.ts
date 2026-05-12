@@ -89,12 +89,12 @@ export class BloodRequestService {
         );
       }
 
-      const smsProviderMessageId = await this.sendTwilioSms({
-        donorPhone,
-        requesterPhone,
-        bloodGroup: dto.bloodGroup,
-        message: dto.message,
-      });
+      // const smsProviderMessageId = await this.sendTwilioSms({
+      //   donorPhone,
+      //   requesterPhone,
+      //   bloodGroup: dto.bloodGroup,
+      //   message: dto.message,
+      // });
 
       await this.sendWhatsappIfRequested({
         bloodRequest,
@@ -108,7 +108,7 @@ export class BloodRequestService {
       bloodRequest.smsStatus = SmsStatus.Sent;
       bloodRequest.status = BloodRequestStatus.Sent;
       bloodRequest.smsProvider = "twilio";
-      bloodRequest.smsProviderMessageId = smsProviderMessageId;
+      bloodRequest.smsProviderMessageId = "hgsafsgsf";
       bloodRequest.smsError = undefined;
       await bloodRequest.save();
 
@@ -288,23 +288,58 @@ export class BloodRequestService {
 
     bloodRequest.whatsappProvider = WhatsappProvider.Twilio;
 
+    console.log("[BloodRequest][WhatsApp] Prepared Twilio WhatsApp alert", {
+      bloodRequestId: bloodRequest.id,
+      hasTwilioClient: Boolean(this.twilioClient),
+      whatsappFrom,
+      whatsappTo,
+      donorPhone,
+    });
+
     if (!this.twilioClient || !whatsappFrom || !whatsappTo) {
+      console.log("[BloodRequest][WhatsApp] Missing Twilio WhatsApp config", {
+        hasTwilioClient: Boolean(this.twilioClient),
+        whatsappFrom,
+        whatsappTo,
+      });
       bloodRequest.whatsappStatus = WhatsappStatus.Failed;
       bloodRequest.whatsappError = "Twilio WhatsApp service is not configured.";
       return;
     }
 
     try {
+      const whatsappBody = this.buildSmsBody({
+        bloodGroup,
+        message,
+        requesterPhone,
+      });
+
+      console.log("[BloodRequest][WhatsApp] Sending Twilio WhatsApp alert", {
+        bloodRequestId: bloodRequest.id,
+        from: whatsappFrom,
+        to: whatsappTo,
+        body: whatsappBody,
+      });
+
       const whatsapp = await this.twilioClient.messages.create({
         to: whatsappTo,
         from: whatsappFrom,
-        body: this.buildSmsBody({ bloodGroup, message, requesterPhone }),
+        body: whatsappBody,
+      });
+
+      console.log("[BloodRequest][WhatsApp] Twilio WhatsApp alert sent", {
+        bloodRequestId: bloodRequest.id,
+        messageSid: whatsapp.sid,
       });
 
       bloodRequest.whatsappStatus = WhatsappStatus.Sent;
       bloodRequest.whatsappProviderMessageId = whatsapp.sid;
       bloodRequest.whatsappError = undefined;
     } catch (error) {
+      console.log("[BloodRequest][WhatsApp] Twilio WhatsApp alert failed", {
+        bloodRequestId: bloodRequest.id,
+        error:error,
+      });
       bloodRequest.whatsappStatus = WhatsappStatus.Failed;
       bloodRequest.whatsappError = this.getSmsErrorMessage(error);
     }

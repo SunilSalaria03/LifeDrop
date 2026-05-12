@@ -144,7 +144,7 @@ export function RequestBloodModal({
             <span>Send SMS alert.</span>
           </label>
 
-          <label className="flex items-start gap-3 rounded-2xl border border-neutral-200 bg-white p-4 text-sm font-semibold text-neutral-800 opacity-60">
+          <label className="flex items-start gap-3 rounded-2xl border border-neutral-200 bg-white p-4 text-sm font-semibold text-neutral-800 ">
             <input
               checked={sendWhatsapp}
               className="mt-1 h-4 w-4 accent-red-700"

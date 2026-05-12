@@ -92,6 +92,7 @@ GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 TWILIO_ACCOUNT_SID=your-twilio-account-sid
 TWILIO_AUTH_TOKEN=your-twilio-auth-token
 TWILIO_PHONE_NUMBER=+10000000000
+TWILIO_WHATSAPP_NUMBER=+14155238886
 TWILIO_VERIFY_SERVICE_SID=your-twilio-verify-service-sid
 ```
 

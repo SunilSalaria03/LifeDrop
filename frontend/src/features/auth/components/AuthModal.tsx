@@ -80,12 +80,6 @@ export function AuthModal({
     return () => window.clearInterval(timer);
   }, [isOpen, resendSeconds, step]);
 
-  useEffect(() => {
-    if (verifyOtpMutation.isSuccess) {
-      onClose();
-    }
-  }, [onClose, verifyOtpMutation.isSuccess]);
-
   const sendFormik = useFormik({
     initialValues: {
       phone: phoneForOtp,
@@ -141,7 +135,10 @@ export function AuthModal({
           const redirect = getSearchParam('redirect');
           onClose();
           router.push(getSafeInternalPath(redirect || profileRedirect));
+          return;
         }
+
+        onClose();
       } catch (error) {
         showToast({
           message: getApiErrorMessage(

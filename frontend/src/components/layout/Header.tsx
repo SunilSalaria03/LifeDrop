@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Droplet, Loader2, LogOut, Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -110,19 +110,25 @@ export function Header() {
     router.push("/become-donor");
   };
 
-  const openAuthModal = () => {
+  const openAuthModal = useCallback(() => {
     setAuthModalPhone("");
     setAuthModalRedirect(undefined);
     setIsAuthModalOpen(true);
-  };
+  }, []);
 
-  const closeAuthModal = () => {
+  const closeAuthModal = useCallback(() => {
     setIsAuthModalOpen(false);
     setAuthModalRedirect(undefined);
 
     const cleanParams = stripNextInternalSearchParams(
       new URLSearchParams(window.location.search),
     );
+    const hadModalParams = cleanParams.has("auth") || cleanParams.has("phone");
+
+    if (!hadModalParams) {
+      return;
+    }
+
     cleanParams.delete("auth");
     cleanParams.delete("phone");
 
@@ -131,7 +137,7 @@ export function Header() {
       `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ""}${window.location.hash}`,
       { scroll: false },
     );
-  };
+  }, [router]);
 
   return (
     <>
