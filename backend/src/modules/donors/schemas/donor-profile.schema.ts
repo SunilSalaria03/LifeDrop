@@ -81,6 +81,9 @@ export class DonorProfile {
   @Prop({ trim: true })
   addressText?: string;
 
+  @Prop({ trim: true })
+  addressLine?: string;
+
   @Prop({ default: false })
   showMobile?: boolean;
 

@@ -20,6 +20,7 @@ export type AuthUser = {
   phoneVerified: boolean;
   isProfileCompleted: boolean;
   isBlocked: boolean;
+  addressLine?: string;
   addressText?: string;
   bloodGroup?: string;
   gender?: Gender;

@@ -47,6 +47,8 @@ export function useDonorProfile({
         city: donorProfile.city,
         district: donorProfile.district,
         tehsil: donorProfile.tehsil,
+        addressLine: donorProfile.addressLine ?? donorProfile.addressText,
+        addressText: donorProfile.addressText ?? donorProfile.addressLine,
         pincode: donorProfile.pincode,
         location: donorProfile.location,
         donorProfile,

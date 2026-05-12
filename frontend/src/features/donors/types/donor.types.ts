@@ -31,6 +31,7 @@ export type DonorProfilePayload = {
   city: string;
   district: string;
   tehsil?: string;
+  addressLine?: string;
   addressText?: string;
   showMobile: boolean;
   smsAlert: boolean;
@@ -78,6 +79,7 @@ export type DonorDetail = DonorListItem;
 export type MyDonorProfile = DonorListItem & {
   phone?: string;
   alternatePhone?: string;
+  addressLine?: string;
   addressText?: string;
 };
 

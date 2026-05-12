@@ -19,6 +19,7 @@ export interface AuthDonorProfile {
   city: string;
   district?: string;
   tehsil?: string;
+  addressLine?: string;
   addressText?: string;
   showMobile?: boolean;
   smsAlert?: boolean;
@@ -45,6 +46,7 @@ export interface AuthUser {
   phoneVerified: boolean;
   isProfileCompleted: boolean;
   isBlocked: boolean;
+  addressLine?: string;
   addressText?: string;
   bloodGroup?: string;
   gender?: Gender;

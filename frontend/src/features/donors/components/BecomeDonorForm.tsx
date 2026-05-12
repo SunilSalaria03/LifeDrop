@@ -66,6 +66,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
       stateCode: findStateCode(user.state),
       district: user.district ?? user.city ?? "",
       tehsil: user.tehsil ?? "",
+      addressLine: user.addressLine ?? user.addressText ?? "",
       pincode: user.pincode ?? "",
       lat: user.location?.coordinates?.[1],
       lng: user.location?.coordinates?.[0],
@@ -96,6 +97,8 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
           city: values.district,
           district: values.district,
           tehsil: values.tehsil || undefined,
+          addressLine: values.addressLine || undefined,
+          addressText: values.addressLine || undefined,
           pincode: values.pincode || undefined,
           lat: values.lat,
           lng: values.lng,
@@ -337,6 +340,17 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               onChange={formik.handleChange}
               placeholder="Enter pincode optional"
               value={formik.values.pincode}
+            />
+          </div>
+          <div className="grid gap-2 sm:col-span-2 lg:col-span-3">
+            <FieldLabel htmlFor="addressLine">Address line</FieldLabel>
+            <Input
+              className="h-12 rounded-2xl"
+              id="addressLine"
+              name="addressLine"
+              onChange={formik.handleChange}
+              placeholder="House, street, landmark optional"
+              value={formik.values.addressLine}
             />
           </div>
           <div className="grid gap-2">

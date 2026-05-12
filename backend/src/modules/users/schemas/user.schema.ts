@@ -66,6 +66,9 @@ export class User {
   addressText?: string;
 
   @Prop({ trim: true })
+  addressLine?: string;
+
+  @Prop({ trim: true })
   bloodGroup?: string;
 
   @Prop({ type: String, enum: Gender })

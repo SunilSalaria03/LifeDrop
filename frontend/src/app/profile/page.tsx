@@ -122,6 +122,7 @@ function ProfileEditForm({
       stateCode: findStateCode(user.state),
       district: user.district ?? user.city ?? "",
       tehsil: user.tehsil ?? "",
+      addressLine: user.addressLine ?? user.addressText ?? "",
       lat: user.location?.coordinates?.[1],
       lng: user.location?.coordinates?.[0],
     },
@@ -139,6 +140,8 @@ function ProfileEditForm({
           city: values.district,
           district: values.district,
           tehsil: values.tehsil || undefined,
+          addressLine: values.addressLine || undefined,
+          addressText: values.addressLine || undefined,
           lat: values.lat,
           lng: values.lng,
           ...(isDonor
@@ -366,6 +369,14 @@ function ProfileEditForm({
             placeholder="Pin code"
             value={formik.values.pincode}
           />
+          <Input
+            aria-label="Address line"
+            className="h-12 rounded-2xl"
+            name="addressLine"
+            onChange={formik.handleChange}
+            placeholder="Address line"
+            value={formik.values.addressLine}
+          />
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
           <Select
@@ -479,6 +490,7 @@ const donorEditSchema = yup.object({
   stateCode: yup.string().required("State is required."),
   city: yup.string().required("City is required."),
   district: yup.string().optional(),
+  addressLine: yup.string().optional(),
   addressText: yup.string().optional(),
   lat: yup.number().optional(),
   lng: yup.number().optional(),
@@ -505,7 +517,7 @@ function DonorEditForm({
       stateCode: findStateCode(donor.state),
       city: donor.city ?? "",
       district: donor.district ?? "",
-      addressText: donor.addressText ?? "",
+      addressLine: donor.addressLine ?? donor.addressText ?? "",
       lat: undefined as number | undefined,
       lng: undefined as number | undefined,
       lastDonationDate: donor.lastDonationDate ?? "",
@@ -524,7 +536,8 @@ function DonorEditForm({
         state: values.state,
         city: values.city,
         district: values.district || undefined,
-        addressText: values.addressText || undefined,
+        addressLine: values.addressLine || undefined,
+        addressText: values.addressLine || undefined,
         lat: typeof values.lat === "number" ? values.lat : undefined,
         lng: typeof values.lng === "number" ? values.lng : undefined,
         lastDonationDate: values.lastDonationDate || undefined,
@@ -660,10 +673,10 @@ function DonorEditForm({
         />
         <Input
           className="h-12 rounded-2xl"
-          name="addressText"
+          name="addressLine"
           onChange={formik.handleChange}
-          placeholder="Address optional"
-          value={formik.values.addressText}
+          placeholder="Address line optional"
+          value={formik.values.addressLine}
         />
       </div>
 
@@ -891,6 +904,11 @@ export default function ProfilePage() {
                     icon={MapPin}
                     label="Pin code"
                     value={user.pincode}
+                  />
+                  <InfoItem
+                    icon={MapPin}
+                    label="Address line"
+                    value={user.addressLine ?? user.addressText}
                   />
                   <InfoItem
                     icon={CalendarCheck}

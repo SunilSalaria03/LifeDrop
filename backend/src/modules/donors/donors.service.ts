@@ -163,6 +163,13 @@ export class DonorsService {
     delete data.name;
     delete data.email;
 
+    const addressLine = dto.addressLine ?? dto.addressText;
+
+    if (addressLine !== undefined) {
+      data.addressLine = addressLine;
+      data.addressText = addressLine;
+    }
+
     if (dto.lat !== undefined && dto.lng !== undefined) {
       data.location = {
         type: "Point",
@@ -230,6 +237,7 @@ export class DonorsService {
       "district",
       "tehsil",
       "addressText",
+      "addressLine",
     ] as const) {
       if (profile[field] !== undefined) {
         update[field] = profile[field];
