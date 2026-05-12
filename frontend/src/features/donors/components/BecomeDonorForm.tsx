@@ -181,7 +181,9 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
           <div className="grid gap-2">
             <FieldLabel htmlFor="phone">Phone</FieldLabel>
             <IndiaPhoneInput
+              aria-label="Phone"
               disabled
+              id="phone"
               name="phone"
               onChange={(phone) =>
                 void formik.setFieldValue("phone", phone, false)
@@ -204,7 +206,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               }
               value={formik.values.bloodGroup}
             >
-              <SelectTrigger className="h-12 rounded-2xl">
+              <SelectTrigger aria-label="Blood group" className="h-12 rounded-2xl">
                 <SelectValue placeholder="Select blood group" />
               </SelectTrigger>
               <SelectContent>
@@ -224,7 +226,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               }
               value={formik.values.gender}
             >
-              <SelectTrigger className="h-12 rounded-2xl">
+              <SelectTrigger aria-label="Gender" className="h-12 rounded-2xl">
                 <SelectValue placeholder="Select gender" />
               </SelectTrigger>
               <SelectContent>
@@ -298,7 +300,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               }
               value={booleanSelectValue(formik.values.showMobile)}
             >
-              <SelectTrigger className="h-12 rounded-2xl">
+              <SelectTrigger aria-label="Show mobile" className="h-12 rounded-2xl">
                 <SelectValue placeholder="Select visibility" />
               </SelectTrigger>
               <SelectContent>
@@ -315,7 +317,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               }
               value={booleanSelectValue(formik.values.smsAlert)}
             >
-              <SelectTrigger className="h-12 rounded-2xl">
+              <SelectTrigger aria-label="SMS alert" className="h-12 rounded-2xl">
                 <SelectValue placeholder="Select SMS alert" />
               </SelectTrigger>
               <SelectContent>
@@ -343,7 +345,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               onValueChange={handleStateChange}
               value={formik.values.stateCode}
             >
-              <SelectTrigger className="h-12 rounded-2xl">
+              <SelectTrigger aria-label="State" className="h-12 rounded-2xl">
                 <SelectValue placeholder="Select state" />
               </SelectTrigger>
               <SelectContent>
@@ -362,7 +364,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               onValueChange={handleDistrictChange}
               value={formik.values.district}
             >
-              <SelectTrigger className="h-12 rounded-2xl">
+              <SelectTrigger aria-label="District" className="h-12 rounded-2xl">
                 <SelectValue placeholder="Select district" />
               </SelectTrigger>
               <SelectContent>
@@ -386,7 +388,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               }
               value={formik.values.tehsil}
             >
-              <SelectTrigger className="h-12 rounded-2xl">
+              <SelectTrigger aria-label="Tehsil" className="h-12 rounded-2xl">
                 <SelectValue placeholder="Select tehsil optional" />
               </SelectTrigger>
               <SelectContent>

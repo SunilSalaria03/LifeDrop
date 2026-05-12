@@ -19,7 +19,9 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalPhone, setAuthModalPhone] = useState("");
-  const [authModalRedirect, setAuthModalRedirect] = useState<string | undefined>();
+  const [authModalRedirect, setAuthModalRedirect] = useState<
+    string | undefined
+  >();
   const [storedUser, setStoredUser] = useState<AuthUser | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const user = meQuery.data ?? storedUser;
@@ -40,7 +42,10 @@ export function Header() {
 
   useEffect(() => {
     function handleOpenAuthModal(event: Event) {
-      const customEvent = event as CustomEvent<{ phone?: string; redirect?: string }>;
+      const customEvent = event as CustomEvent<{
+        phone?: string;
+        redirect?: string;
+      }>;
       setAuthModalPhone(customEvent.detail?.phone ?? "");
       setAuthModalRedirect(customEvent.detail?.redirect);
       setIsAuthModalOpen(true);
@@ -218,13 +223,22 @@ export function Header() {
               </>
             )}
             {shouldShowBecomeDonor ? (
-              <Button
-                className="h-11 flex-1 rounded-full bg-red-700 px-5 text-white shadow-sm shadow-red-700/20 hover:bg-red-800 sm:flex-none"
-                onClick={handleBecomeDonor}
-                type="button"
-              >
-                Become a Donor
-              </Button>
+              user?.phoneVerified ? (
+                <Button
+                  asChild
+                  className="h-11 flex-1 rounded-full bg-red-700 px-5 text-white shadow-sm shadow-red-700/20 hover:bg-red-800 sm:flex-none"
+                >
+                  <Link href="/become-donor">Become a Donor</Link>
+                </Button>
+              ) : (
+                <Button
+                  className="h-11 flex-1 rounded-full bg-red-700 px-5 text-white shadow-sm shadow-red-700/20 hover:bg-red-800 sm:flex-none"
+                  onClick={handleBecomeDonor}
+                  type="button"
+                >
+                  Become a Donor
+                </Button>
+              )
             ) : null}
           </nav>
         </div>

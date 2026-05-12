@@ -129,7 +129,7 @@ export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Select onValueChange={handleStateChange} value={formik.values.stateCode}>
-          <SelectTrigger className="h-12 rounded-2xl">
+          <SelectTrigger aria-label="State" className="h-12 rounded-2xl">
             <SelectValue placeholder="State" />
           </SelectTrigger>
           <SelectContent>
@@ -146,7 +146,7 @@ export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
           onValueChange={handleCityChange}
           value={formik.values.city}
         >
-          <SelectTrigger className="h-12 rounded-2xl">
+          <SelectTrigger aria-label="City" className="h-12 rounded-2xl">
             <SelectValue placeholder="City" />
           </SelectTrigger>
           <SelectContent>
