@@ -11,6 +11,7 @@ import {
   toIndianE164,
   toIndianNationalNumber,
 } from '@/lib/phone/india-phone';
+import { getSafeInternalPath, getSearchParam } from '@/lib/navigation/safe-url';
 import { useProfile } from '../hooks/useProfile';
 import { PhoneVerificationFormProps } from '../profile-component.types';
 import { profilePhoneSchema } from '../validations/profile.validation';
@@ -42,8 +43,8 @@ export function PhoneVerificationForm({ user }: PhoneVerificationFormProps) {
           title: 'OTP verified',
           variant: 'success',
         });
-        const redirect = new URLSearchParams(window.location.search).get('redirect');
-        router.push(redirect || '/');
+        const redirect = getSearchParam('redirect');
+        router.push(getSafeInternalPath(redirect));
       } catch (error) {
         showToast({
           message: getApiErrorMessage(

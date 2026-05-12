@@ -28,6 +28,8 @@ export function useAuth() {
     },
     onSuccess: (authResponse) => {
       storeAuthTokens(authResponse);
+      userStorage.setUser(authResponse.user);
+      queryClient.setQueryData(['auth', 'me'], authResponse.user);
       redirectAfterLogin(authResponse, router, getRedirectParam());
     }
   });
@@ -36,6 +38,8 @@ export function useAuth() {
     mutationFn: async (idToken: string) => authenticateWithGoogle({ idToken }),
     onSuccess: (authResponse) => {
       storeAuthTokens(authResponse);
+      userStorage.setUser(authResponse.user);
+      queryClient.setQueryData(['auth', 'me'], authResponse.user);
 
       if (authResponse.user.phoneVerified) {
         redirectAfterLogin(authResponse, router, getRedirectParam());
@@ -48,18 +52,21 @@ export function useAuth() {
     onMutate: () => {
       void queryClient.cancelQueries({ queryKey: ['auth'] });
       void queryClient.cancelQueries({ queryKey: ['donors', 'profile', 'me'] });
+      userStorage.clearUser();
+      queryClient.removeQueries({ queryKey: ['auth'] });
     },
     onSettled: () => {
       userStorage.clearUser();
       queryClient.removeQueries({ queryKey: ['auth'] });
       queryClient.removeQueries({ queryKey: ['donors', 'profile', 'me'] });
-      router.push('/');
+      router.replace('/');
     }
   });
 
   const meQuery = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: getMe,
+    initialData: () => userStorage.getUser() ?? undefined,
     retry: false
   });
 
@@ -69,11 +76,17 @@ export function useAuth() {
     }
   }, [meQuery.data]);
 
+  const user = meQuery.data ?? null;
+  const isAuthLoading = meQuery.isPending || (meQuery.isFetching && !user);
+
   return {
     sendOtpMutation,
     verifyOtpMutation,
     googleMutation,
     logoutMutation,
-    meQuery
+    meQuery,
+    user,
+    isAuthenticated: Boolean(user),
+    isAuthLoading,
   };
 }

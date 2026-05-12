@@ -11,6 +11,7 @@ import { AuthModal } from "@/features/auth/components/AuthModal";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { AuthUser } from "@/features/auth/types/auth.types";
 import { userStorage } from "@/lib/auth/user-storage";
+import { stripNextInternalSearchParams } from "@/lib/navigation/safe-url";
 import { getDisplayName, getInitials } from "./header.helpers";
 
 export function Header() {
@@ -32,7 +33,9 @@ export function Header() {
   }, []);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params = stripNextInternalSearchParams(
+      new URLSearchParams(window.location.search),
+    );
 
     if (params.get("auth") === "login") {
       setAuthModalPhone(params.get("phone") ?? "");
@@ -117,13 +120,16 @@ export function Header() {
     setIsAuthModalOpen(false);
     setAuthModalRedirect(undefined);
 
-    const currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.delete("auth");
-    currentUrl.searchParams.delete("phone");
-    window.history.replaceState(
-      null,
-      "",
-      `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`,
+    const cleanParams = stripNextInternalSearchParams(
+      new URLSearchParams(window.location.search),
+    );
+    cleanParams.delete("auth");
+    cleanParams.delete("phone");
+
+    const nextSearch = cleanParams.toString();
+    router.replace(
+      `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ""}${window.location.hash}`,
+      { scroll: false },
     );
   };
 

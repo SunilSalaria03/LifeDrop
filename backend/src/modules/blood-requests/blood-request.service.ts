@@ -3,32 +3,30 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { Twilio } from 'twilio';
-import { SMS_ALERT_COOLDOWN_MS } from './blood-request.constants';
+} from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model, Types } from "mongoose";
+import { Twilio } from "twilio";
+import { SMS_ALERT_COOLDOWN_MS } from "./blood-request.constants";
 import {
   SmsAlertResult,
   SmsMessageInput,
   WhatsappAlertInput,
-} from './blood-request.types';
-import { SendSmsAlertDto } from './dto/send-sms-alert.dto';
+} from "./blood-request.types";
+import { SendSmsAlertDto } from "./dto/send-sms-alert.dto";
 import {
   BloodRequest,
   BloodRequestStatus,
   SmsStatus,
   WhatsappProvider,
   WhatsappStatus,
-} from './schemas/blood-request.schema';
-import { BloodRequestDocument } from './schemas/blood-request.schema.types';
-import {
-  DonorProfile,
-} from '../donors/schemas/donor-profile.schema';
-import { DonorProfileDocument } from '../donors/schemas/donor-profile.schema.types';
-import { User } from '../users/schemas/user.schema';
-import { UserDocument } from '../users/schemas/user.schema.types';
+} from "./schemas/blood-request.schema";
+import { BloodRequestDocument } from "./schemas/blood-request.schema.types";
+import { DonorProfile } from "../donors/schemas/donor-profile.schema";
+import { DonorProfileDocument } from "../donors/schemas/donor-profile.schema.types";
+import { User } from "../users/schemas/user.schema";
+import { UserDocument } from "../users/schemas/user.schema.types";
 
 @Injectable()
 export class BloodRequestService {
@@ -55,10 +53,7 @@ export class BloodRequestService {
       dto.bloodGroup,
     );
 
-    await this.assertCanCreateSmsAlert(
-      verifiedRequester._id,
-      donorUser._id,
-    );
+    await this.assertCanCreateSmsAlert(verifiedRequester._id, donorUser._id);
 
     const bloodRequest = await this.bloodRequestModel.create({
       requesterId: verifiedRequester._id,
@@ -69,7 +64,7 @@ export class BloodRequestService {
       sendWhatsapp: dto.sendWhatsapp ?? false,
       consentToShareContact: dto.consentToShareContact,
       smsStatus: SmsStatus.Pending,
-      smsProvider: 'twilio',
+      smsProvider: "twilio",
       whatsappStatus: dto.sendWhatsapp
         ? WhatsappStatus.Pending
         : WhatsappStatus.Skipped,
@@ -78,17 +73,19 @@ export class BloodRequestService {
     });
 
     try {
-      const donorPhone = this.toIndianE164(donorUser.phone ?? donorProfile.phone);
+      const donorPhone = this.toIndianE164(
+        donorUser.phone ?? donorProfile.phone,
+      );
 
       if (!donorPhone) {
-        throw new ForbiddenException('Donor phone must be verified.');
+        throw new ForbiddenException("Donor phone must be verified.");
       }
 
       const requesterPhone = this.toIndianE164(verifiedRequester.phone);
 
       if (!requesterPhone) {
         throw new ForbiddenException(
-          'Requester phone must be verified before sending SMS alerts.',
+          "Requester phone must be verified before sending SMS alerts.",
         );
       }
 
@@ -110,14 +107,14 @@ export class BloodRequestService {
 
       bloodRequest.smsStatus = SmsStatus.Sent;
       bloodRequest.status = BloodRequestStatus.Sent;
-      bloodRequest.smsProvider = 'twilio';
+      bloodRequest.smsProvider = "twilio";
       bloodRequest.smsProviderMessageId = smsProviderMessageId;
       bloodRequest.smsError = undefined;
       await bloodRequest.save();
 
       return {
         bloodRequestId: bloodRequest.id,
-        message: 'SMS alert sent successfully.',
+        message: "SMS alert sent successfully.",
         smsStatus: bloodRequest.smsStatus,
         status: bloodRequest.status,
         smsProvider: bloodRequest.smsProvider,
@@ -126,7 +123,7 @@ export class BloodRequestService {
         whatsappProvider: bloodRequest.whatsappProvider,
         whatsappProviderMessageId: bloodRequest.whatsappProviderMessageId,
         whatsappError: bloodRequest.whatsappError
-          ? 'WhatsApp alert could not be sent.'
+          ? "WhatsApp alert could not be sent."
           : undefined,
       };
     } catch (error) {
@@ -138,15 +135,15 @@ export class BloodRequestService {
 
       return {
         bloodRequestId: bloodRequest.id,
-        message: 'SMS alert could not be sent.',
+        message: "SMS alert could not be sent.",
         smsStatus: bloodRequest.smsStatus,
         status: bloodRequest.status,
         smsProvider: bloodRequest.smsProvider,
-        smsError: 'SMS alert could not be sent. Please try again later.',
+        smsError: "SMS alert could not be sent. Please try again later.",
         whatsappStatus: bloodRequest.whatsappStatus,
         whatsappProvider: bloodRequest.whatsappProvider,
         whatsappError: bloodRequest.whatsappError
-          ? 'WhatsApp alert could not be sent.'
+          ? "WhatsApp alert could not be sent."
           : undefined,
       };
     }
@@ -154,18 +151,20 @@ export class BloodRequestService {
 
   private async getVerifiedRequester(requester: UserDocument) {
     if (!requester?._id) {
-      throw new ForbiddenException('Login is required to send SMS alerts.');
+      throw new ForbiddenException("Login is required to send SMS alerts.");
     }
 
-    const verifiedRequester = await this.userModel.findById(requester._id).exec();
+    const verifiedRequester = await this.userModel
+      .findById(requester._id)
+      .exec();
 
     if (!verifiedRequester) {
-      throw new NotFoundException('Requester account does not exist.');
+      throw new NotFoundException("Requester account does not exist.");
     }
 
     if (!verifiedRequester.phoneVerified || !verifiedRequester.phone) {
       throw new ForbiddenException(
-        'Requester phone must be verified before sending SMS alerts.',
+        "Requester phone must be verified before sending SMS alerts.",
       );
     }
 
@@ -174,10 +173,10 @@ export class BloodRequestService {
 
   private async getAvailableVerifiedDonor(
     donorId: string,
-    bloodGroup: SendSmsAlertDto['bloodGroup'],
+    bloodGroup: SendSmsAlertDto["bloodGroup"],
   ) {
     if (!Types.ObjectId.isValid(donorId)) {
-      throw new BadRequestException('donorId must be a valid MongoDB id.');
+      throw new BadRequestException("donorId must be a valid MongoDB id.");
     }
 
     const objectId = new Types.ObjectId(donorId);
@@ -190,21 +189,21 @@ export class BloodRequestService {
       .exec();
 
     if (!donorProfile) {
-      throw new NotFoundException('Donor does not exist.');
+      throw new NotFoundException("Donor does not exist.");
     }
 
     if (!donorProfile.isAvailable) {
-      throw new ForbiddenException('Donor is not available.');
+      throw new ForbiddenException("Donor is not available.");
     }
 
     const donorUser = await this.userModel.findById(donorProfile.userId).exec();
 
     if (!donorUser) {
-      throw new NotFoundException('Donor account does not exist.');
+      throw new NotFoundException("Donor account does not exist.");
     }
 
     if (!donorUser.phoneVerified || !(donorUser.phone ?? donorProfile.phone)) {
-      throw new ForbiddenException('Donor phone must be verified.');
+      throw new ForbiddenException("Donor phone must be verified.");
     }
 
     return { donorProfile, donorUser };
@@ -226,7 +225,7 @@ export class BloodRequestService {
 
     if (activeRequest) {
       throw new BadRequestException(
-        'You already have an active request with this donor.',
+        "You already have an active request with this donor.",
       );
     }
 
@@ -241,7 +240,7 @@ export class BloodRequestService {
 
     if (recentRequest) {
       throw new BadRequestException(
-        'Please wait 30 minutes before sending another SMS alert to this donor.',
+        "Please wait 30 minutes before sending another SMS alert to this donor.",
       );
     }
   }
@@ -253,11 +252,11 @@ export class BloodRequestService {
     requesterPhone,
   }: SmsMessageInput) {
     const fromPhone = this.toIndianE164(
-      this.configService.get<string>('TWILIO_PHONE_NUMBER'),
+      this.configService.get<string>("TWILIO_PHONE_NUMBER"),
     );
 
     if (!this.twilioClient || !fromPhone) {
-      throw new BadRequestException('Twilio SMS service is not configured.');
+      throw new BadRequestException("Twilio SMS service is not configured.");
     }
 
     const sms = await this.twilioClient.messages.create({
@@ -283,7 +282,7 @@ export class BloodRequestService {
     }
 
     const whatsappFrom = this.toTwilioWhatsappAddress(
-      this.configService.get<string>('TWILIO_WHATSAPP_NUMBER'),
+      this.configService.get<string>("TWILIO_WHATSAPP_NUMBER"),
     );
     const whatsappTo = this.toTwilioWhatsappAddress(donorPhone);
 
@@ -291,7 +290,7 @@ export class BloodRequestService {
 
     if (!this.twilioClient || !whatsappFrom || !whatsappTo) {
       bloodRequest.whatsappStatus = WhatsappStatus.Failed;
-      bloodRequest.whatsappError = 'Twilio WhatsApp service is not configured.';
+      bloodRequest.whatsappError = "Twilio WhatsApp service is not configured.";
       return;
     }
 
@@ -315,19 +314,21 @@ export class BloodRequestService {
     bloodGroup,
     message,
     requesterPhone,
-  }: Pick<SmsMessageInput, 'bloodGroup' | 'message' | 'requesterPhone'>) {
+  }: Pick<SmsMessageInput, "bloodGroup" | "message" | "requesterPhone">) {
     return [
-      `LifeDrop blood request: ${bloodGroup} blood is needed.`,
-      `Requester contact: ${requesterPhone}.`,
-      message ? `Message: ${message}` : undefined,
+      `A patient urgently needs ${bloodGroup} blood donation.`,
+      `Your support can help save a life.`,
+      `Contact requester: ${requesterPhone}.`,
+      message ? `Note: ${message}` : undefined,
+      `- Team LifeDrop`,
     ]
       .filter(Boolean)
-      .join(' ');
+      .join(" ");
   }
 
   private createTwilioClient() {
-    const accountSid = this.configService.get<string>('TWILIO_ACCOUNT_SID');
-    const authToken = this.configService.get<string>('TWILIO_AUTH_TOKEN');
+    const accountSid = this.configService.get<string>("TWILIO_ACCOUNT_SID");
+    const authToken = this.configService.get<string>("TWILIO_AUTH_TOKEN");
 
     if (!accountSid || !authToken) {
       return undefined;
@@ -347,7 +348,7 @@ export class BloodRequestService {
       return trimmedPhone;
     }
 
-    const digits = trimmedPhone.replace(/\D/g, '');
+    const digits = trimmedPhone.replace(/\D/g, "");
 
     if (/^\d{10}$/.test(digits)) {
       return `+91${digits}`;
@@ -361,7 +362,7 @@ export class BloodRequestService {
   }
 
   private toTwilioWhatsappAddress(phone?: string) {
-    if (phone?.trim().startsWith('whatsapp:')) {
+    if (phone?.trim().startsWith("whatsapp:")) {
       return phone.trim();
     }
 
@@ -379,6 +380,6 @@ export class BloodRequestService {
       return error.message;
     }
 
-    return 'SMS provider failed to send alert.';
+    return "SMS provider failed to send alert.";
   }
 }

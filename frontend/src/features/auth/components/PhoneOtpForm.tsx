@@ -12,6 +12,10 @@ import {
   toIndianE164,
   toIndianNationalNumber,
 } from '@/lib/phone/india-phone';
+import {
+  getSafeInternalPath,
+  stripNextInternalSearchParams,
+} from '@/lib/navigation/safe-url';
 import { phoneOtpSendSchema, phoneOtpVerifySchema } from '../validations/auth.validation';
 import { useAuth } from '../hooks/useAuth';
 import { PhoneOtpFormProps } from '../auth-component.types';
@@ -26,9 +30,12 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
   const [resendSeconds, setResendSeconds] = useState(60);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params = stripNextInternalSearchParams(
+      new URLSearchParams(window.location.search),
+    );
     setPhoneFromQuery(toIndianNationalNumber(params.get('phone') ?? ''));
-    setRedirect(params.get('redirect'));
+    const redirectParam = params.get('redirect');
+    setRedirect(redirectParam ? getSafeInternalPath(redirectParam) : null);
     setHasLoadedQuery(true);
   }, []);
 

@@ -18,6 +18,7 @@ import {
   toIndianE164,
   toIndianNationalNumber,
 } from '@/lib/phone/india-phone';
+import { getSafeInternalPath, getSearchParam } from '@/lib/navigation/safe-url';
 import { findStateCode } from '../profile.helpers';
 import { ProfileSetupFormProps } from '../profile-component.types';
 import { useProfile } from '../hooks/useProfile';
@@ -59,8 +60,8 @@ export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
         return;
       }
 
-      const redirect = new URLSearchParams(window.location.search).get('redirect');
-      router.push(redirect || '/');
+      const redirect = getSearchParam('redirect');
+      router.push(getSafeInternalPath(redirect));
     },
   });
 
