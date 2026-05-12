@@ -94,6 +94,12 @@ export class UpdateDonorProfileDto implements Partial<CreateDonorProfileDto> {
   @MaxLength(300)
   addressText?: string;
 
+  @ApiPropertyOptional({ example: 'House 21, Anna Nagar Main Road' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  addressLine?: string;
+
   @ApiPropertyOptional({ example: true })
   @IsOptional()
   @Type(() => Boolean)

@@ -18,6 +18,7 @@ import {
   toIndianE164,
   toIndianNationalNumber,
 } from '@/lib/phone/india-phone';
+import { getSafeInternalPath, getSearchParam } from '@/lib/navigation/safe-url';
 import { findStateCode } from '../profile.helpers';
 import { ProfileSetupFormProps } from '../profile-component.types';
 import { useProfile } from '../hooks/useProfile';
@@ -36,7 +37,7 @@ export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
       stateCode: findStateCode(user.state),
       city: user.city ?? '',
       district: user.district ?? '',
-      addressText: user.addressText ?? '',
+      addressLine: user.addressLine ?? user.addressText ?? '',
       lat: user.location?.coordinates?.[1],
       lng: user.location?.coordinates?.[0],
     },
@@ -50,7 +51,8 @@ export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
         state: values.state,
         city: values.city,
         district: values.district,
-        addressText: values.addressText,
+        addressLine: values.addressLine,
+        addressText: values.addressLine,
         lat: values.lat,
         lng: values.lng,
       });
@@ -59,8 +61,8 @@ export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
         return;
       }
 
-      const redirect = new URLSearchParams(window.location.search).get('redirect');
-      router.push(redirect || '/');
+      const redirect = getSearchParam('redirect');
+      router.push(getSafeInternalPath(redirect));
     },
   });
 
@@ -169,10 +171,10 @@ export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
         />
         <Input
           className="h-12 rounded-2xl"
-          name="addressText"
+          name="addressLine"
           onChange={formik.handleChange}
-          placeholder="Address optional"
-          value={formik.values.addressText}
+          placeholder="Address line optional"
+          value={formik.values.addressLine}
         />
       </div>
 

@@ -1,32 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getMe } from '../api/auth.api';
 import { AuthGuardProps } from '../auth-component.types';
 import { userStorage } from '@/lib/auth/user-storage';
+import { useAuth } from '../hooks/useAuth';
 
 export function AuthProtectedGuard({ children }: AuthGuardProps) {
   const router = useRouter();
-  const [isChecking, setIsChecking] = useState(true);
-  const [canShow, setCanShow] = useState(false);
+  const { isAuthLoading, meQuery } = useAuth();
 
   useEffect(() => {
-    getMe()
-      .then((user) => {
-        userStorage.setUser(user);
-        setCanShow(true);
-      })
-      .catch(() => {
-        userStorage.clearUser();
-        router.replace('/?auth=login');
-      })
-      .finally(() => {
-        setIsChecking(false);
-      });
-  }, [router]);
+    if (isAuthLoading) {
+      return;
+    }
 
-  if (isChecking) {
+    if (meQuery.isError) {
+      userStorage.clearUser();
+      router.replace('/?auth=login');
+    }
+  }, [isAuthLoading, meQuery.isError, router]);
+
+  if (isAuthLoading) {
     return (
       <main className="min-h-screen bg-neutral-50 px-6 py-10 text-neutral-950">
         <section className="mx-auto max-w-md rounded-lg border border-neutral-200 bg-white p-6 text-sm text-neutral-600 shadow-sm">
@@ -36,5 +31,5 @@ export function AuthProtectedGuard({ children }: AuthGuardProps) {
     );
   }
 
-  return canShow ? <>{children}</> : null;
+  return meQuery.data ? <>{children}</> : null;
 }

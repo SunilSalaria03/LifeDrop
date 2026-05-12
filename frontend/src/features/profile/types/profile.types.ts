@@ -17,6 +17,7 @@ export type UpdateProfilePayload = {
   city?: string;
   district?: string;
   tehsil?: string;
+  addressLine?: string;
   addressText?: string;
   lat?: number;
   lng?: number;

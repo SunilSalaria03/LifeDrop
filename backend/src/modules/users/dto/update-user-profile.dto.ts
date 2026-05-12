@@ -49,6 +49,12 @@ export class UpdateUserProfileDto {
   @MaxLength(300)
   addressText?: string;
 
+  @ApiPropertyOptional({ example: 'House 21, Anna Nagar Main Road' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  addressLine?: string;
+
   @ApiPropertyOptional({ example: 'O+' })
   @IsOptional()
   @IsString()

@@ -13,6 +13,7 @@ import {
   toIndianE164,
   toIndianNationalNumber,
 } from '@/lib/phone/india-phone';
+import { getSafeInternalPath, getSearchParam } from '@/lib/navigation/safe-url';
 import { GoogleLoginButton } from './GoogleLoginButton';
 import { useAuth } from '../hooks/useAuth';
 import { AuthUser } from '../types/auth.types';
@@ -79,12 +80,6 @@ export function AuthModal({
     return () => window.clearInterval(timer);
   }, [isOpen, resendSeconds, step]);
 
-  useEffect(() => {
-    if (verifyOtpMutation.isSuccess) {
-      onClose();
-    }
-  }, [onClose, verifyOtpMutation.isSuccess]);
-
   const sendFormik = useFormik({
     initialValues: {
       phone: phoneForOtp,
@@ -137,10 +132,13 @@ export function AuthModal({
         onAuthenticated?.(verifiedUser);
 
         if (otpFlow === 'profile') {
-          const redirect = new URLSearchParams(window.location.search).get('redirect');
+          const redirect = getSearchParam('redirect');
           onClose();
-          router.push(redirect || profileRedirect || '/');
+          router.push(getSafeInternalPath(redirect || profileRedirect));
+          return;
         }
+
+        onClose();
       } catch (error) {
         showToast({
           message: getApiErrorMessage(

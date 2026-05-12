@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { userStorage } from '@/lib/auth/user-storage';
+import { getSafeInternalPath, getSearchParam, withAuthLogin } from '@/lib/navigation/safe-url';
 import { ProtectedRouteProps } from './protected-route.types';
 
 export function ProtectedRoute({
@@ -12,14 +13,19 @@ export function ProtectedRoute({
   requireCompletedProfile = false,
 }: ProtectedRouteProps) {
   const router = useRouter();
-  const { meQuery } = useAuth();
+  const pathname = usePathname();
+  const { isAuthLoading, meQuery } = useAuth();
 
   useEffect(() => {
-    const redirect = new URLSearchParams(window.location.search).get('redirect');
+    if (isAuthLoading) {
+      return;
+    }
+
+    const redirect = getSearchParam('redirect');
 
     if (meQuery.isError) {
-      const currentPath = window.location.pathname;
-      router.replace(`/?auth=login&redirect=${encodeURIComponent(redirect || currentPath)}`);
+      router.replace(withAuthLogin('/', redirect || pathname));
+      return;
     }
 
     if (
@@ -27,10 +33,17 @@ export function ProtectedRoute({
       meQuery.data &&
       !meQuery.data.isProfileCompleted
     ) {
-      const target = redirect || window.location.pathname;
+      const target = getSafeInternalPath(redirect || pathname);
       router.replace(`/profile/setup?redirect=${encodeURIComponent(target)}`);
     }
-  }, [meQuery.data, meQuery.isError, requireCompletedProfile, router]);
+  }, [
+    isAuthLoading,
+    meQuery.data,
+    meQuery.isError,
+    pathname,
+    requireCompletedProfile,
+    router,
+  ]);
 
   useEffect(() => {
     if (meQuery.isError) {
@@ -38,7 +51,7 @@ export function ProtectedRoute({
     }
   }, [meQuery.isError]);
 
-  if (meQuery.isLoading) {
+  if (isAuthLoading) {
     return (
       <main className="min-h-screen bg-neutral-50 px-4 py-10">
         <Card className="mx-auto max-w-md rounded-2xl">

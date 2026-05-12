@@ -178,9 +178,10 @@ export class UsersService {
       }
     }
 
+    this.applyAddressUpdate(update, dto);
+
     if (isDonor) {
       for (const field of [
-        'addressText',
         'bloodGroup',
         'gender',
         'weight',
@@ -271,7 +272,6 @@ export class UsersService {
 
     for (const field of [
       'phone',
-      'addressText',
       'bloodGroup',
       'gender',
       'birthDate',
@@ -292,6 +292,8 @@ export class UsersService {
             : dto[field];
       }
     }
+
+    this.applyAddressUpdate(donorUpdate, dto);
 
     if (dto.lat !== undefined && dto.lng !== undefined) {
       donorUpdate.location = {
@@ -327,7 +329,8 @@ export class UsersService {
       phoneVerified: user.phoneVerified,
       isProfileCompleted: user.isProfileCompleted,
       isBlocked: user.isBlocked,
-      addressText: isDonor ? user.addressText : undefined,
+      addressLine: user.addressLine ?? user.addressText,
+      addressText: user.addressText ?? user.addressLine,
       bloodGroup: isDonor ? user.bloodGroup : undefined,
       gender: isDonor ? user.gender : undefined,
       birthDate: isDonor ? user.birthDate : undefined,
@@ -360,7 +363,8 @@ export class UsersService {
       city: donorProfile.city,
       district: donorProfile.district,
       tehsil: donorProfile.tehsil,
-      addressText: donorProfile.addressText,
+      addressLine: donorProfile.addressLine ?? donorProfile.addressText,
+      addressText: donorProfile.addressText ?? donorProfile.addressLine,
       showMobile: donorProfile.showMobile,
       smsAlert: donorProfile.smsAlert,
       pincode: donorProfile.pincode,
@@ -374,5 +378,19 @@ export class UsersService {
       createdAt: donorProfile.get('createdAt') as Date | undefined,
       updatedAt: donorProfile.get('updatedAt') as Date | undefined,
     };
+  }
+
+  private applyAddressUpdate(
+    update: Record<string, unknown>,
+    dto: Pick<UpdateUserProfileDto, 'addressLine' | 'addressText'>,
+  ): void {
+    const addressLine = dto.addressLine ?? dto.addressText;
+
+    if (addressLine === undefined) {
+      return;
+    }
+
+    update.addressLine = addressLine;
+    update.addressText = addressLine;
   }
 }
