@@ -162,7 +162,7 @@ export function Header() {
           </Link>
 
           <nav className="flex w-full min-w-0 flex-wrap items-center justify-start gap-2 sm:w-auto sm:flex-1 sm:flex-nowrap sm:justify-end sm:gap-3">
-            <LocationSelector />
+            {/* <LocationSelector /> */}
             {user ? (
               <div className="relative" ref={menuRef}>
                 <button
