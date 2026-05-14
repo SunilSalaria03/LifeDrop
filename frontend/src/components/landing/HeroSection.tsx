@@ -120,40 +120,42 @@ export function HeroSection() {
       {/* ── Red ambient glow near feet of figure ── */}
       <div className="pointer-events-none absolute bottom-0 right-[22%] h-64 w-64 rounded-full bg-red-700/20 blur-3xl" />
 
-        <div className="relative mx-auto grid min-h-[700px] max-w-7xl place-items-center px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-          <div className="grid w-full gap-9 sm:gap-10 lg:gap-12">
-            <div className="mx-auto grid max-w-4xl gap-5 sm:gap-6">
-              <p className="mx-auto inline-flex max-w-full items-center gap-2 rounded-full border border-red-500/40 bg-red-700/20 px-4 py-2 text-sm font-semibold text-red-300 backdrop-blur-sm">
+        <div className="relative mx-auto flex min-h-[700px] max-w-7xl items-center px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+          <div className="grid w-full gap-7">
+
+            {/* Badge + headline + subtitle — left-anchored to left column */}
+            <div className="grid max-w-2xl gap-5 lg:max-w-[52%]">
+              <p className="inline-flex w-fit items-center gap-2 rounded-full border border-red-500/40 bg-red-700/20 px-4 py-2 text-sm font-semibold text-red-300 backdrop-blur-sm">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-lg shadow-red-700/50">
                   <HeartPulse className="h-4 w-4" />
                 </span>
-                <span className="truncate">Emergency blood help, closer to home</span>
+                Emergency blood help, closer to home
               </p>
-              <h1 className="text-balance text-4xl font-bold leading-tight tracking-normal text-white sm:text-5xl md:text-6xl lg:text-7xl">
+              <h1 className="text-4xl font-bold leading-tight tracking-normal text-white sm:text-5xl md:text-6xl lg:text-7xl">
                 Find Blood Donors{" "}
                 <span className="text-red-400">Near You</span>{" "}
                 Instantly
               </h1>
-              <p className="mx-auto max-w-2xl text-base font-medium leading-7 text-slate-300 sm:text-xl sm:leading-8">
-                Search by blood group and location to connect with nearby donors
-                in seconds.
+              <p className="max-w-lg text-base font-medium leading-7 text-slate-300 sm:text-lg sm:leading-8">
+                Search by blood group and location to connect with nearby donors in seconds.
               </p>
             </div>
 
-            <div className="mx-auto grid w-full max-w-6xl gap-4 rounded-4xl border border-white/10 bg-white/5 p-3 shadow-2xl shadow-black/40 backdrop-blur-md sm:p-4">
+            {/* Search form — full width */}
+            <div className="grid w-full gap-4 rounded-4xl border border-white/10 bg-white/5 p-3 shadow-2xl shadow-black/40 backdrop-blur-md sm:p-4">
               <SearchBar
                 isSearching={donorQuery.isFetching || isSearchDebouncing}
                 onChange={updateFilters}
                 onSearch={handleFindDonors}
                 values={filters}
               />
-
               {validationError ? (
-                <p className="rounded-2xl border border-red-500/30 bg-red-950/60 px-4 py-3 text-center text-sm font-semibold text-red-300 shadow-sm sm:text-left">
+                <p className="rounded-2xl border border-red-500/30 bg-red-950/60 px-4 py-3 text-sm font-semibold text-red-300 sm:text-left">
                   {validationError}
                 </p>
               ) : null}
             </div>
+
           </div>
         </div>
       </section>
