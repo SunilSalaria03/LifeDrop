@@ -38,15 +38,15 @@ function DetailItem({
   value,
 }: DetailItemProps) {
   return (
-    <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-neutral-100 bg-neutral-50/80 p-4">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-red-600 shadow-sm shadow-neutral-950/5">
+    <div className="group flex min-w-0 items-start gap-3 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm shadow-neutral-950/5 transition hover:border-red-100 hover:bg-red-50/30">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-700 transition group-hover:bg-red-700 group-hover:text-white">
         <Icon className="h-5 w-5" />
       </div>
       <div className="min-w-0">
-        <p className="text-xs font-semibold uppercase tracking-normal text-neutral-500">
+        <p className="text-xs font-black uppercase tracking-normal text-neutral-500">
           {label}
         </p>
-        <p className="mt-1 break-words text-sm font-semibold text-neutral-950">
+        <p className="mt-1 break-words text-sm font-bold text-neutral-950">
           {value}
         </p>
       </div>
@@ -61,9 +61,10 @@ function DonorProfileHeader({ donor }: DonorProfileHeaderProps) {
     .join(", ");
 
   return (
-    <Card className="overflow-hidden rounded-2xl border-white/80 bg-white shadow-xl shadow-red-950/10">
+    <Card className="overflow-hidden rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
+      <div className="h-1.5 bg-[linear-gradient(90deg,#dc2626,#fb7185,#fee2e2)]" />
       <CardContent className="grid gap-6 p-5 sm:grid-cols-[auto_1fr] sm:items-center sm:p-6 lg:p-8">
-        <Avatar className="h-24 w-24 border-4 border-red-50 bg-red-50">
+        <Avatar className="h-24 w-24 border-4 border-white bg-red-50 shadow-sm shadow-neutral-950/10 ring-4 ring-red-50">
           {donor.profileImage ? (
             <AvatarImage alt={donorName} src={donor.profileImage} />
           ) : null}
@@ -75,7 +76,7 @@ function DonorProfileHeader({ donor }: DonorProfileHeaderProps) {
         <div className="grid gap-4">
           <div className="grid gap-2">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="break-words text-2xl font-bold tracking-normal text-neutral-950 sm:text-4xl">
+              <h1 className="break-words text-3xl font-black tracking-normal text-neutral-950 sm:text-4xl">
                 {donorName}
               </h1>
               {donor.isVerified ? (
@@ -85,7 +86,7 @@ function DonorProfileHeader({ donor }: DonorProfileHeaderProps) {
                 />
               ) : null}
             </div>
-            <p className="flex items-start gap-2 text-base text-neutral-600">
+            <p className="flex items-start gap-2 text-sm font-semibold text-neutral-600 sm:text-base">
               <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
               <span className="break-words">
                 {location || "Location not provided"}
@@ -94,21 +95,21 @@ function DonorProfileHeader({ donor }: DonorProfileHeaderProps) {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Badge className="bg-red-50 px-4 py-2 text-base text-red-700 ring-1 ring-red-100">
+            <Badge className="rounded-full bg-red-50 px-4 py-2 text-base font-bold text-red-700 ring-1 ring-red-100">
               {donor.bloodGroup}
             </Badge>
             <Badge
               className={
                 donor.isAvailable
-                  ? "gap-1.5 bg-green-50 px-4 py-2 text-green-700 ring-1 ring-green-100"
-                  : "gap-1.5 bg-neutral-100 px-4 py-2 text-neutral-600 ring-1 ring-neutral-200"
+                  ? "gap-1.5 rounded-full bg-green-50 px-4 py-2 font-bold text-green-700 ring-1 ring-green-100"
+                  : "gap-1.5 rounded-full bg-neutral-100 px-4 py-2 font-bold text-neutral-600 ring-1 ring-neutral-200"
               }
             >
               <CheckCircle2 className="h-4 w-4" />
               {donor.isAvailable ? "Available" : "Not Available"}
             </Badge>
             {donor.isVerified ? (
-              <Badge className="gap-1.5 bg-red-50 px-4 py-2 text-red-700 ring-1 ring-red-100">
+              <Badge className="gap-1.5 rounded-full bg-red-50 px-4 py-2 font-bold text-red-700 ring-1 ring-red-100">
                 <ShieldCheck className="h-4 w-4" />
                 Verified
               </Badge>
@@ -143,9 +144,11 @@ export default function DonorDetailPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-[linear-gradient(135deg,#f8fbff_0%,#ffffff_48%,#fff5f5_100%)] px-4 py-8 text-neutral-950 sm:px-6 sm:py-10 lg:px-8">
-        <div className="mx-auto grid max-w-6xl gap-6">
-          <Button asChild className="w-fit rounded-full" variant="outline">
+      <main className="relative min-h-screen overflow-hidden bg-[linear-gradient(135deg,#f8fafc_0%,#ffffff_48%,#fff7f7_100%)] px-4 pb-10 pt-28 text-neutral-950 sm:px-6 sm:pb-12 sm:pt-32 lg:px-8">
+        <div className="pointer-events-none absolute -left-32 top-20 h-72 w-72 rounded-full bg-red-50 blur-3xl" />
+        <div className="pointer-events-none absolute -right-32 top-96 h-72 w-72 rounded-full bg-red-50/80 blur-3xl" />
+        <div className="relative mx-auto grid max-w-6xl gap-6">
+          <Button asChild className="w-fit rounded-full border-red-100 bg-white px-5 font-bold shadow-sm hover:bg-red-50" variant="outline">
             <Link href="/">
               <ArrowLeft className="h-4 w-4" />
               Back to Search
@@ -153,7 +156,7 @@ export default function DonorDetailPage() {
           </Button>
 
           {donorQuery.isLoading ? (
-            <Card className="animate-pulse rounded-2xl border-white/80 bg-white/90 shadow-xl shadow-red-950/10">
+            <Card className="animate-pulse rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
               <CardContent className="grid gap-6 p-5 sm:grid-cols-[auto_1fr] sm:p-6 lg:p-8">
                 <div className="h-24 w-24 rounded-full bg-neutral-200" />
                 <div className="grid gap-3">
@@ -167,7 +170,7 @@ export default function DonorDetailPage() {
               </CardContent>
             </Card>
           ) : donorQuery.error ? (
-            <Card className="rounded-2xl border-red-100 bg-red-50 shadow-sm">
+            <Card className="rounded-3xl border border-red-100 bg-red-50 shadow-sm">
               <CardContent className="p-8 text-center">
                 <h1 className="text-2xl font-bold text-red-800">
                   Donor profile unavailable
@@ -182,9 +185,9 @@ export default function DonorDetailPage() {
               <DonorProfileHeader donor={donor} />
 
               <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-                <Card className="rounded-2xl border-white/80 bg-white/95 shadow-lg shadow-red-950/5">
+                <Card className="rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
                   <CardHeader className="p-5 sm:p-6">
-                    <h2 className="text-xl font-bold text-neutral-950">
+                    <h2 className="text-xl font-black text-neutral-950">
                       Donor Details
                     </h2>
                   </CardHeader>
@@ -247,19 +250,20 @@ export default function DonorDetailPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="h-fit rounded-2xl border-white/80 bg-white/95 shadow-lg shadow-red-950/5">
+                <Card className="h-fit overflow-hidden rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
+                  <div className="h-1.5 bg-[linear-gradient(90deg,#dc2626,#fb7185)]" />
                   <CardHeader className="p-5 sm:p-6">
-                    <h2 className="text-xl font-bold text-neutral-950">
+                    <h2 className="text-xl font-black text-neutral-950">
                       Request Support
                     </h2>
                   </CardHeader>
                   <CardContent className="grid gap-4 p-5 pt-0 sm:p-6 sm:pt-0">
-                    <p className="rounded-2xl border border-red-100 bg-red-50 p-4 text-sm font-medium leading-6 text-red-800">
+                    <p className="rounded-2xl border border-red-100 bg-red-50/70 p-4 text-sm font-semibold leading-6 text-red-800">
                       Contact details are shared only after request approval.
                     </p>
                     {!isOwnDonorProfile ? (
                       <Button
-                        className="h-12 w-full rounded-full bg-red-600 text-white hover:bg-red-700"
+                        className="h-12 w-full rounded-full bg-red-700 text-white hover:bg-red-800"
                         disabled={!donor.isAvailable}
                         onClick={handleRequestBlood}
                         type="button"
@@ -269,7 +273,7 @@ export default function DonorDetailPage() {
                     ) : null}
                     <Button
                       asChild
-                      className="h-12 w-full rounded-full"
+                      className="h-12 w-full rounded-full border-red-100 bg-white font-bold hover:bg-red-50"
                       variant="outline"
                     >
                       <Link href="/">Back to Search</Link>
