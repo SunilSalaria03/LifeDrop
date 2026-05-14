@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Droplet, ShieldCheck, X } from 'lucide-react';
+import { ArrowLeft, Droplet, RotateCcw, Send, ShieldCheck, X } from 'lucide-react';
 import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -287,6 +287,7 @@ export function AuthModal({
                   disabled={sendOtpMutation.isPending || updateProfileMutation.isPending}
                   type="submit"
                 >
+                  <Send className="h-4 w-4" />
                   {sendOtpMutation.isPending || updateProfileMutation.isPending ? 'Sending OTP...' : 'Send OTP'}
                 </Button>
               </form>
@@ -344,6 +345,7 @@ export function AuthModal({
                 }
                 type="submit"
               >
+                <ShieldCheck className="h-4 w-4" />
                 {verifyOtpMutation.isPending || verifyProfilePhoneMutation.isPending ? 'Verifying...' : 'Verify OTP'}
               </Button>
 
@@ -354,6 +356,7 @@ export function AuthModal({
                 type="button"
                 variant="outline"
               >
+                <RotateCcw className="h-4 w-4" />
                 {sendOtpMutation.isPending
                   ? 'Resending...'
                   : resendSeconds > 0

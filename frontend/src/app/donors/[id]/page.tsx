@@ -8,6 +8,7 @@ import {
   CalendarCheck,
   CalendarClock,
   CheckCircle2,
+  Droplet,
   HeartPulse,
   MapPin,
   Navigation,
@@ -268,6 +269,7 @@ export default function DonorDetailPage() {
                         onClick={handleRequestBlood}
                         type="button"
                       >
+                        <Droplet className="h-4 w-4" />
                         Request Blood
                       </Button>
                     ) : null}
@@ -276,7 +278,10 @@ export default function DonorDetailPage() {
                       className="h-12 w-full rounded-full border-red-100 bg-white font-bold hover:bg-red-50"
                       variant="outline"
                     >
-                      <Link href="/">Back to Search</Link>
+                      <Link href="/">
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to Search
+                      </Link>
                     </Button>
                   </CardContent>
                 </Card>

@@ -68,14 +68,14 @@ export function DonorList({ donors, isLoading, hasSearched, errorMessage }: Dono
     <div className="mx-auto grid w-full max-w-6xl gap-5 text-left">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-normal text-red-700">
+          <p className="w-fit rounded-full border border-red-100 bg-red-50 px-4 py-2 text-sm font-black uppercase tracking-wider text-red-700 shadow-sm">
             Search results
           </p>
           <h2 className="mt-1 text-2xl font-bold text-neutral-950">
             Available Donors
           </h2>
         </div>
-        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-red-100 bg-white px-3 py-1.5 text-sm font-semibold text-red-700 shadow-sm shadow-red-950/5 ring-1 ring-red-100">
+        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-red-100 bg-red-50 px-3.5 py-2 text-sm font-bold text-red-700 shadow-sm shadow-neutral-950/5">
           <UsersRound className="h-4 w-4" />
           {donorCountLabel}
         </span>

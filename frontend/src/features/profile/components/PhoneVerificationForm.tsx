@@ -2,6 +2,7 @@
 
 import { useFormik } from 'formik';
 import { useRouter } from 'next/navigation';
+import { Send, ShieldCheck } from 'lucide-react';
 import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -108,6 +109,7 @@ export function PhoneVerificationForm({ user }: PhoneVerificationFormProps) {
         type="button"
         variant="outline"
       >
+        <Send className="h-4 w-4" />
         {sendProfileOtpMutation.isPending ? 'Sending OTP...' : 'Send OTP'}
       </Button>
 
@@ -141,6 +143,7 @@ export function PhoneVerificationForm({ user }: PhoneVerificationFormProps) {
         disabled={verifyProfilePhoneMutation.isPending}
         type="submit"
       >
+        <ShieldCheck className="h-4 w-4" />
         {verifyProfilePhoneMutation.isPending ? 'Verifying...' : 'Verify phone'}
       </Button>
     </form>

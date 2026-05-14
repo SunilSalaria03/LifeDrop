@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
-import { Droplet, MapPin, X } from 'lucide-react';
+import { Droplet, MapPin, Send, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
@@ -186,6 +186,7 @@ export function RequestBloodModal({
               type="button"
               variant="outline"
             >
+              <X className="h-4 w-4" />
               Cancel
             </Button>
             <Button
@@ -193,6 +194,7 @@ export function RequestBloodModal({
               disabled={!canSubmit}
               type="submit"
             >
+              <Send className="h-4 w-4" />
               {isSubmitting ? 'Sending...' : 'Send request'}
             </Button>
           </div>

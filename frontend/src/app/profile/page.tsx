@@ -15,6 +15,7 @@ import {
   Mail,
   MapPin,
   Phone,
+  Save,
   ShieldCheck,
   UserRound,
   X,
@@ -510,6 +511,7 @@ function ProfileEditForm({
           type="button"
           variant="outline"
         >
+          <X className="h-4 w-4" />
           Cancel
         </Button>
         <Button
@@ -517,6 +519,7 @@ function ProfileEditForm({
           disabled={updateProfileMutation.isPending}
           type="submit"
         >
+          <Save className="h-4 w-4" />
           {updateProfileMutation.isPending ? "Saving..." : "Save profile"}
         </Button>
       </div>
@@ -763,6 +766,7 @@ function DonorEditForm({
           type="button"
           variant="outline"
         >
+          <X className="h-4 w-4" />
           Cancel
         </Button>
         <Button
@@ -770,6 +774,7 @@ function DonorEditForm({
           disabled={updateDonorProfileMutation.isPending}
           type="submit"
         >
+          <Save className="h-4 w-4" />
           {updateDonorProfileMutation.isPending
             ? "Updating..."
             : "Update donor details"}
@@ -1070,7 +1075,10 @@ export default function ProfilePage() {
                         asChild
                         className="h-12 rounded-full bg-red-700 text-white hover:bg-red-800"
                       >
-                        <Link href="/become-donor">Become a Donor</Link>
+                        <Link href="/become-donor">
+                          <HeartHandshake className="h-4 w-4" />
+                          Become a Donor
+                        </Link>
                       </Button>
                     </div>
                   )}
