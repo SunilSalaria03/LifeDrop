@@ -87,36 +87,38 @@ export function HeroSection() {
     <>
       {/* ── Dark hero: banner image + headline + search ── */}
       <section className="relative min-h-[700px] overflow-hidden bg-slate-900">
-      {/* ── Illustration panel: right 52%, desktop only ──
-           The PNG has a white background so we contain it in its own div
-           and use edge gradients to blend it into the dark section.        ── */}
-      <div className="absolute inset-y-0 right-0 hidden w-[52%] lg:block">
+      {/* ── Illustration panel: right 50%, desktop only ── */}
+      <div className="absolute inset-y-0 right-0 hidden w-[50%] lg:block">
         <Image
           src={bannerImage}
           alt="Blood donor hero"
           fill
           priority
-          className="object-contain object-bottom"
+          className="object-contain object-bottom opacity-85"
         />
-        {/* Left edge: dark → transparent so image appears to emerge from shadow */}
-        <div className="absolute inset-y-0 left-0 w-52 bg-[linear-gradient(to_right,#0f172a,transparent)]" />
-        {/* Top edge fade */}
-        <div className="absolute inset-x-0 top-0 h-24 bg-[linear-gradient(to_bottom,#0f172a,transparent)]" />
-        {/* Bottom edge fade */}
-        <div className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(to_top,#0f172a,transparent)]" />
+        {/* Dark tint to kill the white-background glow */}
+        <div className="absolute inset-0 bg-slate-900/30" />
+        {/* Left edge: wide fade so illustration bleeds in naturally */}
+        <div className="absolute inset-y-0 left-0 w-64 bg-[linear-gradient(to_right,#0f172a,transparent)]" />
+        {/* Right edge: remove hard white corner */}
+        <div className="absolute inset-y-0 right-0 w-16 bg-[linear-gradient(to_left,#0f172a,transparent)]" />
+        {/* Top edge: hides any white bleed at the top */}
+        <div className="absolute inset-x-0 top-0 h-36 bg-[linear-gradient(to_bottom,#0f172a,transparent)]" />
+        {/* Bottom edge */}
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(to_top,#0f172a,transparent)]" />
       </div>
 
-      {/* ── Main overlay: left side fully dark for text, fades before image area ── */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,1)_0%,rgba(15,23,42,1)_42%,rgba(15,23,42,0.55)_57%,transparent_74%)]" />
+      {/* ── Main dark overlay: text panel solid, fades toward illustration ── */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,1)_0%,rgba(15,23,42,1)_44%,rgba(15,23,42,0.70)_58%,rgba(15,23,42,0.25)_75%,rgba(15,23,42,0.15)_100%)]" />
 
-      {/* ── Top bar: fixed header always readable ── */}
-      <div className="absolute inset-x-0 top-0 h-24 bg-[linear-gradient(to_bottom,rgba(15,23,42,0.85),transparent)]" />
+      {/* ── Full-section top gradient: header area always dark ── */}
+      <div className="absolute inset-x-0 top-0 h-28 bg-[linear-gradient(to_bottom,rgba(15,23,42,0.90),transparent)]" />
 
-      {/* ── Bottom fade into next section ── */}
+      {/* ── Full-section bottom fade into next section ── */}
       <div className="absolute inset-x-0 bottom-0 h-28 bg-[linear-gradient(to_top,rgba(15,23,42,1),transparent)]" />
 
-      {/* ── Soft red glow near the figure's feet ── */}
-      <div className="pointer-events-none absolute bottom-0 right-[20%] h-72 w-72 rounded-full bg-red-700/25 blur-3xl" />
+      {/* ── Red ambient glow near feet of figure ── */}
+      <div className="pointer-events-none absolute bottom-0 right-[22%] h-64 w-64 rounded-full bg-red-700/20 blur-3xl" />
 
         <div className="relative mx-auto grid min-h-[700px] max-w-7xl place-items-center px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8 lg:py-24">
           <div className="grid w-full gap-9 sm:gap-10 lg:gap-12">
