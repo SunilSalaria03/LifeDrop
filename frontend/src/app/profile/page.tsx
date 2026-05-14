@@ -55,15 +55,15 @@ import { InfoItemProps } from "./profile-page.types";
 
 function InfoItem({ icon: Icon, label, value }: InfoItemProps) {
   return (
-    <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-neutral-100 bg-neutral-50/80 p-4 transition hover:border-red-100 hover:bg-red-50/40">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-red-700 shadow-sm shadow-red-950/5">
+    <div className="group flex min-w-0 items-start gap-3 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm shadow-neutral-950/5 transition hover:border-red-100 hover:bg-red-50/30">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-700 transition group-hover:bg-red-700 group-hover:text-white">
         <Icon className="h-5 w-5" />
       </span>
       <span className="min-w-0">
-        <span className="block text-xs font-semibold uppercase text-neutral-500">
+        <span className="block text-xs font-black uppercase tracking-normal text-neutral-500">
           {label}
         </span>
-        <span className="mt-1 block break-words text-sm font-semibold text-neutral-950">
+        <span className="mt-1 block break-words text-sm font-bold text-neutral-950">
           {value || "Not provided"}
         </span>
       </span>
@@ -745,14 +745,17 @@ export default function ProfilePage() {
   return (
     <ProtectedRoute>
       <Header />
-      <main className="min-h-screen bg-[linear-gradient(135deg,#f8fbff_0%,#ffffff_48%,#fff5f5_100%)] px-4 py-8 text-neutral-950 sm:px-6 sm:py-10 lg:px-8">
+      <main className="relative min-h-screen overflow-hidden bg-[linear-gradient(135deg,#f8fafc_0%,#ffffff_48%,#fff7f7_100%)] px-4 pb-10 pt-28 text-neutral-950 sm:px-6 sm:pb-12 sm:pt-32 lg:px-8">
+        <div className="pointer-events-none absolute -left-32 top-20 h-72 w-72 rounded-full bg-red-50 blur-3xl" />
+        <div className="pointer-events-none absolute -right-32 top-96 h-72 w-72 rounded-full bg-red-50/80 blur-3xl" />
         {isLoading || !user ? (
           <ProfileSkeleton />
         ) : (
-          <div className="mx-auto grid max-w-7xl gap-6">
-            <Card className="overflow-hidden rounded-2xl border-white/80 bg-white/95 shadow-xl shadow-red-950/10">
-              <CardContent className="grid gap-6 p-5 sm:grid-cols-[auto_1fr] sm:items-center sm:p-8">
-                <Avatar className="h-24 w-24 border-4 border-red-50 bg-red-50 shadow-lg shadow-red-950/10 sm:h-28 sm:w-28">
+          <div className="relative mx-auto grid max-w-7xl gap-6">
+            <Card className="overflow-hidden rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
+              <div className="h-1.5 bg-[linear-gradient(90deg,#dc2626,#fb7185,#fee2e2)]" />
+              <CardContent className="relative grid gap-6 p-5 sm:grid-cols-[auto_1fr] sm:items-center sm:p-8">
+                <Avatar className="h-24 w-24 border-4 border-white bg-red-50 shadow-sm shadow-neutral-950/10 ring-4 ring-red-50 sm:h-28 sm:w-28">
                   {user.profileImage ? (
                     <AvatarImage
                       alt={getDisplayName(user)}
@@ -769,17 +772,17 @@ export default function ProfilePage() {
                 </Avatar>
 
                 <div className="grid min-w-0 gap-4">
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="relative flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h1 className="break-words text-2xl font-bold tracking-normal text-neutral-950 sm:text-4xl">
+                        <h1 className="break-words text-3xl font-black tracking-normal text-neutral-950 sm:text-4xl">
                           {getDisplayName(user)}
                         </h1>
                         {user.phoneVerified ? (
                           <ShieldCheck className="h-6 w-6 text-red-700" />
                         ) : null}
                       </div>
-                      <p className="mt-2 flex items-start gap-2 text-sm font-medium text-neutral-600 sm:text-base">
+                      <p className="mt-2 flex items-start gap-2 text-sm font-semibold text-neutral-600 sm:text-base">
                         <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
                         <span className="break-words">
                           {[
@@ -793,7 +796,7 @@ export default function ProfilePage() {
 
                     <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
                       <Button
-                        className="h-11 rounded-full border-red-100 bg-white hover:bg-red-50"
+                        className="h-11 rounded-full border-red-100 bg-white px-5 font-bold shadow-sm hover:bg-red-50"
                         onClick={() =>
                           setIsEditingProfile((current) => !current)
                         }
@@ -810,8 +813,8 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-2">
-                    <Badge className="bg-red-50 px-3.5 py-1.5 text-red-700 ring-1 ring-red-100">
+                  <div className="relative flex flex-wrap gap-2">
+                    <Badge className="rounded-full bg-red-50 px-3.5 py-1.5 font-bold text-red-700 ring-1 ring-red-100">
                       {user.role === "donor" || donor
                         ? "Donor account"
                         : "User account"}
@@ -819,8 +822,8 @@ export default function ProfilePage() {
                     <Badge
                       className={
                         user.phoneVerified
-                          ? "gap-1.5 bg-green-50 px-3.5 py-1.5 text-green-700 ring-1 ring-green-100"
-                          : "gap-1.5 bg-amber-50 px-3.5 py-1.5 text-amber-700 ring-1 ring-amber-100"
+                          ? "gap-1.5 rounded-full bg-green-50 px-3.5 py-1.5 font-bold text-green-700 ring-1 ring-green-100"
+                          : "gap-1.5 rounded-full bg-amber-50 px-3.5 py-1.5 font-bold text-amber-700 ring-1 ring-amber-100"
                       }
                     >
                       <CheckCircle2 className="h-3.5 w-3.5" />
@@ -829,32 +832,33 @@ export default function ProfilePage() {
                         : "Verification pending"}
                     </Badge>
 
-                    <Badge className="rounded-full bg-red-50 text-red-700 hover:bg-red-100">
+                    <Badge className="rounded-full bg-red-50 px-3.5 py-1.5 font-bold text-red-700 hover:bg-red-100">
                       Profile {completionPercent}% Complete
                     </Badge>
 
                     {user.role === "donor" && donor?.bloodGroup && (
-                      <Badge className="rounded-full bg-red-100 text-red-700 hover:bg-red-100">
+                      <Badge className="rounded-full bg-red-100 px-3.5 py-1.5 font-bold text-red-700 hover:bg-red-100">
                         {donor?.bloodGroup}
                       </Badge>
                     )}
 
                     {user.role === "donor" && (
-                      <Badge className="rounded-full bg-green-100 text-green-700 hover:bg-green-100">
+                      <Badge className="rounded-full bg-green-100 px-3.5 py-1.5 font-bold text-green-700 hover:bg-green-100">
                         {donor ? "Active Donor" : "Not Donor"}
                       </Badge>
                     )}
 
-                    <Badge className="rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-100">
+                    <Badge className="rounded-full bg-neutral-100 px-3.5 py-1.5 font-bold text-neutral-700 hover:bg-neutral-100">
                       Member since {formatDate(user.createdAt)}
                     </Badge>
                   </div>
+
                 </div>
               </CardContent>
             </Card>
 
             {isEditingProfile ? (
-              <Card className="rounded-2xl border-red-100 bg-white/95 shadow-xl shadow-red-950/10">
+              <Card className="rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
                 <CardHeader className="p-5 sm:p-6">
                   <h2 className="text-xl font-bold text-neutral-950">
                     Update Profile
@@ -874,9 +878,9 @@ export default function ProfilePage() {
             ) : null}
 
             <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-              <Card className="rounded-2xl border-white/80 bg-white/95 shadow-lg shadow-red-950/5">
+              <Card className="rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
                 <CardHeader className="p-5 sm:p-6">
-                  <h2 className="text-xl font-bold text-neutral-950">
+                  <h2 className="text-xl font-black text-neutral-950">
                     Personal Information
                   </h2>
                 </CardHeader>
@@ -939,14 +943,15 @@ export default function ProfilePage() {
                 </CardContent>
               </Card>
 
-              <Card className="h-fit rounded-2xl border-white/80 bg-white/95 shadow-lg shadow-red-950/5">
+              <Card className="h-fit overflow-hidden rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
+                <div className="h-1.5 bg-[linear-gradient(90deg,#dc2626,#fb7185)]" />
                 <CardHeader className="p-5 sm:p-6">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h2 className="text-xl font-bold text-neutral-950">
+                      <h2 className="text-xl font-black text-neutral-950">
                         Donor Information
                       </h2>
-                      <p className="mt-1 text-sm leading-6 text-neutral-600">
+                      <p className="mt-1 text-sm font-medium leading-6 text-neutral-600">
                         {donor
                           ? "Manage your donor availability and donation details."
                           : "You can help nearby patients find blood faster."}
@@ -1021,7 +1026,7 @@ export default function ProfilePage() {
             </div>
 
             {donor && isEditingDonor ? (
-              <Card className="rounded-2xl border-red-100 bg-white/95 shadow-xl shadow-red-950/10">
+              <Card className="rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
                 <CardHeader className="p-5 sm:p-6">
                   <h2 className="text-xl font-bold text-neutral-950">
                     Update Donor Details

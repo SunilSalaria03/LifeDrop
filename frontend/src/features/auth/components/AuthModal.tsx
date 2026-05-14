@@ -307,15 +307,6 @@ export function AuthModal({
             </>
           ) : (
             <form className="grid gap-4" onSubmit={verifyFormik.handleSubmit}>
-              <button
-                className="inline-flex w-fit items-center gap-2 rounded-full border border-red-100 bg-red-50 px-3 py-2 text-sm font-bold text-red-700 transition hover:bg-red-100"
-                onClick={handleBackToLogin}
-                type="button"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back to login
-              </button>
-
               <div className="grid gap-2 rounded-3xl border border-red-100 bg-red-50/50 p-4">
                 <label className="text-sm font-black text-neutral-900" htmlFor="auth-otp">
                   OTP code
@@ -375,6 +366,15 @@ export function AuthModal({
                   Could not resend OTP yet. Please wait and try again.
                 </p>
               ) : null}
+
+              <button
+                className="mx-auto inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-black text-red-700 transition hover:bg-red-50 hover:text-red-800"
+                onClick={handleBackToLogin}
+                type="button"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to login
+              </button>
             </form>
           )}
 
