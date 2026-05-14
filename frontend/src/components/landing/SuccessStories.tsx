@@ -32,14 +32,14 @@ export function SuccessStories() {
   }, [carouselApi]);
 
   return (
-    <section className="bg-[linear-gradient(135deg,#ffffff_0%,#fff4f4_46%,#f7fbff_100%)] px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
+    <section className="bg-white px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
       <div className="mx-auto grid max-w-7xl gap-8 lg:gap-10">
         <div className="mx-auto grid max-w-2xl gap-3 text-center">
-          <p className="text-sm font-semibold uppercase text-red-700">
+          <p className="text-sm font-semibold uppercase tracking-wider text-red-700">
             Success stories
           </p>
 
-          <h2 className="text-3xl font-bold tracking-normal text-neutral-950 sm:text-4xl">
+          <h2 className="text-3xl font-bold tracking-normal text-slate-900 sm:text-4xl">
             Trusted by people who act fast
           </h2>
 
@@ -63,7 +63,7 @@ export function SuccessStories() {
                 key={story.name}
                 className="basis-full pl-4 sm:basis-1/2 lg:basis-1/3"
               >
-                <Card className="h-full overflow-hidden rounded-2xl border border-white/80 bg-white/95 shadow-lg shadow-red-950/5 transition duration-200 hover:-translate-y-1 hover:border-red-100 hover:shadow-xl hover:shadow-red-950/10">
+                <Card className="h-full overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-lg shadow-red-950/5 transition duration-200 hover:-translate-y-1 hover:border-red-200 hover:shadow-xl hover:shadow-red-950/10">
                   <CardContent className="grid h-full gap-5 p-5 sm:p-6">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
@@ -115,8 +115,8 @@ export function SuccessStories() {
             ))}
           </CarouselContent>
 
-          <CarouselPrevious className="-left-4 hidden h-10 w-10 border-red-100 bg-white text-red-700 shadow-lg shadow-red-950/5 hover:bg-red-50 sm:flex" />
-          <CarouselNext className="-right-4 hidden h-10 w-10 border-red-100 bg-white text-red-700 shadow-lg shadow-red-950/5 hover:bg-red-50 sm:flex" />
+          <CarouselPrevious className="-left-4 hidden h-10 w-10 border-red-200 bg-white text-red-700 shadow-lg shadow-red-950/10 hover:bg-red-50 hover:text-red-800 sm:flex" />
+          <CarouselNext className="-right-4 hidden h-10 w-10 border-red-200 bg-white text-red-700 shadow-lg shadow-red-950/10 hover:bg-red-50 hover:text-red-800 sm:flex" />
         </Carousel>
       </div>
     </section>

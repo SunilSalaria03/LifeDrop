@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { HeartPulse } from "lucide-react";
 import { searchDonors } from "@/features/donors/api/donors.api";
 import { DonorSearchFilters } from "@/features/donors/types/donor.types";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import bannerImage from "@/assets/images/banner-image.webp";
 import { initialDonorSearchFilters } from "./landing.constants";
 import { DonorList } from "./DonorList";
 import { SearchBar } from "./SearchBar";
@@ -82,27 +84,42 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-[linear-gradient(135deg,#f7fbff_0%,#ffffff_42%,#fff1f1_100%)]">
-      <div className="absolute inset-x-0 top-0 h-28 bg-[linear-gradient(180deg,#ffffff_0%,rgba(255,255,255,0)_100%)]" />
-      <div className="relative mx-auto grid min-h-[calc(100svh-7rem)] max-w-7xl place-items-center px-4 py-14 text-center sm:min-h-[700px] sm:px-6 sm:py-16 lg:px-8 lg:py-24">
+    <section className="relative overflow-hidden bg-slate-900">
+      {/* Banner image */}
+      <Image
+        src={bannerImage}
+        alt=""
+        fill
+        priority
+        className="object-cover object-center opacity-[0.13] mix-blend-luminosity"
+      />
+      {/* Dark gradient overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(15,23,42,0.97)_0%,rgba(15,23,42,0.88)_55%,rgba(127,29,29,0.50)_100%)]" />
+      {/* Decorative glows */}
+      <div className="pointer-events-none absolute -right-48 -top-48 h-144 w-xl rounded-full bg-red-700/15 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-32 -left-32 h-80 w-80 rounded-full bg-red-900/20 blur-3xl" />
+
+      <div className="relative mx-auto grid min-h-[calc(100svh-4rem)] max-w-7xl place-items-center px-4 py-14 text-center sm:min-h-[700px] sm:px-6 sm:py-16 lg:px-8 lg:py-24">
         <div className="grid w-full gap-9 sm:gap-10 lg:gap-12">
           <div className="mx-auto grid max-w-4xl gap-5 sm:gap-6">
-            <p className="mx-auto inline-flex max-w-full items-center gap-2 rounded-full border border-red-100 bg-white/95 px-4 py-2 text-sm font-semibold text-red-700 shadow-lg shadow-red-950/5">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-700 ring-1 ring-red-100">
+            <p className="mx-auto inline-flex max-w-full items-center gap-2 rounded-full border border-red-500/40 bg-red-700/20 px-4 py-2 text-sm font-semibold text-red-300 backdrop-blur-sm">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-lg shadow-red-700/50">
                 <HeartPulse className="h-4 w-4" />
               </span>
               <span className="truncate">Emergency blood help, closer to home</span>
             </p>
-            <h1 className="text-balance text-4xl font-bold leading-tight tracking-normal text-neutral-950 sm:text-5xl md:text-6xl lg:text-7xl">
-              Find Blood Donors Near You Instantly
+            <h1 className="text-balance text-4xl font-bold leading-tight tracking-normal text-white sm:text-5xl md:text-6xl lg:text-7xl">
+              Find Blood Donors{" "}
+              <span className="text-red-400">Near You</span>{" "}
+              Instantly
             </h1>
-            <p className="mx-auto max-w-2xl text-base font-medium leading-7 text-neutral-600 sm:text-xl sm:leading-8">
+            <p className="mx-auto max-w-2xl text-base font-medium leading-7 text-slate-300 sm:text-xl sm:leading-8">
               Search by blood group and location to connect with nearby donors
               in seconds.
             </p>
           </div>
 
-          <div className="mx-auto grid w-full max-w-6xl gap-4 rounded-[2rem] border border-white/80 bg-white/55 p-3 shadow-2xl shadow-red-950/10 backdrop-blur sm:p-4">
+          <div className="mx-auto grid w-full max-w-6xl gap-4 rounded-4xl border border-white/10 bg-white/5 p-3 shadow-2xl shadow-black/40 backdrop-blur-md sm:p-4">
             <SearchBar
               isSearching={donorQuery.isFetching || isSearchDebouncing}
               onChange={updateFilters}
@@ -111,7 +128,7 @@ export function HeroSection() {
             />
 
             {validationError ? (
-              <p className="rounded-2xl border border-red-100 bg-red-50/95 px-4 py-3 text-center text-sm font-semibold text-red-700 shadow-sm shadow-red-950/5 sm:text-left">
+              <p className="rounded-2xl border border-red-500/30 bg-red-950/60 px-4 py-3 text-center text-sm font-semibold text-red-300 shadow-sm sm:text-left">
                 {validationError}
               </p>
             ) : null}

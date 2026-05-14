@@ -68,14 +68,14 @@ export function DonorList({ donors, isLoading, hasSearched, errorMessage }: Dono
     <div className="mx-auto grid w-full max-w-6xl gap-5 text-left">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-normal text-red-700">
+          <p className="text-sm font-semibold uppercase tracking-normal text-red-400">
             Search results
           </p>
-          <h2 className="mt-1 text-2xl font-bold text-neutral-950">
+          <h2 className="mt-1 text-2xl font-bold text-white">
             Available Donors
           </h2>
         </div>
-        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-red-100 bg-white/90 px-3 py-1.5 text-sm font-semibold text-red-700 shadow-sm shadow-red-950/5">
+        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-red-700/30 bg-red-700/20 px-3 py-1.5 text-sm font-semibold text-red-300 shadow-sm shadow-red-950/20 backdrop-blur-sm">
           <UsersRound className="h-4 w-4" />
           {donorCountLabel}
         </span>
@@ -91,14 +91,14 @@ export function DonorList({ donors, isLoading, hasSearched, errorMessage }: Dono
           ))}
         </div>
       ) : errorMessage ? (
-        <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-center shadow-sm">
-          <h3 className="text-lg font-bold text-red-800">API failed</h3>
-          <p className="mt-2 text-sm font-medium text-red-700">{errorMessage}</p>
+        <div className="rounded-2xl border border-red-500/30 bg-red-950/60 p-6 text-center shadow-sm backdrop-blur-sm">
+          <h3 className="text-lg font-bold text-red-200">API failed</h3>
+          <p className="mt-2 text-sm font-medium text-red-300">{errorMessage}</p>
         </div>
       ) : donors.length === 0 ? (
-        <div className="rounded-2xl border border-blue-100 bg-white/85 p-8 text-center shadow-sm shadow-blue-950/5">
-          <h3 className="text-lg font-bold text-neutral-950">No donors found</h3>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-neutral-600">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center shadow-sm backdrop-blur-sm">
+          <h3 className="text-lg font-bold text-white">No donors found</h3>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-300">
             Try another blood group, city, or nearby district to widen your search.
           </p>
         </div>
