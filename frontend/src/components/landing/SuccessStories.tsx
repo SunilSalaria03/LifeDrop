@@ -35,7 +35,7 @@ export function SuccessStories() {
     <section className="bg-white px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
       <div className="mx-auto grid max-w-7xl gap-8 lg:gap-10">
         <div className="mx-auto grid max-w-2xl gap-3 text-center">
-          <p className="text-sm font-semibold uppercase tracking-wider text-red-700">
+          <p className="mx-auto w-fit rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-black uppercase tracking-wider text-red-700 shadow-sm">
             Success stories
           </p>
 
