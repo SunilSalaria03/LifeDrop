@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Droplet, Loader2, LogOut, Settings } from "lucide-react";
+import { Droplet, HeartHandshake, Loader2, LogOut, Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LocationSelector } from "@/components/location/LocationSelector";
@@ -240,7 +240,10 @@ export function Header() {
                   asChild
                   className="h-11 flex-1 rounded-full bg-red-700 px-5 text-white shadow-sm shadow-red-700/20 hover:bg-red-800 sm:flex-none"
                 >
-                  <Link href="/become-donor">Become a Donor</Link>
+                  <Link href="/become-donor">
+                    <HeartHandshake className="h-4 w-4" />
+                    Become a Donor
+                  </Link>
                 </Button>
               ) : (
                 <Button
@@ -248,6 +251,7 @@ export function Header() {
                   onClick={handleBecomeDonor}
                   type="button"
                 >
+                  <HeartHandshake className="h-4 w-4" />
                   Become a Donor
                 </Button>
               )
