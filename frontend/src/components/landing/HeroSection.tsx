@@ -7,7 +7,7 @@ import { HeartPulse } from "lucide-react";
 import { searchDonors } from "@/features/donors/api/donors.api";
 import { DonorSearchFilters } from "@/features/donors/types/donor.types";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import bannerImage from "@/assets/images/banner-image.webp";
+import bannerImage from "@/assets/images/banner.png";
 import { initialDonorSearchFilters } from "./landing.constants";
 import { DonorList } from "./DonorList";
 import { SearchBar } from "./SearchBar";
@@ -87,25 +87,36 @@ export function HeroSection() {
     <>
       {/* ── Dark hero: banner image + headline + search ── */}
       <section className="relative min-h-[700px] overflow-hidden bg-slate-900">
-      {/* Banner image — saturated & brightened so the blood-donation scene pops */}
-      <Image
-        src={bannerImage}
-        alt=""
-        fill
-        priority
-        className="object-cover object-top-right opacity-70 saturate-150 brightness-75"
-      />
-      {/* Layer 1 — hard dark panel on the left so headline text is always readable */}
-      <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(15,23,42,1)_0%,rgba(15,23,42,0.98)_28%,rgba(15,23,42,0.82)_48%,rgba(15,23,42,0.35)_68%,transparent_100%)]" />
-      {/* Layer 2 — crimson tint on the right to pull the image into brand palette */}
-      <div className="absolute inset-0 bg-[linear-gradient(100deg,transparent_55%,rgba(127,29,29,0.50)_100%)]" />
-      {/* Layer 3 — bottom vignette for a clean section boundary */}
-      <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(to_bottom,transparent,rgba(15,23,42,0.90))]" />
-      {/* Layer 4 — top vignette so header border blends in */}
-      <div className="absolute inset-x-0 top-0 h-24 bg-[linear-gradient(to_bottom,rgba(15,23,42,0.60),transparent)]" />
-      {/* Decorative red ambient glows */}
-      <div className="pointer-events-none absolute -right-40 top-0 h-128 w-lg rounded-full bg-red-700/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-red-900/25 blur-3xl" />
+      {/* ── Illustration panel: right 52%, desktop only ──
+           The PNG has a white background so we contain it in its own div
+           and use edge gradients to blend it into the dark section.        ── */}
+      <div className="absolute inset-y-0 right-0 hidden w-[52%] lg:block">
+        <Image
+          src={bannerImage}
+          alt="Blood donor hero"
+          fill
+          priority
+          className="object-contain object-bottom"
+        />
+        {/* Left edge: dark → transparent so image appears to emerge from shadow */}
+        <div className="absolute inset-y-0 left-0 w-52 bg-[linear-gradient(to_right,#0f172a,transparent)]" />
+        {/* Top edge fade */}
+        <div className="absolute inset-x-0 top-0 h-24 bg-[linear-gradient(to_bottom,#0f172a,transparent)]" />
+        {/* Bottom edge fade */}
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(to_top,#0f172a,transparent)]" />
+      </div>
+
+      {/* ── Main overlay: left side fully dark for text, fades before image area ── */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,1)_0%,rgba(15,23,42,1)_42%,rgba(15,23,42,0.55)_57%,transparent_74%)]" />
+
+      {/* ── Top bar: fixed header always readable ── */}
+      <div className="absolute inset-x-0 top-0 h-24 bg-[linear-gradient(to_bottom,rgba(15,23,42,0.85),transparent)]" />
+
+      {/* ── Bottom fade into next section ── */}
+      <div className="absolute inset-x-0 bottom-0 h-28 bg-[linear-gradient(to_top,rgba(15,23,42,1),transparent)]" />
+
+      {/* ── Soft red glow near the figure's feet ── */}
+      <div className="pointer-events-none absolute bottom-0 right-[20%] h-72 w-72 rounded-full bg-red-700/25 blur-3xl" />
 
         <div className="relative mx-auto grid min-h-[700px] max-w-7xl place-items-center px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8 lg:py-24">
           <div className="grid w-full gap-9 sm:gap-10 lg:gap-12">
