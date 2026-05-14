@@ -137,7 +137,7 @@ export function StatsSection() {
         <div className="relative mx-auto grid w-full max-w-xl grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-3">
           <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-px w-24 -translate-x-1/2 bg-white/20 sm:block" />
           <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-24 w-px -translate-y-1/2 bg-white/20 sm:block" />
-          <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 hidden h-[4.6rem] w-[4.6rem] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[1.35rem] border border-white/20 bg-red-950/30 shadow-[0_18px_34px_rgba(69,10,10,0.28)] backdrop-blur-sm sm:grid">
+          <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 hidden h-[4.6rem] w-[4.6rem] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[1.35rem] border border-red-400/30 bg-[#dc2626] shadow-[0_18px_34px_rgba(69,10,10,0.24)] sm:grid">
             <div className="grid grid-cols-2 gap-1.5">
               {[
                 ArrowDownRight,
