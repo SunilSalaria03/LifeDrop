@@ -141,7 +141,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-red-100/80 bg-white/90 shadow-sm shadow-red-950/5 backdrop-blur-xl">
+      <header className="fixed top-0 z-40 w-full border-b border-red-100/80 bg-white/90 shadow-sm shadow-red-950/5 backdrop-blur-xl">
         <div className="mx-auto flex min-h-16 max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:min-h-18 sm:flex-nowrap sm:px-6 lg:px-8">
           <Link
             aria-label="LifeDrop home"

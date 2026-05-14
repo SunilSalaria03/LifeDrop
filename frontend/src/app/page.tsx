@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      <main className="bg-slate-900 text-neutral-950">
+      <main className="bg-slate-900 pt-16 text-neutral-950 sm:pt-18">
         <HeroSection />
         {/* <ActionCards /> */}
         <StatsSection />

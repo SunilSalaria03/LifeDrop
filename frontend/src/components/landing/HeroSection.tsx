@@ -87,25 +87,27 @@ export function HeroSection() {
     <>
       {/* ── Dark hero: banner image + headline + search ── */}
       <section className="relative overflow-hidden bg-slate-900">
-      {/* Banner image — positioned to the right so it shows clearly alongside text */}
+      {/* Banner image — saturated & brightened so the blood-donation scene pops */}
       <Image
         src={bannerImage}
         alt=""
         fill
         priority
-        className="object-cover object-right opacity-50"
+        className="object-cover object-top-right opacity-70 saturate-150 brightness-75"
       />
-      {/* Primary overlay: heavy dark on the left for text, fades out toward right where image shines */}
-      <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(15,23,42,1)_0%,rgba(15,23,42,0.96)_30%,rgba(15,23,42,0.80)_52%,rgba(15,23,42,0.45)_70%,rgba(100,10,10,0.25)_100%)]" />
-      {/* Red colour wash on the right to blend image into brand palette */}
-      <div className="absolute inset-0 bg-[linear-gradient(105deg,transparent_50%,rgba(127,29,29,0.35)_100%)]" />
-      {/* Bottom fade so the section edge is clean */}
-      <div className="absolute inset-x-0 bottom-0 h-32 bg-[linear-gradient(to_bottom,transparent,rgba(15,23,42,0.85))]" />
-      {/* Decorative glows */}
-      <div className="pointer-events-none absolute -right-48 -top-48 h-144 w-xl rounded-full bg-red-700/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-32 -left-32 h-80 w-80 rounded-full bg-red-900/25 blur-3xl" />
+      {/* Layer 1 — hard dark panel on the left so headline text is always readable */}
+      <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(15,23,42,1)_0%,rgba(15,23,42,0.98)_28%,rgba(15,23,42,0.82)_48%,rgba(15,23,42,0.35)_68%,transparent_100%)]" />
+      {/* Layer 2 — crimson tint on the right to pull the image into brand palette */}
+      <div className="absolute inset-0 bg-[linear-gradient(100deg,transparent_55%,rgba(127,29,29,0.50)_100%)]" />
+      {/* Layer 3 — bottom vignette for a clean section boundary */}
+      <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(to_bottom,transparent,rgba(15,23,42,0.90))]" />
+      {/* Layer 4 — top vignette so header border blends in */}
+      <div className="absolute inset-x-0 top-0 h-24 bg-[linear-gradient(to_bottom,rgba(15,23,42,0.60),transparent)]" />
+      {/* Decorative red ambient glows */}
+      <div className="pointer-events-none absolute -right-40 top-0 h-128 w-lg rounded-full bg-red-700/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-red-900/25 blur-3xl" />
 
-        <div className="relative mx-auto grid min-h-[calc(100svh-4rem)] max-w-7xl place-items-center px-4 py-14 text-center sm:min-h-[700px] sm:px-6 sm:py-16 lg:px-8 lg:py-24">
+        <div className="relative mx-auto grid min-h-screen max-w-7xl place-items-center px-4 py-20 text-center sm:px-6 sm:py-24 lg:px-8 lg:py-28">
           <div className="grid w-full gap-9 sm:gap-10 lg:gap-12">
             <div className="mx-auto grid max-w-4xl gap-5 sm:gap-6">
               <p className="mx-auto inline-flex max-w-full items-center gap-2 rounded-full border border-red-500/40 bg-red-700/20 px-4 py-2 text-sm font-semibold text-red-300 backdrop-blur-sm">
