@@ -4,6 +4,7 @@ import { HeartHandshake } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Card, CardContent } from '@/components/ui/card';
+import { Header } from '@/components/layout/Header';
 import { AuthModal } from '@/features/auth/components/AuthModal';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { BecomeDonorForm } from '@/features/donors/components/BecomeDonorForm';
@@ -21,7 +22,8 @@ export default function BecomeDonorPage() {
 
   return (
     <ProtectedRoute>
-      <main className="min-h-screen bg-[linear-gradient(135deg,#f8fafc_0%,#ffffff_48%,#fff7f7_100%)] px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+      <Header />
+      <main className="min-h-screen bg-[linear-gradient(135deg,#f8fafc_0%,#ffffff_48%,#fff7f7_100%)] px-4 pb-8 pt-28 sm:px-6 sm:pb-10 sm:pt-32 lg:px-8">
         <Card className="mx-auto w-full max-w-5xl rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
           <CardContent className="grid gap-6 p-5 sm:gap-7 sm:p-8">
             <div className="grid gap-4 text-center">
