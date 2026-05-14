@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Droplet, HeartHandshake, Loader2, LogOut, Settings } from "lucide-react";
+import {
+  Droplet,
+  HeartHandshake,
+  Loader2,
+  LogIn,
+  LogOut,
+  Settings,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LocationSelector } from "@/components/location/LocationSelector";
@@ -225,11 +232,12 @@ export function Header() {
             ) : (
               <>
                 <Button
-                  className="h-11 flex-1 rounded-full px-5 text-neutral-700 hover:bg-red-50 hover:text-red-700 sm:flex-none"
+                  className="h-11 flex-1 rounded-full border border-solid border-slate-300 bg-transparent px-5 font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 sm:flex-none"
                   onClick={openAuthModal}
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                 >
+                  <LogIn className="h-4 w-4" />
                   Login
                 </Button>
               </>
