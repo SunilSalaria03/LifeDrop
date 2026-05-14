@@ -86,7 +86,7 @@ export function HeroSection() {
   return (
     <>
       {/* ── Dark hero: banner image + headline + search ── */}
-      <section className="relative overflow-hidden bg-slate-900">
+      <section className="relative min-h-[700px] overflow-hidden bg-slate-900">
       {/* Banner image — saturated & brightened so the blood-donation scene pops */}
       <Image
         src={bannerImage}
@@ -107,7 +107,7 @@ export function HeroSection() {
       <div className="pointer-events-none absolute -right-40 top-0 h-128 w-lg rounded-full bg-red-700/20 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-red-900/25 blur-3xl" />
 
-        <div className="relative mx-auto grid min-h-screen max-w-7xl place-items-center px-4 py-20 text-center sm:px-6 sm:py-24 lg:px-8 lg:py-28">
+        <div className="relative mx-auto grid min-h-[700px] max-w-7xl place-items-center px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8 lg:py-24">
           <div className="grid w-full gap-9 sm:gap-10 lg:gap-12">
             <div className="mx-auto grid max-w-4xl gap-5 sm:gap-6">
               <p className="mx-auto inline-flex max-w-full items-center gap-2 rounded-full border border-red-500/40 bg-red-700/20 px-4 py-2 text-sm font-semibold text-red-300 backdrop-blur-sm">
