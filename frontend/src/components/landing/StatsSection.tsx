@@ -21,6 +21,7 @@ function formatStatValue(value: number) {
 }
 
 const targetValues = landingStats.map((stat) => getStatNumber(stat.value));
+const impactHighlights = ['Live community growth', 'Urgent-ready network'];
 
 export function StatsSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -98,17 +99,18 @@ export function StatsSection() {
 
   return (
     <section
-      className="relative overflow-hidden bg-[linear-gradient(135deg,#fff1f2_0%,#fee2e2_42%,#f8fafc_100%)] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24"
+      className="relative overflow-hidden bg-[linear-gradient(135deg,#fff7f7_0%,#fee2e2_48%,#fff_100%)] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24"
       id="lifedrop-impact"
       ref={sectionRef}
     >
       <div className="pointer-events-none absolute -left-12 -top-20 h-44 w-44 rounded-full border border-red-900/5" />
       <div className="pointer-events-none absolute -left-8 -top-14 h-32 w-32 rounded-full border border-red-900/5" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(255,255,255,0.9),transparent_28%),radial-gradient(circle_at_86%_70%,rgba(185,28,28,0.1),transparent_32%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(255,255,255,0.95),transparent_30%),radial-gradient(circle_at_86%_70%,rgba(185,28,28,0.12),transparent_34%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(127,29,29,0.05)_0_1px,transparent_1px_36px)] opacity-40" />
 
       <div className="relative mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-20">
-        <div className="mx-auto grid max-w-md gap-5 text-center lg:mx-0 lg:text-left">
-          <p className="mx-auto w-fit rounded-full border border-red-200 bg-white/70 px-4 py-2 text-sm font-black uppercase tracking-wider text-red-700 shadow-sm lg:mx-0">
+        <div className="mx-auto grid max-w-md gap-6 text-center lg:mx-0 lg:text-left">
+          <p className="mx-auto w-fit rounded-full border border-red-200 bg-white/80 px-4 py-2 text-sm font-black uppercase tracking-wider text-red-700 shadow-[0_10px_24px_rgba(127,29,29,0.08)] backdrop-blur-sm lg:mx-0">
             LifeDrop impact
           </p>
           <div className="grid gap-4">
@@ -120,10 +122,22 @@ export function StatsSection() {
               easier to find when people need it most.
             </p>
           </div>
+          <div className="flex flex-wrap justify-center gap-2 lg:justify-start">
+            {impactHighlights.map((highlight) => (
+              <span
+                className="rounded-full border border-red-100 bg-white/75 px-3 py-2 text-xs font-black uppercase tracking-normal text-red-800 shadow-sm"
+                key={highlight}
+              >
+                {highlight}
+              </span>
+            ))}
+          </div>
         </div>
 
         <div className="relative mx-auto grid w-full max-w-xl grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-3">
-          <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 hidden h-[4.6rem] w-[4.6rem] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[1.35rem] bg-[#fee2e2] sm:grid">
+          <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-px w-24 -translate-x-1/2 bg-red-200 sm:block" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-24 w-px -translate-y-1/2 bg-red-200 sm:block" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 hidden h-[4.6rem] w-[4.6rem] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[1.35rem] border border-white bg-[#fee2e2] shadow-[0_18px_34px_rgba(127,29,29,0.12)] sm:grid">
             <div className="grid grid-cols-2 gap-1.5">
               {[
                 ArrowDownRight,
@@ -142,21 +156,28 @@ export function StatsSection() {
           </div>
 
           {landingStats.map((stat, index) => {
+            const Icon = stat.icon;
             const countValue = animatedValues[index] ?? 0;
 
             return (
               <Card
-                className="group min-h-32 overflow-hidden rounded-[1.4rem] border border-red-100 bg-white shadow-[0_22px_45px_rgba(127,29,29,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_55px_rgba(127,29,29,0.16)] sm:min-h-48"
+                className="group min-h-32 overflow-hidden rounded-[1.4rem] border border-red-100/80 bg-white/95 shadow-[0_22px_45px_rgba(127,29,29,0.1)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-red-200 hover:shadow-[0_26px_55px_rgba(127,29,29,0.16)] sm:min-h-48"
                 key={stat.label}
               >
-                <CardContent className="flex h-full min-h-32 flex-col items-center justify-center gap-3 p-6 text-center sm:min-h-48 sm:p-8">
-                  <p className="text-4xl font-black leading-none tracking-normal text-red-700 sm:text-5xl">
-                    {formatStatValue(countValue)}
-                    <span className="text-2xl align-top font-black">+</span>
-                  </p>
-                  <p className="text-[0.65rem] font-black uppercase tracking-normal text-red-950/70 sm:text-xs">
-                    {stat.label}
-                  </p>
+                <CardContent className="relative flex h-full min-h-32 flex-col items-center justify-center gap-3 p-6 text-center sm:min-h-48 sm:p-8">
+                  <div className="absolute left-5 top-5 flex h-10 w-10 items-center justify-center rounded-2xl bg-red-50 text-red-600 opacity-80 ring-1 ring-red-100 transition duration-300 group-hover:bg-red-600 group-hover:text-white">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-red-50 opacity-70 transition duration-300 group-hover:scale-110 group-hover:bg-red-100" />
+                  <div className="relative grid gap-3">
+                    <p className="text-4xl font-black leading-none tracking-normal text-red-700 sm:text-5xl">
+                      {formatStatValue(countValue)}
+                      <span className="text-2xl align-top font-black">+</span>
+                    </p>
+                    <p className="text-[0.65rem] font-black uppercase tracking-normal text-red-950/70 sm:text-xs">
+                      {stat.label}
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             );
