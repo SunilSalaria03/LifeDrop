@@ -99,25 +99,25 @@ export function StatsSection() {
 
   return (
     <section
-      className="relative overflow-hidden bg-[linear-gradient(135deg,#fff7f7_0%,#fee2e2_48%,#fff_100%)] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24"
+      className="relative overflow-hidden bg-[linear-gradient(135deg,#7f1d1d_0%,#dc2626_48%,#881337_100%)] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24"
       id="lifedrop-impact"
       ref={sectionRef}
     >
-      <div className="pointer-events-none absolute -left-12 -top-20 h-44 w-44 rounded-full border border-red-900/5" />
-      <div className="pointer-events-none absolute -left-8 -top-14 h-32 w-32 rounded-full border border-red-900/5" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(255,255,255,0.95),transparent_30%),radial-gradient(circle_at_86%_70%,rgba(185,28,28,0.12),transparent_34%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(127,29,29,0.05)_0_1px,transparent_1px_36px)] opacity-40" />
+      <div className="pointer-events-none absolute -left-12 -top-20 h-44 w-44 rounded-full border border-white/10" />
+      <div className="pointer-events-none absolute -left-8 -top-14 h-32 w-32 rounded-full border border-white/10" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(255,255,255,0.14),transparent_30%),radial-gradient(circle_at_86%_70%,rgba(69,10,10,0.38),transparent_34%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.08)_0_1px,transparent_1px_36px)] opacity-25" />
 
       <div className="relative mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-20">
         <div className="mx-auto grid max-w-md gap-6 text-center lg:mx-0 lg:text-left">
-          <p className="mx-auto w-fit rounded-full border border-red-200 bg-white/80 px-4 py-2 text-sm font-black uppercase tracking-wider text-red-700 shadow-[0_10px_24px_rgba(127,29,29,0.08)] backdrop-blur-sm lg:mx-0">
+          <p className="mx-auto w-fit rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-black uppercase tracking-wider text-red-50 shadow-[0_10px_24px_rgba(69,10,10,0.18)] backdrop-blur-sm lg:mx-0">
             LifeDrop impact
           </p>
           <div className="grid gap-4">
-            <h2 className="text-3xl font-black leading-tight tracking-normal text-red-950 sm:text-4xl">
+            <h2 className="text-3xl font-black leading-tight tracking-normal text-white sm:text-4xl">
               Our Success Is Defined By The Impact We Create.
             </h2>
-            <p className="text-sm font-semibold leading-6 text-red-950/70">
+            <p className="text-sm font-semibold leading-6 text-red-50/85">
               Every request, donor, and city covered helps LifeDrop make blood support
               easier to find when people need it most.
             </p>
@@ -125,7 +125,7 @@ export function StatsSection() {
           <div className="flex flex-wrap justify-center gap-2 lg:justify-start">
             {impactHighlights.map((highlight) => (
               <span
-                className="rounded-full border border-red-100 bg-white/75 px-3 py-2 text-xs font-black uppercase tracking-normal text-red-800 shadow-sm"
+                className="rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-normal text-red-50 shadow-sm backdrop-blur-sm"
                 key={highlight}
               >
                 {highlight}
@@ -135,9 +135,9 @@ export function StatsSection() {
         </div>
 
         <div className="relative mx-auto grid w-full max-w-xl grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-3">
-          <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-px w-24 -translate-x-1/2 bg-red-200 sm:block" />
-          <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-24 w-px -translate-y-1/2 bg-red-200 sm:block" />
-          <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 hidden h-[4.6rem] w-[4.6rem] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[1.35rem] border border-white bg-[#fee2e2] shadow-[0_18px_34px_rgba(127,29,29,0.12)] sm:grid">
+          <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-px w-24 -translate-x-1/2 bg-white/20 sm:block" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-24 w-px -translate-y-1/2 bg-white/20 sm:block" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 hidden h-[4.6rem] w-[4.6rem] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[1.35rem] border border-white/20 bg-red-950/30 shadow-[0_18px_34px_rgba(69,10,10,0.28)] backdrop-blur-sm sm:grid">
             <div className="grid grid-cols-2 gap-1.5">
               {[
                 ArrowDownRight,
@@ -146,7 +146,7 @@ export function StatsSection() {
                 ArrowUpLeft,
               ].map((ConnectorIcon, connectorIndex) => (
                 <span
-                  className="flex h-7 w-7 items-center justify-center rounded-full border border-red-100 bg-white text-red-700/30 shadow-[0_6px_14px_rgba(127,29,29,0.08)]"
+                  className="flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white text-red-700/45 shadow-[0_6px_14px_rgba(69,10,10,0.16)]"
                   key={connectorIndex}
                 >
                   <ConnectorIcon className="h-3.5 w-3.5" />
