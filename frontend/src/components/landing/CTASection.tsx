@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Clock3, Droplet, HeartHandshake, ShieldCheck, UsersRound } from 'lucide-react';
+import { Clock3, Droplet, HeartHandshake, HeartPulse, ShieldCheck, UsersRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { userStorage } from '@/lib/auth/user-storage';
 
@@ -59,7 +59,10 @@ export function CTASection() {
 
           <div className="relative grid gap-10 lg:grid-cols-[1fr_0.78fr] lg:items-center">
             <div className="mx-auto grid max-w-2xl gap-6 text-center lg:mx-0 lg:text-left">
-              <p className="mx-auto w-fit rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-black uppercase tracking-wider text-red-50 shadow-sm backdrop-blur-sm lg:mx-0">
+              <p className="mx-auto inline-flex w-fit max-w-full items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-2 text-[14px] font-semibold capitalize leading-snug tracking-[0.12em] text-red-50 shadow-sm backdrop-blur-sm sm:px-4 sm:tracking-[0.14em] lg:mx-0">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-lg shadow-red-700/50">
+                  <HeartPulse className="h-4 w-4" aria-hidden />
+                </span>
                 Join the network
               </p>
               <div className="grid gap-4">

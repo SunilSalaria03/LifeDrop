@@ -1,3 +1,4 @@
+import { HeartPulse } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { landingSteps } from "./landing.constants";
 
@@ -10,7 +11,10 @@ export function HowItWorks() {
 
       <div className="relative mx-auto grid max-w-7xl gap-8 lg:gap-10">
         <div className="mx-auto grid max-w-2xl gap-3 text-center">
-          <p className="mx-auto w-fit rounded-full border border-red-500/25 bg-red-500/10 px-4 py-2 text-sm font-bold uppercase tracking-wider text-red-300">
+          <p className="mx-auto inline-flex w-fit max-w-full items-center gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-3 py-2 text-[14px] font-semibold capitalize leading-snug tracking-[0.12em] text-red-300 sm:px-4 sm:tracking-[0.14em]">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-lg shadow-red-700/50">
+              <HeartPulse className="h-4 w-4" aria-hidden />
+            </span>
             How it works
           </p>
           <h2 className="text-3xl font-black tracking-normal text-white sm:text-4xl">

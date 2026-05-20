@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Quote, Star } from "lucide-react";
+import { HeartPulse, Quote, Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,7 +35,10 @@ export function SuccessStories() {
     <section className="bg-white px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
       <div className="mx-auto grid max-w-7xl gap-8 lg:gap-10">
         <div className="mx-auto grid max-w-2xl gap-3 text-center">
-          <p className="mx-auto w-fit rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-black uppercase tracking-wider text-red-700 shadow-sm">
+          <p className="mx-auto inline-flex w-fit max-w-full items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-2 text-[14px] font-semibold capitalize leading-snug tracking-[0.12em] text-red-700 shadow-sm sm:px-4 sm:tracking-[0.14em]">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-lg shadow-red-700/50">
+              <HeartPulse className="h-4 w-4" aria-hidden />
+            </span>
             Success stories
           </p>
 

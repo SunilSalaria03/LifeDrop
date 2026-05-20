@@ -5,6 +5,7 @@ import {
   ArrowDownRight,
   ArrowUpLeft,
   ArrowUpRight,
+  HeartPulse,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -110,7 +111,10 @@ export function StatsSection() {
 
       <div className="relative mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-20">
         <div className="mx-auto grid max-w-md gap-6 text-center lg:mx-0 lg:text-left">
-          <p className="mx-auto w-fit rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-black uppercase tracking-wider text-red-50 shadow-[0_10px_24px_rgba(69,10,10,0.18)] backdrop-blur-sm lg:mx-0">
+          <p className="mx-auto inline-flex w-fit max-w-full items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-2 text-[14px] font-semibold capitalize leading-snug tracking-[0.12em] text-red-50 shadow-[0_10px_24px_rgba(69,10,10,0.18)] backdrop-blur-sm sm:px-4 sm:tracking-[0.14em] lg:mx-0">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-lg shadow-red-700/50">
+              <HeartPulse className="h-4 w-4" aria-hidden />
+            </span>
             LifeDrop impact
           </p>
           <div className="grid gap-4">
