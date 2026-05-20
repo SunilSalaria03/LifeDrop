@@ -22,7 +22,7 @@ function formatStatValue(value: number) {
 }
 
 const targetValues = landingStats.map((stat) => getStatNumber(stat.value));
-const impactHighlights = ['Live community growth', 'Urgent-ready network'];
+const impactHighlights = ['Verified-first community', 'Local, urgent-ready reach'];
 
 export function StatsSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -119,11 +119,12 @@ export function StatsSection() {
           </p>
           <div className="grid gap-4">
             <h2 className="text-3xl font-black leading-tight tracking-normal text-white sm:text-4xl">
-              Our Success Is Defined By The Impact We Create.
+              Faster local connections when blood is needed urgently.
             </h2>
             <p className="text-sm font-semibold leading-6 text-red-50/85">
-              Every request, donor, and city covered helps LifeDrop make blood support
-              easier to find when people need it most.
+              Every verified donor and completed request expands coverage in more
+              cities—so families and coordinators spend less time searching and more
+              time acting.
             </p>
           </div>
           <div className="flex flex-wrap justify-center gap-2 lg:justify-start">

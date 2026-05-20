@@ -80,28 +80,28 @@ export const landingSteps: LandingStep[] = [
 
 export const landingStats: LandingStat[] = [
   {
-    label: 'Registered Donors',
+    label: 'Registered donors',
     value: '1,250',
     icon: UsersRound,
     iconClassName: 'bg-red-50 text-red-700 ring-red-100',
     valueClassName: 'text-red-700',
   },
   {
-    label: 'Lives Saved',
+    label: 'Urgent matches supported',
     value: '380',
     icon: HeartPulse,
     iconClassName: 'bg-rose-50 text-rose-700 ring-rose-100',
     valueClassName: 'text-rose-700',
   },
   {
-    label: 'Blood Requests',
+    label: 'Blood requests posted',
     value: '450',
     icon: ClipboardPlus,
     iconClassName: 'bg-sky-50 text-sky-700 ring-sky-100',
     valueClassName: 'text-sky-700',
   },
   {
-    label: 'Cities Covered',
+    label: 'Cities with donor reach',
     value: '40',
     icon: MapPin,
     iconClassName: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
