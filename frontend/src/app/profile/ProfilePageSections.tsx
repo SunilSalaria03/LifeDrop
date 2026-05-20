@@ -280,9 +280,10 @@ export function PersonalInformationCard({
   return (
     <Card className={cn(profileCard, "h-full")}>
       <CardHeader className={profileCardHeader}>
-        <h2 className="text-lg font-bold text-neutral-950">Personal Information</h2>
+        <h2 className="text-lg font-bold text-neutral-950">Personal information</h2>
         <p className="text-sm text-neutral-600">
-          Your contact and location details on LifeDrop.
+          Keep your name, phone, email, and address accurate so coordinators and
+          donors can reach you during urgent requests.
         </p>
       </CardHeader>
       <CardContent className={cn(profileCardBody, "grid gap-3 sm:grid-cols-2")}>
@@ -308,11 +309,11 @@ export function DonorInformationCard({
       <CardHeader className={profileCardHeader}>
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold text-neutral-950">Donor Information</h2>
+            <h2 className="text-lg font-bold text-neutral-950">Donor information</h2>
             <p className="mt-1 text-sm text-neutral-600">
               {donor
-                ? "Manage your donor availability and donation details."
-                : "You can help nearby patients find blood faster."}
+                ? "Update your blood group, availability, and donation record so patients can find you in search."
+                : "Register as a donor to show up in search and help people near you who need blood."}
             </p>
           </div>
           {donor ? (
@@ -365,11 +366,11 @@ export function DonorInformationCard({
             </div>
             <div>
               <h3 className="text-base font-bold text-neutral-950">
-                Join as a LifeDrop donor
+                Become a LifeDrop donor
               </h3>
               <p className="mt-2 text-sm leading-6 text-neutral-600">
-                Add your blood group and availability so people near your city can
-                find help in urgent moments.
+                Share your blood group and availability. Your profile stays
+                visible only through LifeDrop&apos;s privacy-safe donor search.
               </p>
             </div>
             <Button

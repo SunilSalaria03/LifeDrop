@@ -29,7 +29,7 @@ test('opens the donor form for a logged-in normal user', async ({ page }) => {
 
   await expect(page).toHaveURL(/\/become-donor$/);
   await expect(
-    page.getByRole('heading', { name: /share your donor availability/i }),
+    page.getByRole('heading', { name: /offer blood support in your area/i }),
   ).toBeVisible();
   await expect(page.getByRole('button', { name: /^join as a donor$/i })).toBeVisible();
 });

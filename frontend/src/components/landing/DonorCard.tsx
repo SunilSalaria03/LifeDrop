@@ -2,7 +2,7 @@ import Link from "next/link";
 import {
   CalendarCheck,
   CheckCircle2,
-  Droplet,
+  HeartHandshake,
   HeartPulse,
   MapPin,
   Navigation,
@@ -162,7 +162,7 @@ export function DonorCard({
                 onClick={() => onRequest?.(donor)}
                 type="button"
               >
-                <Droplet className="h-4 w-4" />
+                <HeartHandshake className="h-4 w-4" />
                 Request
               </Button>
             ) : null}
