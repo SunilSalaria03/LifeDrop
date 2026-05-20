@@ -8,14 +8,14 @@ import {
   mockProfileUpdate,
 } from '../helpers/api';
 
-test('unverified logged-in user clicking Become Donor opens phone verification', async ({ page }) => {
+test('unverified logged-in user clicking Join as a donor opens phone verification', async ({ page }) => {
   await mockAuthenticatedSession(page, {
     authenticated: true,
     user: { ...unverifiedUser },
   });
 
   await page.goto('/');
-  await page.getByRole('navigation').getByRole('button', { name: /become a donor/i }).click();
+  await page.getByRole('navigation').getByRole('button', { name: /join as a donor/i }).click();
 
   await expect(page.getByRole('dialog')).toContainText('Verify your phone');
   await expect(page.getByLabel('Phone number')).toBeVisible();
@@ -30,7 +30,7 @@ test('OTP send failure state is shown', async ({ page }) => {
   await mockOtpSendFailure(page);
 
   await page.goto('/');
-  await page.getByRole('navigation').getByRole('button', { name: /become a donor/i }).click();
+  await page.getByRole('navigation').getByRole('button', { name: /join as a donor/i }).click();
   await page.getByLabel('Phone number').fill(testCredentials.phone);
   await page.getByRole('button', { name: /send otp/i }).click();
 
@@ -47,7 +47,7 @@ test('OTP verify failure state is shown', async ({ page }) => {
   await mockProfilePhoneVerifyFailure(page);
 
   await page.goto('/');
-  await page.getByRole('navigation').getByRole('button', { name: /become a donor/i }).click();
+  await page.getByRole('navigation').getByRole('button', { name: /join as a donor/i }).click();
   await page.getByLabel('Phone number').fill(testCredentials.phone);
   await page.getByRole('button', { name: /send otp/i }).click();
   await page.getByLabel('OTP code').fill(testCredentials.otp);
@@ -65,7 +65,7 @@ test('resend OTP timer is shown after sending an OTP', async ({ page }) => {
   await mockOtpLogin(page);
 
   await page.goto('/');
-  await page.getByRole('navigation').getByRole('button', { name: /become a donor/i }).click();
+  await page.getByRole('navigation').getByRole('button', { name: /join as a donor/i }).click();
   await page.getByLabel('Phone number').fill(testCredentials.phone);
   await page.getByRole('button', { name: /send otp/i }).click();
 

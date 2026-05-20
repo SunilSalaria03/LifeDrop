@@ -434,7 +434,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
           type="submit"
         >
           <HeartHandshake className="h-4 w-4" />
-          {createDonorProfileMutation.isPending ? "Saving..." : "Become a donor"}
+          {createDonorProfileMutation.isPending ? "Saving..." : "Join as a Donor"}
         </Button>
       </div>
     </form>

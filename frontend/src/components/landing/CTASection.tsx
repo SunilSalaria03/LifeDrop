@@ -78,7 +78,7 @@ export function CTASection() {
                   type="button"
                 >
                   <HeartHandshake className="h-5 w-5" />
-                  Become a Donor
+                  Join as a Donor
                 </Button>
                 <Button
                   className="h-[3.25rem] w-full rounded-full border border-white/30 bg-white/10 px-8 font-black text-white shadow-xl shadow-red-950/10 hover:bg-white/20 sm:w-auto"

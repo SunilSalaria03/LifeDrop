@@ -28,7 +28,7 @@ Donor Logic:
   - Show option to update donor details.
 - If user is NOT a donor:
   - Show a professional highlighted section/card.
-  - Add “Become a Donor” button.
+  - Add “Join as a Donor” button.
   - Clicking button should navigate to donor registration/setup flow.
   - Explain short benefits/message encouraging blood donation.
 
@@ -84,11 +84,11 @@ Update Google Login + Profile/Donor flow:
   * when user updates state/city/district, automatically update latitude & longitude as well.
   * keep existing profile functionality same.
 
-3. Become Donor Flow
+3. Join as a donor flow
 
 * If logged-in user role = normal user:
 
-  * "Become a Donor" button should open/fill only donor-required fields.
+  * "Join as a Donor" button should open/fill only donor-required fields.
   * phone verification step must NOT appear again because phone already verified.
   * phone input remains disabled here also.
   * existing profile data should prefill automatically.

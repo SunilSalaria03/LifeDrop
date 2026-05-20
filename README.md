@@ -208,7 +208,7 @@ After backend APIs create data, you should see collections such as:
 - Google login/signup
 - Profile setup after login
 - Google users verify phone before profile completion
-- Become donor flow with protected donor form
+- Join as a donor flow with protected donor form
 - Donor profiles stored in MongoDB
 - Nearby donor search using GeoJSON and `$geoNear`
 - Header GPS location detection through browser geolocation and Nominatim

@@ -129,15 +129,15 @@ export function HeroSection() {
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-lg shadow-red-700/50">
                   <HeartPulse className="h-4 w-4" />
                 </span>
-                Emergency blood help, closer to home
+                Urgent blood needs. Local donor search
               </p>
               <h1 className="text-4xl font-bold leading-tight tracking-normal text-white sm:text-5xl md:text-6xl lg:text-7xl">
-                Find Blood Donors{" "}
-                <span className="text-red-400">Near You</span>{" "}
-                Instantly
+                Search donors{" "}
+                <span className="text-red-400">by blood group and location</span>{" "}
+                across your city
               </h1>
               <p className="max-w-lg text-base font-medium leading-7 text-slate-300 sm:text-lg sm:leading-8">
-                Search by blood group and location to connect with nearby donors in seconds.
+                Filter by blood group and location, then contact donors who appear in search.
               </p>
             </div>
 

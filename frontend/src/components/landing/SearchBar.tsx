@@ -127,7 +127,7 @@ export function SearchBar({
         type="button"
       >
         <Droplet className="h-5 w-5" />
-        {isSearching ? 'Searching' : 'Find Blood'}
+        {isSearching ? 'Searching' : 'Search Donors'}
       </Button>
     </div>
   );

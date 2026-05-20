@@ -1064,7 +1064,7 @@ export default function ProfilePage() {
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-neutral-950">
-                          Become a LifeDrop donor
+                          Join as a LifeDrop donor
                         </h3>
                         <p className="mt-2 text-sm leading-6 text-neutral-700">
                           Add your blood group and availability so people near
@@ -1077,7 +1077,7 @@ export default function ProfilePage() {
                       >
                         <Link href="/become-donor">
                           <HeartHandshake className="h-4 w-4" />
-                          Become a Donor
+                          Join as a Donor
                         </Link>
                       </Button>
                     </div>

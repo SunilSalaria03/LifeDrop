@@ -162,8 +162,8 @@ export function Header() {
               <span className="text-xl font-bold tracking-normal text-neutral-950 sm:text-2xl">
                 LifeDrop
               </span>
-              <span className="hidden text-xs font-semibold uppercase tracking-[0.14em] text-red-700 sm:block">
-                Blood donor network
+              <span className="hidden text-xs font-semibold leading-snug tracking-normal text-red-700 sm:block">
+                Connecting donors with patients in need
               </span>
             </span>
           </Link>
@@ -250,7 +250,7 @@ export function Header() {
                 >
                   <Link href="/become-donor">
                     <HeartHandshake className="h-4 w-4" />
-                    Become a Donor
+                    Join as a Donor
                   </Link>
                 </Button>
               ) : (
@@ -260,7 +260,7 @@ export function Header() {
                   type="button"
                 >
                   <HeartHandshake className="h-4 w-4" />
-                  Become a Donor
+                  Join as a Donor
                 </Button>
               )
             ) : null}

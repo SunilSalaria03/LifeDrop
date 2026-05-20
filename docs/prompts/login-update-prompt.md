@@ -89,10 +89,10 @@ Google Login Flow:
   - redirect user to phone verification page/modal.
   - user must verify phone via OTP.
 - Until phone verified:
-  - user cannot become donor.
+  - user cannot join as a donor.
   - donor form/button action should redirect to phone verification first.
 
-Become Donor Flow:
+Join as a donor flow:
 - If user phone not verified:
   - redirect to phone verification first.
 - After successful verification:
@@ -123,7 +123,7 @@ Donor Fields:
 Profile Logic:
 - Normal user → only basic fields.
 - Donor role → donor + basic fields.
-- Become Donor updates role instantly after successful submit.
+- Join as a donor updates role instantly after successful submit.
 
 Backend:
 - Update schema, DTOs, validation, APIs.

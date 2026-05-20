@@ -86,7 +86,7 @@ If user is not logged in:
 
 * User can browse donors
 * User can search blood
-* User cannot become donor
+* User cannot join as a donor
 * User cannot request blood directly
 * Login modal opens automatically on protected actions
 
@@ -316,7 +316,7 @@ Alert sent to donor
 
 ## Features
 
-* Become Donor
+* Join as a donor
 * Donor Profile Setup
 * Blood Group Information
 * Availability Status
@@ -343,7 +343,7 @@ User Login
 ↓
 Phone Verification
 ↓
-Become Donor
+Join as a donor
 ↓
 Complete Donor Profile
 ↓
@@ -428,7 +428,7 @@ Matching donors returned
 ## Protected Routes
 
 * Profile
-* Become Donor
+* Join as a donor
 * Request Blood
 
 ---
@@ -470,7 +470,7 @@ Matching donors returned
 
 ### Donor Flow
 
-* Become donor access
+* Join as a donor access
 * Donor form validation
 * Donor form submission
 
@@ -665,7 +665,7 @@ Search donors or create account
 ↓
 Phone verification
 ↓
-Become donor (optional)
+Join as a donor (optional)
 ↓
 Request blood during emergency
 ↓

@@ -39,7 +39,7 @@ export const landingActions: LandingAction[] = [
   {
     title: 'Donate Blood',
     description: 'Register as a donor and make yourself available for people in your city.',
-    buttonLabel: 'Become a Donor',
+    buttonLabel: 'Join as a Donor',
     href: '/become-donor',
     icon: HeartHandshake,
     accent: 'text-[#27AE60]',

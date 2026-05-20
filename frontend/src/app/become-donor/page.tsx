@@ -31,8 +31,8 @@ export default function BecomeDonorPage() {
                 <HeartHandshake className="h-7 w-7" />
               </div>
               <div>
-                <p className="text-sm font-semibold uppercase text-red-600">
-                  Become a donor
+                <p className="text-sm font-semibold text-red-600">
+                  Join as a Donor
                 </p>
                 <h1 className="mt-2 text-2xl font-bold tracking-normal text-neutral-950 sm:text-3xl">
                   Share your donor availability

@@ -8,7 +8,7 @@ Project Name: LifeDrop
 
 
 Goal:
-Build an MVP social-service blood donation platform where users can request blood, become donors, search nearby donors, and receive emergency notifications.
+Build an MVP social-service blood donation platform where users can request blood, join as donors, search nearby donors, and receive emergency notifications.
 
 
 Tech Stack:

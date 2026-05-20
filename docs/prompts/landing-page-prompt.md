@@ -75,7 +75,7 @@ Below search:
 
 CTA Buttons:
 - Primary: "Request Blood" (red theme)
-- Secondary: "Become a Donor" (green theme)
+- Secondary: "Join as a Donor" (green theme)
 
 ----------------------------------------
 
@@ -254,7 +254,7 @@ Tech Stack:
    - City/District
 3. Search Button:
    - "Find Donors"
-   - "Find Blood"
+   - "Search Donors"
 4. Show donor list below search
 
 ----------------------------------------
@@ -283,10 +283,10 @@ Tech Stack:
 2. HERO CONTENT
 
 Heading:
-"Find Blood Donors Near You Instantly"
+"Search donors by blood group and location across your city"
 
 Subtext:
-"Search by blood group and location to connect with nearby donors in seconds."
+"Filter by blood group and location, then contact donors who appear in search."
 
 ----------------------------------------
 
@@ -312,7 +312,7 @@ A+, A-, B+, B-, AB+, AB-, O+, O-
 
 4. Buttons:
 - Primary: "Find Donors"
-- Secondary: "Find Blood"
+- Secondary: "Search Donors"
 
 ----------------------------------------
 
@@ -407,7 +407,7 @@ Manual dropdown selection
 - Use Card for donor list
 - Use Badge for blood group and availability
 - Use Button variants:
-  - red for "Find Blood"
+  - red for "Search Donors"
   - blue for "Find Donors"
 
 - Proper spacing
