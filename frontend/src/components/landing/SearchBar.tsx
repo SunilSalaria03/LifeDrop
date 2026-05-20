@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { City, State } from 'country-state-city';
-import { Droplet } from 'lucide-react';
+import { UserSearch } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -126,7 +126,7 @@ export function SearchBar({
         onClick={onSearch}
         type="button"
       >
-        <Droplet className="h-5 w-5" />
+        <UserSearch className="h-5 w-5 shrink-0" aria-hidden />
         {isSearching ? 'Searching' : 'Search Donors'}
       </Button>
     </div>

@@ -124,14 +124,14 @@ export function HeroSection() {
           <div className="grid w-full gap-7">
 
             {/* Badge + headline + subtitle — left-anchored to left column */}
-            <div className="grid max-w-2xl gap-5 lg:max-w-[52%]">
+            <div className="grid max-w-2xl gap-5 md:max-w-3xl lg:max-w-[58%]">
               <p className="inline-flex w-fit items-center gap-2 rounded-full border border-red-500/40 bg-red-700/20 px-4 py-2 text-sm font-semibold text-red-300 backdrop-blur-sm">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-lg shadow-red-700/50">
                   <HeartPulse className="h-4 w-4" />
                 </span>
                 Urgent blood needs. Local donor search
               </p>
-              <h1 className="text-4xl font-bold leading-tight tracking-normal text-white sm:text-5xl md:text-6xl lg:text-7xl">
+              <h1 className="text-balance text-2xl font-bold uppercase leading-tight tracking-[0.06em] text-white sm:text-3xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-5xl">
                 Search donors{" "}
                 <span className="text-red-400">by blood group and location</span>{" "}
                 across your city
