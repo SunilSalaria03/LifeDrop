@@ -1,14 +1,7 @@
 "use client";
 
-import {
-  ArrowDownLeft,
-  ArrowDownRight,
-  ArrowUpLeft,
-  ArrowUpRight,
-  HeartPulse,
-} from 'lucide-react';
+import { HeartPulse } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { landingStats } from './landing.constants';
 
 const animationDuration = 1400;
@@ -22,7 +15,13 @@ function formatStatValue(value: number) {
 }
 
 const targetValues = landingStats.map((stat) => getStatNumber(stat.value));
-const impactHighlights = ['Verified-first community', 'Local, urgent-ready reach'];
+const impactHighlights = [
+  'Verified-first community',
+  'Local, urgent-ready reach',
+  'Search by blood group and city',
+  'Built for urgent coordination',
+  'Coverage that grows with every signup',
+];
 
 export function StatsSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -109,8 +108,8 @@ export function StatsSection() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(255,255,255,0.14),transparent_30%),radial-gradient(circle_at_86%_70%,rgba(69,10,10,0.38),transparent_34%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.08)_0_1px,transparent_1px_36px)] opacity-25" />
 
-      <div className="relative mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-20">
-        <div className="mx-auto grid max-w-md gap-6 text-center lg:mx-0 lg:text-left">
+      <div className="relative mx-auto grid max-w-6xl gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:items-center lg:gap-16">
+        <div className="mx-auto grid max-w-lg gap-6 text-center lg:mx-0 lg:max-w-none lg:text-left">
           <p className="mx-auto inline-flex w-fit max-w-full items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-2 text-[14px] font-semibold capitalize leading-snug tracking-[0.12em] text-red-50 shadow-[0_10px_24px_rgba(69,10,10,0.18)] backdrop-blur-sm sm:px-4 sm:tracking-[0.14em] lg:mx-0">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-lg shadow-red-700/50">
               <HeartPulse className="h-4 w-4" aria-hidden />
@@ -119,7 +118,7 @@ export function StatsSection() {
           </p>
           <div className="grid gap-4">
             <h2 className="text-3xl font-black leading-tight tracking-normal text-white sm:text-4xl">
-              Faster local connections when blood is needed urgently.
+              Faster local connections when blood is needed urgently
             </h2>
             <p className="text-sm font-semibold leading-6 text-red-50/85">
               Every verified donor and completed request expands coverage in more
@@ -127,66 +126,57 @@ export function StatsSection() {
               time acting.
             </p>
           </div>
-          <div className="flex flex-wrap justify-center gap-2 lg:justify-start">
+          <ul
+            className="mx-auto grid max-w-md list-none gap-2.5 pl-0 text-left sm:gap-3 lg:mx-0 lg:max-w-none"
+            role="list"
+          >
             {impactHighlights.map((highlight) => (
-              <span
-                className="rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-normal text-red-50 shadow-sm backdrop-blur-sm"
-                key={highlight}
-              >
-                {highlight}
-              </span>
+              <li className="flex gap-3" key={highlight}>
+                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-md shadow-red-950/40">
+                  <HeartPulse className="h-4 w-4" aria-hidden />
+                </span>
+                <span className="text-[14px] font-semibold capitalize leading-snug tracking-[0.06em] text-red-50">
+                  {highlight}
+                </span>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
 
-        <div className="relative mx-auto grid w-full max-w-xl grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-3">
-          <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-px w-24 -translate-x-1/2 bg-white/20 sm:block" />
-          <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-24 w-px -translate-y-1/2 bg-white/20 sm:block" />
-          <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 hidden h-[4.6rem] w-[4.6rem] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[1.35rem] border border-red-400/30 bg-[#dc2626] shadow-[0_18px_34px_rgba(69,10,10,0.24)] sm:grid">
-            <div className="grid grid-cols-2 gap-1.5">
-              {[
-                ArrowDownRight,
-                ArrowDownLeft,
-                ArrowUpRight,
-                ArrowUpLeft,
-              ].map((ConnectorIcon, connectorIndex) => (
-                <span
-                  className="flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white text-red-700/45 shadow-[0_6px_14px_rgba(69,10,10,0.16)]"
-                  key={connectorIndex}
+        <div className="mx-auto w-full max-w-md lg:mx-0 lg:max-w-none">
+          <ul
+            className="list-none divide-y divide-white/10 overflow-hidden rounded-2xl border border-white/15 bg-white/[0.07] shadow-[0_20px_50px_rgba(0,0,0,0.12)] backdrop-blur-md"
+            role="list"
+          >
+            {landingStats.map((stat, index) => {
+              const Icon = stat.icon;
+              const countValue = animatedValues[index] ?? 0;
+
+              return (
+                <li
+                  className="flex items-center gap-3 px-4 py-3.5 transition-colors duration-200 hover:bg-white/[0.06] sm:gap-4 sm:px-5 sm:py-4"
+                  key={stat.label}
                 >
-                  <ConnectorIcon className="h-3.5 w-3.5" />
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {landingStats.map((stat, index) => {
-            const Icon = stat.icon;
-            const countValue = animatedValues[index] ?? 0;
-
-            return (
-              <Card
-                className="group min-h-32 overflow-hidden rounded-[1.4rem] border border-red-100/80 bg-white/95 shadow-[0_22px_45px_rgba(127,29,29,0.1)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-red-200 hover:shadow-[0_26px_55px_rgba(127,29,29,0.16)] sm:min-h-48"
-                key={stat.label}
-              >
-                <CardContent className="relative flex h-full min-h-32 flex-col items-center justify-center gap-3 p-6 text-center sm:min-h-48 sm:p-8">
-                  <div className="absolute left-5 top-5 flex h-10 w-10 items-center justify-center rounded-2xl bg-red-50 text-red-600 opacity-80 ring-1 ring-red-100 transition duration-300 group-hover:bg-red-600 group-hover:text-white">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-red-50 opacity-70 transition duration-300 group-hover:scale-110 group-hover:bg-red-100" />
-                  <div className="relative grid gap-3">
-                    <p className="text-4xl font-black leading-none tracking-normal text-red-700 sm:text-5xl">
-                      {formatStatValue(countValue)}
-                      <span className="text-2xl align-top font-black">+</span>
-                    </p>
-                    <p className="text-[0.65rem] font-black uppercase tracking-normal text-red-950/70 sm:text-xs">
-                      {stat.label}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-md shadow-red-950/35">
+                    <Icon className="h-4 w-4" aria-hidden />
+                  </span>
+                  <span className="min-w-0 flex-1 text-[14px] font-semibold capitalize leading-snug text-red-50/95">
+                    {stat.label}
+                  </span>
+                  <span className="flex shrink-0 justify-end">
+                    <span className="inline-flex min-w-[6.25rem] items-baseline justify-end gap-0.5 rounded-lg border border-white/25 bg-gradient-to-br from-white/20 to-white/[0.07] px-2.5 py-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_8px_24px_rgba(0,0,0,0.12)] sm:min-w-[7rem] sm:px-3 sm:py-1.5">
+                      <span className="text-2xl font-black tabular-nums tracking-tight text-white sm:text-3xl">
+                        {formatStatValue(countValue)}
+                      </span>
+                      <span className="translate-y-px text-base font-black leading-none text-red-100/90 sm:text-lg">
+                        +
+                      </span>
+                    </span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       </div>
     </section>
