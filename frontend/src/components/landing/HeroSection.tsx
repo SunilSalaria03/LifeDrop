@@ -208,7 +208,10 @@ export function HeroSection() {
             </div>
 
             {/* Search form — full width */}
-            <div className="grid w-full gap-4 rounded-4xl border border-white/10 bg-white/5 p-3 shadow-2xl shadow-black/40 backdrop-blur-md sm:p-4">
+            <div
+              className="scroll-mt-20 grid w-full gap-4 rounded-4xl border border-white/10 bg-white/5 p-3 shadow-2xl shadow-black/40 backdrop-blur-md sm:scroll-mt-24 sm:p-4"
+              id="landing-donor-search"
+            >
               <SearchBar
                 isSearching={donorQuery.isFetching || isSearchDebouncing}
                 onChange={updateFilters}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Clock3, HeartHandshake, HeartPulse, ShieldCheck, UsersRound } from 'lucide-react';
+import { Clock3, HeartHandshake, HeartPulse, ShieldCheck, UserSearch, UsersRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { userStorage } from '@/lib/auth/user-storage';
 
@@ -48,6 +48,10 @@ export function CTASection() {
     router.push('/become-donor');
   };
 
+  const handleSearchDonors = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <section className="bg-white px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-24">
       <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#7f1d1d_0%,#dc2626_48%,#881337_100%)] p-2 shadow-[0_34px_90px_rgba(127,29,29,0.24)]">
@@ -82,6 +86,14 @@ export function CTASection() {
                 >
                   <HeartHandshake className="h-5 w-5" />
                   Join as a Donor
+                </Button>
+                <Button
+                  className="h-[3.25rem] w-full rounded-full border border-white/30 bg-white/10 px-8 font-black text-white shadow-xl shadow-red-950/10 hover:bg-white/20 sm:w-auto"
+                  onClick={handleSearchDonors}
+                  type="button"
+                >
+                  <UserSearch className="h-5 w-5" aria-hidden />
+                  Search Donors
                 </Button>
               </div>
             </div>
