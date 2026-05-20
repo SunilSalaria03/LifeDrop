@@ -17,7 +17,7 @@ function formatStatValue(value: number) {
 const targetValues = landingStats.map((stat) => getStatNumber(stat.value));
 const impactHighlights = [
   'Verified-first community',
-  'Local, urgent-ready reach',
+  'Urgent-ready reach across cities',
   'Search by blood group and city',
   'Built for urgent coordination',
   'Coverage that grows with every signup',
@@ -118,7 +118,7 @@ export function StatsSection() {
           </p>
           <div className="grid gap-4">
             <h2 className="text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl">
-              Faster local connections when blood is needed urgently
+              Faster connections when blood is needed urgently
             </h2>
             <p className="text-sm font-normal leading-7 text-red-50/80 sm:text-[15px] sm:leading-7">
               Every verified donor and completed request expands coverage in more

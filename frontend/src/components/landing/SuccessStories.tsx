@@ -39,16 +39,16 @@ export function SuccessStories() {
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-lg shadow-red-700/50">
               <HeartPulse className="h-4 w-4" aria-hidden />
             </span>
-            Success stories
+            Community voices
           </p>
 
           <h2 className="text-3xl font-bold tracking-normal text-slate-900 sm:text-4xl">
-            Trusted by people who act fast
+            Trusted experiences from verified donors and families
           </h2>
 
           <p className="text-sm font-medium leading-6 text-neutral-600 sm:text-base sm:leading-7">
-            Real moments from donors and families using LifeDrop to connect with
-            care.
+            Short reflections from donors and families who used LifeDrop to search by
+            blood group and city—and move faster toward care.
           </p>
         </div>
 

@@ -18,10 +18,12 @@ export function HowItWorks() {
             How it works
           </p>
           <h2 className="text-3xl font-black tracking-normal text-white sm:text-4xl">
-            A faster path from need to help
+            Four steps from urgent need to coordinated help
           </h2>
           <p className="text-sm font-medium leading-6 text-slate-400 sm:text-base sm:leading-7">
-            Designed for urgent moments, with each step kept simple and action-ready.
+            Built for high-pressure moments: lean forms, clear verification, and a
+            straight line from search to contact—so you spend less time navigating and
+            more time acting.
           </p>
         </div>
 

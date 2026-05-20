@@ -1,21 +1,21 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Clock3, Droplet, HeartHandshake, HeartPulse, ShieldCheck, UsersRound } from 'lucide-react';
+import { Clock3, HeartHandshake, HeartPulse, ShieldCheck, UsersRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { userStorage } from '@/lib/auth/user-storage';
 
 const ctaHighlights = [
   {
-    label: 'Verified community',
+    label: 'Verified profiles',
     icon: ShieldCheck,
   },
   {
-    label: 'Fast local search',
+    label: 'Blood group and city filters',
     icon: Clock3,
   },
   {
-    label: 'Donors near you',
+    label: 'Coverage across supported cities',
     icon: UsersRound,
   },
 ];
@@ -63,15 +63,15 @@ export function CTASection() {
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-lg shadow-red-700/50">
                   <HeartPulse className="h-4 w-4" aria-hidden />
                 </span>
-                Join the network
+                Donor registration
               </p>
               <div className="grid gap-4">
                 <h2 className="text-4xl font-black leading-tight tracking-normal sm:text-5xl lg:text-6xl">
-                  Ready to Save Lives?
+                  Join the LifeDrop donor network
                 </h2>
                 <p className="max-w-xl text-base font-semibold leading-7 text-red-50/90 sm:text-lg">
-                  Join LifeDrop as a donor or start an urgent request when someone
-                  needs blood nearby.
+                  Create a verified profile with your blood group and city so coordinators
+                  and families can find you when urgent support is needed.
                 </p>
               </div>
               <div className="flex flex-col gap-3 pt-1 sm:flex-row lg:justify-start">
@@ -82,14 +82,6 @@ export function CTASection() {
                 >
                   <HeartHandshake className="h-5 w-5" />
                   Join as a Donor
-                </Button>
-                <Button
-                  className="h-[3.25rem] w-full rounded-full border border-white/30 bg-white/10 px-8 font-black text-white shadow-xl shadow-red-950/10 hover:bg-white/20 sm:w-auto"
-                  // onClick={() => router.push('/request-blood')}
-                  type="button"
-                >
-                  <Droplet className="h-5 w-5" />
-                  Request Blood
                 </Button>
               </div>
             </div>
@@ -114,8 +106,8 @@ export function CTASection() {
               })}
 
               <div className="mt-1 rounded-2xl border border-white/15 bg-red-950/25 p-4 text-sm font-semibold leading-6 text-red-50/85">
-                Built for moments where a clear next step matters more than a long
-                search.
+                Straightforward onboarding—so your profile is ready when a request
+                matches your details.
               </div>
             </div>
           </div>

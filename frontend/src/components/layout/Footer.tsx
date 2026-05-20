@@ -23,7 +23,7 @@ export function Footer() {
             </span>
           </Link>
           <p className="text-sm font-semibold leading-7 text-slate-300">
-            Connecting blood donors and requesters quickly, safely, and locally when every minute matters.
+            Connecting blood donors and requesters quickly, safely, and in your area when every minute matters.
           </p>
           <div className="flex flex-wrap gap-2">
             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold uppercase text-slate-300">
@@ -71,7 +71,7 @@ export function Footer() {
       <div className="relative border-t border-white/10 bg-slate-950/50 px-4 py-5">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-center text-sm font-semibold text-slate-500 sm:flex-row sm:text-left">
           <span>Copyright 2026 LifeDrop. All rights reserved.</span>
-          <span className="text-slate-600">Built for faster local blood support.</span>
+          <span className="text-slate-600">Built for faster blood support when it counts.</span>
         </div>
       </div>
     </footer>
