@@ -1,29 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { ReactNode, useMemo, useState } from "react";
 import { City, State } from "country-state-city";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import {
-  BadgeCheck,
-  CalendarCheck,
-  CheckCircle2,
-  Droplet,
-  Edit3,
-  HeartHandshake,
-  Mail,
-  MapPin,
-  Phone,
-  Save,
-  ShieldCheck,
-  UserRound,
-  X,
-} from "lucide-react";
+import { Edit3, Save, X } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { IndiaPhoneInput } from "@/components/forms/IndiaPhoneInput";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -51,31 +34,21 @@ import {
   findStateCode,
   formatDateInputValue,
 } from "@/features/profile/profile.helpers";
-import {
-  formatDate,
-  getDisplayName,
-  getInitials,
-} from "./profile-page.helpers";
-import { InfoItemProps } from "./profile-page.types";
 import { HeroSection } from "../../components/landing/HeroSection";
-
-function InfoItem({ icon: Icon, label, value }: InfoItemProps) {
-  return (
-    <div className="group flex min-w-0 items-start gap-3 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm shadow-neutral-950/5 transition hover:border-red-100 hover:bg-red-50/30">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-700 transition group-hover:bg-red-700 group-hover:text-white">
-        <Icon className="h-5 w-5" />
-      </span>
-      <span className="min-w-0">
-        <span className="block text-xs font-black uppercase tracking-normal text-neutral-500">
-          {label}
-        </span>
-        <span className="mt-1 block break-words text-sm font-bold text-neutral-950">
-          {value || "Not provided"}
-        </span>
-      </span>
-    </div>
-  );
-}
+import {
+  profileCard,
+  profileCardBody,
+  profileCardHeader,
+  profileInsetPanel,
+} from "./profile-card.styles";
+import {
+  DonorInformationCard,
+  PersonalInformationCard,
+  ProfileContentSkeleton,
+  ProfileHeaderCard,
+  ProfileHeaderSkeleton,
+} from "./ProfilePageSections";
+import { cn } from "@/lib/utils";
 
 function FieldLabel({ children }: { children: ReactNode }) {
   return (
@@ -87,22 +60,9 @@ function FieldLabel({ children }: { children: ReactNode }) {
 
 function ProfileSkeleton() {
   return (
-    <div className="mx-auto grid max-w-7xl gap-6">
-      <Card className="animate-pulse rounded-2xl border-white/80 bg-white/90 shadow-xl shadow-red-950/10">
-        <CardContent className="grid gap-6 p-5 sm:grid-cols-[auto_1fr] sm:p-8">
-          <div className="h-24 w-24 rounded-full bg-neutral-200" />
-          <div className="grid gap-3">
-            <div className="h-8 w-64 max-w-full rounded-full bg-neutral-200" />
-            <div className="h-4 w-80 max-w-full rounded-full bg-neutral-100" />
-            <div className="h-4 w-56 max-w-full rounded-full bg-neutral-100" />
-          </div>
-        </CardContent>
-      </Card>
-      <div className="grid animate-pulse gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <div className="h-28 rounded-2xl bg-white/90 shadow-sm" key={index} />
-        ))}
-      </div>
+    <div className="mx-auto grid w-full max-w-7xl gap-6">
+      <ProfileHeaderSkeleton />
+      <ProfileContentSkeleton />
     </div>
   );
 }
@@ -231,7 +191,7 @@ function ProfileEditForm({
 
   return (
     <form className="grid gap-6" onSubmit={formik.handleSubmit}>
-      <section className="grid gap-4 rounded-3xl border border-red-100 bg-red-50/25 p-4 sm:p-5">
+      <section className={cn(profileInsetPanel, "grid gap-4 sm:p-5")}>
         <h3 className="text-base font-bold text-neutral-950">
           Login Information
         </h3>
@@ -279,7 +239,7 @@ function ProfileEditForm({
       </section>
 
       {isDonor ? (
-        <section className="grid gap-4 rounded-3xl border border-red-100 bg-white p-4 shadow-sm shadow-neutral-950/5 sm:p-5">
+        <section className={cn(profileInsetPanel, "grid gap-4 sm:p-5")}>
           <h3 className="text-base font-bold text-neutral-950">
             Donor Information
           </h3>
@@ -368,7 +328,7 @@ function ProfileEditForm({
         </section>
       ) : null}
 
-      <section className="grid gap-4 rounded-3xl border border-red-100 bg-red-50/25 p-4 sm:p-5">
+      <section className={cn(profileInsetPanel, "grid gap-4 sm:p-5")}>
         <h3 className="text-base font-bold text-neutral-950">
           Contact Information
         </h3>
@@ -838,121 +798,33 @@ export default function ProfilePage() {
       <div className="bg-slate-900 pt-16 text-neutral-950 sm:pt-18">
         <HeroSection />
       </div>
-      <main className="relative min-h-screen overflow-hidden bg-[linear-gradient(135deg,#f8fafc_0%,#ffffff_48%,#fff7f7_100%)] px-4 pb-10 pt-28 text-neutral-950 sm:px-6 sm:pb-12 sm:pt-32 lg:px-8">
-        <div className="pointer-events-none absolute -left-32 top-20 h-72 w-72 rounded-full bg-red-50 blur-3xl" />
-        <div className="pointer-events-none absolute -right-32 top-96 h-72 w-72 rounded-full bg-red-50/80 blur-3xl" />
+      <main className="min-h-screen bg-neutral-50 px-4 pb-12 pt-10 text-neutral-950 sm:px-6 sm:pt-12 lg:px-8">
         {isLoading || !user ? (
           <ProfileSkeleton />
         ) : (
-          <div className="relative mx-auto grid max-w-7xl gap-6">
-            <Card className="overflow-hidden rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
-              <div className="h-1.5 bg-[linear-gradient(90deg,#dc2626,#fb7185,#fee2e2)]" />
-              <CardContent className="relative grid gap-6 p-5 sm:grid-cols-[auto_1fr] sm:items-center sm:p-8">
-                <Avatar className="h-24 w-24 border-4 border-white bg-red-50 shadow-sm shadow-neutral-950/10 ring-4 ring-red-50 sm:h-28 sm:w-28">
-                  {user.profileImage ? (
-                    <AvatarImage
-                      alt={getDisplayName(user)}
-                      src={user.profileImage}
-                    />
-                  ) : null}
-                  <AvatarFallback className="text-2xl font-bold text-red-700">
-                    {getInitials(user.name, user.email, user.phone)}
-                  </AvatarFallback>
-                </Avatar>
-
-                <div className="grid min-w-0 gap-4">
-                  <div className="relative flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h1 className="break-words text-3xl font-black tracking-normal text-neutral-950 sm:text-4xl">
-                          {getDisplayName(user)}
-                        </h1>
-                        {user.phoneVerified ? (
-                          <ShieldCheck className="h-6 w-6 text-red-700" />
-                        ) : null}
-                      </div>
-                      <p className="mt-2 flex items-start gap-2 text-sm font-semibold text-neutral-600 sm:text-base">
-                        <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
-                        <span className="break-words">
-                          {[user.district ?? user.city, user.state]
-                            .filter(Boolean)
-                            .join(", ") || "Location not provided"}
-                        </span>
-                      </p>
-                    </div>
-
-                    <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
-                      <Button
-                        className="h-11 rounded-full border-red-100 bg-white px-5 font-bold shadow-sm hover:bg-red-50"
-                        onClick={() =>
-                          setIsEditingProfile((current) => !current)
-                        }
-                        type="button"
-                        variant="outline"
-                      >
-                        {isEditingProfile ? (
-                          <X className="h-4 w-4" />
-                        ) : (
-                          <Edit3 className="h-4 w-4" />
-                        )}
-                        {isEditingProfile ? "Close edit" : "Edit profile"}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="relative flex flex-wrap gap-2">
-                    <Badge className="rounded-full bg-red-50 px-3.5 py-1.5 font-bold text-red-700 ring-1 ring-red-100">
-                      {user.role === "donor" || donor
-                        ? "Donor account"
-                        : "User account"}
-                    </Badge>
-                    <Badge
-                      className={
-                        user.phoneVerified
-                          ? "gap-1.5 rounded-full bg-green-50 px-3.5 py-1.5 font-bold text-green-700 ring-1 ring-green-100"
-                          : "gap-1.5 rounded-full bg-amber-50 px-3.5 py-1.5 font-bold text-amber-700 ring-1 ring-amber-100"
-                      }
-                    >
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      {user.phoneVerified ? "Verified" : "Verification pending"}
-                    </Badge>
-
-                    <Badge className="rounded-full bg-red-50 px-3.5 py-1.5 font-bold text-red-700 hover:bg-red-100">
-                      Profile {completionPercent}% Complete
-                    </Badge>
-
-                    {user.role === "donor" && donor?.bloodGroup && (
-                      <Badge className="rounded-full bg-red-100 px-3.5 py-1.5 font-bold text-red-700 hover:bg-red-100">
-                        {donor?.bloodGroup}
-                      </Badge>
-                    )}
-
-                    {user.role === "donor" && (
-                      <Badge className="rounded-full bg-green-100 px-3.5 py-1.5 font-bold text-green-700 hover:bg-green-100">
-                        {donor ? "Active Donor" : "Not Donor"}
-                      </Badge>
-                    )}
-
-                    <Badge className="rounded-full bg-neutral-100 px-3.5 py-1.5 font-bold text-neutral-700 hover:bg-neutral-100">
-                      Member since {formatDate(user.createdAt)}
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="relative mx-auto grid w-full max-w-7xl gap-6">
+            <ProfileHeaderCard
+              completionPercent={completionPercent}
+              donor={donor}
+              isEditingProfile={isEditingProfile}
+              onToggleEdit={() =>
+                setIsEditingProfile((current) => !current)
+              }
+              user={user}
+            />
 
             {isEditingProfile ? (
-              <Card className="rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
-                <CardHeader className="p-5 sm:p-6">
-                  <h2 className="text-xl font-bold text-neutral-950">
+              <Card className={profileCard}>
+                <CardHeader className={profileCardHeader}>
+                  <h2 className="text-lg font-bold text-neutral-950">
                     Update Profile
                   </h2>
-                  <p className="text-sm leading-6 text-neutral-600">
+                  <p className="text-sm text-neutral-600">
                     Keep your contact and location details accurate for faster
                     request handling.
                   </p>
                 </CardHeader>
-                <CardContent className="p-5 pt-0 sm:p-6 sm:pt-0">
+                <CardContent className={profileCardBody}>
                   <ProfileEditForm
                     onCancel={() => setIsEditingProfile(false)}
                     user={user}
@@ -962,167 +834,33 @@ export default function ProfilePage() {
             ) : null}
 
             <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-              <Card className="rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
-                <CardHeader className="p-5 sm:p-6">
-                  <h2 className="text-xl font-black text-neutral-950">
-                    Personal Information
-                  </h2>
-                </CardHeader>
-                <CardContent className="grid gap-3 p-5 pt-0 sm:grid-cols-2 sm:p-6 sm:pt-0">
-                  <InfoItem
-                    icon={UserRound}
-                    label="Full name"
-                    value={user.name}
-                  />
-                  <InfoItem icon={Mail} label="Email" value={user.email} />
-                  <InfoItem
-                    icon={Phone}
-                    label="Phone number"
-                    value={user.phone}
-                  />
-                  <InfoItem
-                    icon={MapPin}
-                    label="District and state"
-                    value={[user.district ?? user.city, user.state]
-                      .filter(Boolean)
-                      .join(", ")}
-                  />
-                  <InfoItem
-                    icon={MapPin}
-                    label="Pin code"
-                    value={user.pincode}
-                  />
-                  <InfoItem
-                    icon={MapPin}
-                    label="Address line"
-                    value={user.addressLine ?? user.addressText}
-                  />
-                  <InfoItem
-                    icon={CalendarCheck}
-                    label="Account created"
-                    value={formatDate(user.createdAt)}
-                  />
-                  <InfoItem
-                    icon={BadgeCheck}
-                    label="Verification status"
-                    value={
-                      user.phoneVerified ? "Verified" : "Pending verification"
-                    }
-                  />
-                  {isDonor ? (
-                    <>
-                      <InfoItem
-                        icon={UserRound}
-                        label="Gender"
-                        value={user.gender}
-                      />
-                      <InfoItem
-                        icon={Droplet}
-                        label="Blood group"
-                        value={user.bloodGroup ?? donor?.bloodGroup}
-                      />
-                    </>
-                  ) : null}
-                </CardContent>
-              </Card>
+              <PersonalInformationCard
+                donor={donor}
+                isDonor={isDonor}
+                user={user}
+              />
 
-              <Card className="h-fit overflow-hidden rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
-                <div className="h-1.5 bg-[linear-gradient(90deg,#dc2626,#fb7185)]" />
-                <CardHeader className="p-5 sm:p-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h2 className="text-xl font-black text-neutral-950">
-                        Donor Information
-                      </h2>
-                      <p className="mt-1 text-sm font-medium leading-6 text-neutral-600">
-                        {donor
-                          ? "Manage your donor availability and donation details."
-                          : "You can help nearby patients find blood faster."}
-                      </p>
-                    </div>
-                    {donor ? (
-                      <Badge className="bg-red-50 text-red-700 ring-1 ring-red-100">
-                        Donor
-                      </Badge>
-                    ) : null}
-                  </div>
-                </CardHeader>
-                <CardContent className="grid gap-4 p-5 pt-0 sm:p-6 sm:pt-0">
-                  {donor ? (
-                    <>
-                      <div className="grid gap-3">
-                        <InfoItem
-                          icon={Droplet}
-                          label="Blood group"
-                          value={donor.bloodGroup}
-                        />
-                        <InfoItem
-                          icon={CheckCircle2}
-                          label="Availability"
-                          value={
-                            donor.isAvailable
-                              ? "Available for requests"
-                              : "Not available"
-                          }
-                        />
-                        <InfoItem
-                          icon={CalendarCheck}
-                          label="Last donation"
-                          value={formatDate(donor.lastDonationDate)}
-                        />
-                      </div>
-                      <Button
-                        className="h-12 rounded-full bg-red-700 text-white hover:bg-red-800"
-                        onClick={() => setIsEditingDonor((current) => !current)}
-                        type="button"
-                      >
-                        <Edit3 className="h-4 w-4" />
-                        {isEditingDonor
-                          ? "Close donor form"
-                          : "Update donor details"}
-                      </Button>
-                    </>
-                  ) : (
-                    <div className="grid gap-4 rounded-2xl border border-red-100 bg-red-50/70 p-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-700 text-white shadow-lg shadow-red-700/20">
-                        <HeartHandshake className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-neutral-950">
-                          Join as a LifeDrop donor
-                        </h3>
-                        <p className="mt-2 text-sm leading-6 text-neutral-700">
-                          Add your blood group and availability so people near
-                          your city can find help in urgent moments.
-                        </p>
-                      </div>
-                      <Button
-                        asChild
-                        className="h-12 rounded-full bg-red-700 text-white hover:bg-red-800"
-                      >
-                        <Link href="/become-donor">
-                          <HeartHandshake className="h-4 w-4" />
-                          Join as a Donor
-                        </Link>
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <DonorInformationCard
+                donor={donor}
+                isEditingDonor={isEditingDonor}
+                onToggleDonorEdit={() =>
+                  setIsEditingDonor((current) => !current)
+                }
+              />
             </div>
 
             {donor && isEditingDonor ? (
-              <Card className="rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
-                <CardHeader className="p-5 sm:p-6">
-                  <h2 className="text-xl font-bold text-neutral-950">
+              <Card className={profileCard}>
+                <CardHeader className={profileCardHeader}>
+                  <h2 className="text-lg font-bold text-neutral-950">
                     Update Donor Details
                   </h2>
-                  <p className="text-sm leading-6 text-neutral-600">
+                  <p className="text-sm text-neutral-600">
                     Update your blood group, contact preferences, location, and
                     availability.
                   </p>
                 </CardHeader>
-                <CardContent className="p-5 pt-0 sm:p-6 sm:pt-0">
+                <CardContent className={profileCardBody}>
                   <DonorEditForm
                     donor={donor}
                     onCancel={() => setIsEditingDonor(false)}
