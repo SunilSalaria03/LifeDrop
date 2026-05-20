@@ -117,25 +117,28 @@ export function StatsSection() {
             LifeDrop impact
           </p>
           <div className="grid gap-4">
-            <h2 className="text-3xl font-black leading-tight tracking-normal text-white sm:text-4xl">
+            <h2 className="text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl">
               Faster local connections when blood is needed urgently
             </h2>
-            <p className="text-sm font-semibold leading-6 text-red-50/85">
+            <p className="text-sm font-normal leading-7 text-red-50/80 sm:text-[15px] sm:leading-7">
               Every verified donor and completed request expands coverage in more
               cities—so families and coordinators spend less time searching and more
               time acting.
             </p>
           </div>
           <ul
-            className="mx-auto grid max-w-md list-none gap-2.5 pl-0 text-left sm:gap-3 lg:mx-0 lg:max-w-none"
+            className="mx-auto w-full max-w-md list-none divide-y divide-white/10 overflow-hidden rounded-2xl border border-white/12 bg-white/[0.05] shadow-[0_12px_40px_rgba(0,0,0,0.08)] backdrop-blur-md sm:max-w-lg lg:mx-0 lg:max-w-none"
             role="list"
           >
             {impactHighlights.map((highlight) => (
-              <li className="flex gap-3" key={highlight}>
-                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-md shadow-red-950/40">
-                  <HeartPulse className="h-4 w-4" aria-hidden />
+              <li className="flex gap-3.5 px-4 py-3 sm:gap-4 sm:px-5 sm:py-3.5" key={highlight}>
+                <span
+                  className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/12 text-white ring-1 ring-white/15"
+                  aria-hidden
+                >
+                  <HeartPulse className="h-3 w-3 opacity-95" strokeWidth={2.25} />
                 </span>
-                <span className="text-[14px] font-semibold capitalize leading-snug tracking-[0.06em] text-red-50">
+                <span className="min-w-0 text-left text-sm font-medium leading-relaxed text-white/90 sm:text-[14px]">
                   {highlight}
                 </span>
               </li>
