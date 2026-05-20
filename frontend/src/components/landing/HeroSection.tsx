@@ -145,11 +145,14 @@ export function HeroSection() {
 
             {/* Badge + headline + subtitle — left-anchored to left column */}
             <div className="grid max-w-2xl gap-5 md:max-w-3xl lg:max-w-[58%]">
-              <p className="inline-flex w-fit items-center gap-2 rounded-full border border-red-500/40 bg-red-700/20 px-4 py-2 text-sm font-semibold text-red-300 backdrop-blur-sm">
+              <p
+                aria-label="Minutes matter. Nearby donors for urgent blood needs."
+                className="inline-flex w-fit max-w-full items-center gap-2 rounded-full border border-red-500/40 bg-red-700/20 px-3 py-2 text-[14px] font-semibold capitalize leading-snug tracking-[0.12em] text-red-300 backdrop-blur-sm sm:px-4 sm:tracking-[0.14em]"
+              >
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-lg shadow-red-700/50">
                   <HeartPulse className="h-4 w-4" />
                 </span>
-                Urgent blood needs. Local donor search
+                Minutes matter · nearby donors
               </p>
               <h1 className="text-balance text-2xl font-bold uppercase leading-tight tracking-[0.06em] text-white sm:text-3xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-5xl">
                 Search donors{" "}
@@ -184,7 +187,7 @@ export function HeroSection() {
                             aria-hidden
                             strokeWidth={2}
                           />
-                          <span className="whitespace-nowrap text-[0.72rem] font-normal lowercase leading-none tracking-wide text-white/95 sm:text-sm">
+                          <span className="whitespace-nowrap text-[0.72rem] font-normal capitalize leading-none tracking-wide text-white/95 sm:text-sm">
                             {step.label}
                           </span>
                         </div>
