@@ -285,8 +285,9 @@ Tech Stack:
 Heading:
 "Search donors by blood group and location across your city"
 
-Subtext:
-"Filter by blood group and location, then contact donors who appear in search."
+Subtext (transparent glass tags + line):
+- Separate pill badges: `bg-transparent`, `border-white/20`, **small shadow** (`shadow-sm shadow-black/25`), lowercase labels; icon + label; thin gradient line segments between badges.
+- Helper line: Sparkles + "Then contact donors who appear in your results" (no trailing period).
 
 ----------------------------------------
 

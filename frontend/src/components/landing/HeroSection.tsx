@@ -1,9 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { HeartPulse } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import {
+  Building2,
+  Droplet,
+  HeartPulse,
+  MapPin,
+  Sparkles,
+  UserSearch,
+} from "lucide-react";
 import { searchDonors } from "@/features/donors/api/donors.api";
 import { DonorSearchFilters } from "@/features/donors/types/donor.types";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
@@ -12,6 +20,18 @@ import { initialDonorSearchFilters } from "./landing.constants";
 import { DonorList } from "./DonorList";
 import { SearchBar } from "./SearchBar";
 import { DonorSearchFormValues } from "./landing.types";
+
+type HeroSearchStep = {
+  label: string;
+  Icon: LucideIcon;
+};
+
+const HERO_SEARCH_STEPS: HeroSearchStep[] = [
+  { label: "Blood group", Icon: Droplet },
+  { label: "State", Icon: MapPin },
+  { label: "City / area", Icon: Building2 },
+  { label: "Search donors", Icon: UserSearch },
+];
 
 export function HeroSection() {
   const [filters, setFilters] =
@@ -136,9 +156,52 @@ export function HeroSection() {
                 <span className="text-red-400">by blood group and location</span>{" "}
                 across your city
               </h1>
-              <p className="max-w-lg text-base font-medium leading-7 text-slate-300 sm:text-lg sm:leading-8">
-                Filter by blood group and location, then contact donors who appear in search.
-              </p>
+              <div
+                className="w-full max-w-2xl min-w-0 sm:max-w-3xl"
+                role="group"
+                aria-label="How search works: choose blood group, then state, then city or area, run search donors, then contact donors from the results."
+              >
+                <div
+                  role="list"
+                  className="flex w-full min-w-0 flex-nowrap items-center gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-2 [&::-webkit-scrollbar]:hidden"
+                >
+                  {HERO_SEARCH_STEPS.map((step, index) => {
+                    const StepIcon = step.Icon;
+                    return (
+                      <Fragment key={step.label}>
+                        {index > 0 ? (
+                          <span
+                            aria-hidden
+                            className="h-px w-2.5 shrink-0 self-center bg-gradient-to-r from-transparent via-white/35 to-transparent sm:w-4"
+                          />
+                        ) : null}
+                        <div
+                          role="listitem"
+                          className="inline-flex shrink-0 items-center gap-1.5 rounded-2xl border border-white/20 bg-transparent px-2 py-1 shadow-sm shadow-black/25 sm:gap-2 sm:rounded-[1.1rem] sm:px-2.5 sm:py-1.5"
+                        >
+                          <StepIcon
+                            className="h-3 w-3 shrink-0 text-white/85 sm:h-3.5 sm:w-3.5"
+                            aria-hidden
+                            strokeWidth={2}
+                          />
+                          <span className="whitespace-nowrap text-[0.72rem] font-normal lowercase leading-none tracking-wide text-white/95 sm:text-sm">
+                            {step.label}
+                          </span>
+                        </div>
+                      </Fragment>
+                    );
+                  })}
+                </div>
+                <p className="mt-3 flex items-start gap-2 text-xs font-normal leading-relaxed text-slate-300/95 sm:mt-3.5 sm:text-sm">
+                  <Sparkles
+                    className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-300/90 sm:h-4 sm:w-4"
+                    aria-hidden
+                  />
+                  <span>
+                    Then contact donors who appear in your results
+                  </span>
+                </p>
+              </div>
             </div>
 
             {/* Search form — full width */}
