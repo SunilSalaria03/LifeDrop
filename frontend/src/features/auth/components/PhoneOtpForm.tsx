@@ -137,7 +137,7 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
             id="otp"
             name="otp"
             inputMode="numeric"
-            placeholder="123456"
+            placeholder="xxxxxx"
             className="h-12 rounded-2xl bg-white"
             value={verifyFormik.values.otp}
             onBlur={verifyFormik.handleBlur}

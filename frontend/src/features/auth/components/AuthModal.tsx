@@ -199,9 +199,9 @@ export function AuthModal({
   const description =
     step === 'login'
       ? otpFlow === 'profile'
-        ? 'Enter your verified phone number to receive a secure verification code.'
-        : 'Enter your phone number to receive a secure verification code.'
-      : `Use the 6 digit code sent to +91 ${phoneForOtp}.`;
+        ? 'Enter your number to receive a verification code.'
+        : 'Enter your mobile number to receive a verification code.'
+      : `Enter the 6-digit code sent to +91 ${phoneForOtp}.`;
 
   return (
     <div
@@ -297,7 +297,7 @@ export function AuthModal({
                   <div className="flex items-center gap-3">
                     <span className="h-px flex-1 bg-neutral-200" />
                     <span className="text-xs font-semibold uppercase text-neutral-400">
-                      or continue with
+                      or
                     </span>
                     <span className="h-px flex-1 bg-neutral-200" />
                   </div>
@@ -320,7 +320,7 @@ export function AuthModal({
                   name="otp"
                   onBlur={verifyFormik.handleBlur}
                   onChange={verifyFormik.handleChange}
-                  placeholder="123456"
+                  placeholder="xxxxxx"
                   value={verifyFormik.values.otp}
                 />
                 {verifyFormik.touched.otp && verifyFormik.errors.otp ? (

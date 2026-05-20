@@ -124,7 +124,7 @@ export function PhoneVerificationForm({ user }: PhoneVerificationFormProps) {
           name="otp"
           onBlur={formik.handleBlur}
           onChange={formik.handleChange}
-          placeholder="123456"
+          placeholder="xxxxxx"
           value={formik.values.otp}
         />
         {formik.touched.otp && formik.errors.otp ? (
