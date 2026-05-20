@@ -1,3 +1,4 @@
+import { AboutSection } from '@/components/landing/AboutSection';
 import { CTASection } from '@/components/landing/CTASection';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { HowItWorks } from '@/components/landing/HowItWorks';
@@ -14,6 +15,7 @@ export default function Home() {
         <HeroSection />
         {/* <ActionCards /> */}
         <StatsSection />
+        <AboutSection />
         <SuccessStories />
         <HowItWorks />
         <CTASection />

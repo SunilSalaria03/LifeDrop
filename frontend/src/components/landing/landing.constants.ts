@@ -17,6 +17,8 @@ import {
   SuccessStory,
 } from './landing.types';
 
+export const LIFEDROP_ABOUT_SECTION_ID = 'lifedrop-about';
+
 export const initialDonorSearchFilters: DonorSearchFormValues = {
   bloodGroup: '',
   state: '',

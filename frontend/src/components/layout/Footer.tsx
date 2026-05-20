@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Droplet, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { LIFEDROP_ABOUT_SECTION_ID } from '@/components/landing/landing.constants';
 import { footerLinks } from './footer.constants';
 import { userStorage } from '@/lib/auth/user-storage';
 
@@ -41,6 +42,17 @@ export function Footer() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleAbout = () => {
+    const aboutSection = document.getElementById(LIFEDROP_ABOUT_SECTION_ID);
+
+    if (aboutSection) {
+      aboutSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    router.push(`/#${LIFEDROP_ABOUT_SECTION_ID}`);
+  };
+
   return (
     <footer className="relative overflow-hidden bg-[linear-gradient(135deg,#0f172a_0%,#111827_55%,#1f1022_100%)]">
       <div className="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-red-700/15 blur-3xl" />
@@ -75,11 +87,22 @@ export function Footer() {
         <div className="grid content-start gap-4">
           <h2 className="text-sm font-black uppercase tracking-wider text-white">Links</h2>
           <div className="grid gap-3">
-            {footerLinks.map((link) => (
-              <Link className={footerLinkClassName} href="#" key={link}>
-                {link}
-              </Link>
-            ))}
+            {footerLinks.map((link) =>
+              link === 'About' ? (
+                <button
+                  className={footerLinkClassName}
+                  key={link}
+                  onClick={handleAbout}
+                  type="button"
+                >
+                  {link}
+                </button>
+              ) : (
+                <Link className={footerLinkClassName} href="#" key={link}>
+                  {link}
+                </Link>
+              ),
+            )}
             <button
               className={footerLinkClassName}
               onClick={handleJoinAsDonor}
