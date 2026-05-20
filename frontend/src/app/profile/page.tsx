@@ -51,8 +51,13 @@ import {
   findStateCode,
   formatDateInputValue,
 } from "@/features/profile/profile.helpers";
-import { formatDate, getDisplayName, getInitials } from "./profile-page.helpers";
+import {
+  formatDate,
+  getDisplayName,
+  getInitials,
+} from "./profile-page.helpers";
 import { InfoItemProps } from "./profile-page.types";
+import { HeroSection } from "../../components/landing/HeroSection";
 
 function InfoItem({ icon: Icon, label, value }: InfoItemProps) {
   return (
@@ -206,7 +211,9 @@ function ProfileEditForm({
   };
 
   const handleDistrictChange = (districtName: string) => {
-    const selectedDistrict = districts.find((city) => city.name === districtName);
+    const selectedDistrict = districts.find(
+      (city) => city.name === districtName,
+    );
     void formik.setValues({
       ...formik.values,
       district: districtName,
@@ -272,87 +279,93 @@ function ProfileEditForm({
       </section>
 
       {isDonor ? (
-      <section className="grid gap-4 rounded-3xl border border-red-100 bg-white p-4 shadow-sm shadow-neutral-950/5 sm:p-5">
-        <h3 className="text-base font-bold text-neutral-950">
-          Donor Information
-        </h3>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <label className="grid gap-2">
-            <FieldLabel>Blood group</FieldLabel>
-            <Select
-              onValueChange={(bloodGroup) =>
-                void formik.setFieldValue("bloodGroup", bloodGroup, false)
-              }
-              value={formik.values.bloodGroup}
-            >
-              <SelectTrigger aria-label="Blood group" className="h-12 rounded-2xl bg-white">
-                <SelectValue placeholder="Blood group" />
-              </SelectTrigger>
-              <SelectContent>
-                {bloodGroups.map((bloodGroup) => (
-                  <SelectItem key={bloodGroup} value={bloodGroup}>
-                    {bloodGroup}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </label>
-          <label className="grid gap-2">
-            <FieldLabel>Gender</FieldLabel>
-            <Select
-              onValueChange={(gender) =>
-                void formik.setFieldValue("gender", gender, false)
-              }
-              value={formik.values.gender}
-            >
-              <SelectTrigger aria-label="Gender" className="h-12 rounded-2xl bg-white">
-                <SelectValue placeholder="Gender" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="male">Male</SelectItem>
-                <SelectItem value="female">Female</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </label>
-          <label className="grid gap-2">
-            <FieldLabel>Weight</FieldLabel>
-            <Input
-              aria-label="Weight"
-              className="h-12 rounded-2xl bg-white"
-              inputMode="numeric"
-              name="weight"
-              onChange={formik.handleChange}
-              placeholder="Weight"
-              value={formik.values.weight}
-            />
-          </label>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label className="grid gap-2">
-            <FieldLabel>Birth date</FieldLabel>
-            <Input
-              aria-label="Birth date"
-              className="h-12 rounded-2xl bg-white"
-              name="birthDate"
-              onChange={formik.handleChange}
-              type="date"
-              value={formik.values.birthDate}
-            />
-          </label>
-          <label className="grid gap-2">
-            <FieldLabel>Last donation date</FieldLabel>
-            <Input
-              aria-label="Last donation date"
-              className="h-12 rounded-2xl bg-white"
-              name="lastDonationDate"
-              onChange={formik.handleChange}
-              type="date"
-              value={formik.values.lastDonationDate}
-            />
-          </label>
-        </div>
-      </section>
+        <section className="grid gap-4 rounded-3xl border border-red-100 bg-white p-4 shadow-sm shadow-neutral-950/5 sm:p-5">
+          <h3 className="text-base font-bold text-neutral-950">
+            Donor Information
+          </h3>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <label className="grid gap-2">
+              <FieldLabel>Blood group</FieldLabel>
+              <Select
+                onValueChange={(bloodGroup) =>
+                  void formik.setFieldValue("bloodGroup", bloodGroup, false)
+                }
+                value={formik.values.bloodGroup}
+              >
+                <SelectTrigger
+                  aria-label="Blood group"
+                  className="h-12 rounded-2xl bg-white"
+                >
+                  <SelectValue placeholder="Blood group" />
+                </SelectTrigger>
+                <SelectContent>
+                  {bloodGroups.map((bloodGroup) => (
+                    <SelectItem key={bloodGroup} value={bloodGroup}>
+                      {bloodGroup}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </label>
+            <label className="grid gap-2">
+              <FieldLabel>Gender</FieldLabel>
+              <Select
+                onValueChange={(gender) =>
+                  void formik.setFieldValue("gender", gender, false)
+                }
+                value={formik.values.gender}
+              >
+                <SelectTrigger
+                  aria-label="Gender"
+                  className="h-12 rounded-2xl bg-white"
+                >
+                  <SelectValue placeholder="Gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </label>
+            <label className="grid gap-2">
+              <FieldLabel>Weight</FieldLabel>
+              <Input
+                aria-label="Weight"
+                className="h-12 rounded-2xl bg-white"
+                inputMode="numeric"
+                name="weight"
+                onChange={formik.handleChange}
+                placeholder="Weight"
+                value={formik.values.weight}
+              />
+            </label>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="grid gap-2">
+              <FieldLabel>Birth date</FieldLabel>
+              <Input
+                aria-label="Birth date"
+                className="h-12 rounded-2xl bg-white"
+                name="birthDate"
+                onChange={formik.handleChange}
+                type="date"
+                value={formik.values.birthDate}
+              />
+            </label>
+            <label className="grid gap-2">
+              <FieldLabel>Last donation date</FieldLabel>
+              <Input
+                aria-label="Last donation date"
+                className="h-12 rounded-2xl bg-white"
+                name="lastDonationDate"
+                onChange={formik.handleChange}
+                type="date"
+                value={formik.values.lastDonationDate}
+              />
+            </label>
+          </div>
+        </section>
       ) : null}
 
       <section className="grid gap-4 rounded-3xl border border-red-100 bg-red-50/25 p-4 sm:p-5">
@@ -361,42 +374,52 @@ function ProfileEditForm({
         </h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {isDonor ? (
-          <label className="grid gap-2">
-            <FieldLabel>Mobile visibility</FieldLabel>
-            <Select
-              onValueChange={(value) =>
-                void formik.setFieldValue("showMobile", value === "true", false)
-              }
-              value={booleanSelectValue(formik.values.showMobile)}
-            >
-              <SelectTrigger aria-label="Show mobile" className="h-12 rounded-2xl bg-white">
-                <SelectValue placeholder="Show mobile" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="true">Show mobile</SelectItem>
-                <SelectItem value="false">Hide mobile</SelectItem>
-              </SelectContent>
-            </Select>
-          </label>
+            <label className="grid gap-2">
+              <FieldLabel>Mobile visibility</FieldLabel>
+              <Select
+                onValueChange={(value) =>
+                  void formik.setFieldValue(
+                    "showMobile",
+                    value === "true",
+                    false,
+                  )
+                }
+                value={booleanSelectValue(formik.values.showMobile)}
+              >
+                <SelectTrigger
+                  aria-label="Show mobile"
+                  className="h-12 rounded-2xl bg-white"
+                >
+                  <SelectValue placeholder="Show mobile" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="true">Show mobile</SelectItem>
+                  <SelectItem value="false">Hide mobile</SelectItem>
+                </SelectContent>
+              </Select>
+            </label>
           ) : null}
           {isDonor ? (
-          <label className="grid gap-2">
-            <FieldLabel>SMS alerts</FieldLabel>
-            <Select
-              onValueChange={(value) =>
-                void formik.setFieldValue("smsAlert", value === "true", false)
-              }
-              value={booleanSelectValue(formik.values.smsAlert)}
-            >
-              <SelectTrigger aria-label="SMS alert" className="h-12 rounded-2xl bg-white">
-                <SelectValue placeholder="SMS alert" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="true">SMS alerts on</SelectItem>
-                <SelectItem value="false">SMS alerts off</SelectItem>
-              </SelectContent>
-            </Select>
-          </label>
+            <label className="grid gap-2">
+              <FieldLabel>SMS alerts</FieldLabel>
+              <Select
+                onValueChange={(value) =>
+                  void formik.setFieldValue("smsAlert", value === "true", false)
+                }
+                value={booleanSelectValue(formik.values.smsAlert)}
+              >
+                <SelectTrigger
+                  aria-label="SMS alert"
+                  className="h-12 rounded-2xl bg-white"
+                >
+                  <SelectValue placeholder="SMS alert" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="true">SMS alerts on</SelectItem>
+                  <SelectItem value="false">SMS alerts off</SelectItem>
+                </SelectContent>
+              </Select>
+            </label>
           ) : null}
           <label className="grid gap-2">
             <FieldLabel>Pin code</FieldLabel>
@@ -430,7 +453,10 @@ function ProfileEditForm({
               onValueChange={handleStateChange}
               value={formik.values.stateCode}
             >
-              <SelectTrigger aria-label="State" className="h-12 rounded-2xl bg-white">
+              <SelectTrigger
+                aria-label="State"
+                className="h-12 rounded-2xl bg-white"
+              >
                 <SelectValue placeholder="State" />
               </SelectTrigger>
               <SelectContent>
@@ -450,7 +476,10 @@ function ProfileEditForm({
               onValueChange={handleDistrictChange}
               value={formik.values.district}
             >
-              <SelectTrigger aria-label="District" className="h-12 rounded-2xl bg-white">
+              <SelectTrigger
+                aria-label="District"
+                className="h-12 rounded-2xl bg-white"
+              >
                 <SelectValue placeholder="District" />
               </SelectTrigger>
               <SelectContent>
@@ -474,7 +503,10 @@ function ProfileEditForm({
               }
               value={formik.values.tehsil}
             >
-              <SelectTrigger aria-label="Tehsil" className="h-12 rounded-2xl bg-white">
+              <SelectTrigger
+                aria-label="Tehsil"
+                className="h-12 rounded-2xl bg-white"
+              >
                 <SelectValue placeholder="Tehsil" />
               </SelectTrigger>
               <SelectContent>
@@ -803,6 +835,9 @@ export default function ProfilePage() {
   return (
     <ProtectedRoute>
       <Header />
+      <div className="bg-slate-900 pt-16 text-neutral-950 sm:pt-18">
+        <HeroSection />
+      </div>
       <main className="relative min-h-screen overflow-hidden bg-[linear-gradient(135deg,#f8fafc_0%,#ffffff_48%,#fff7f7_100%)] px-4 pb-10 pt-28 text-neutral-950 sm:px-6 sm:pb-12 sm:pt-32 lg:px-8">
         <div className="pointer-events-none absolute -left-32 top-20 h-72 w-72 rounded-full bg-red-50 blur-3xl" />
         <div className="pointer-events-none absolute -right-32 top-96 h-72 w-72 rounded-full bg-red-50/80 blur-3xl" />
@@ -821,11 +856,7 @@ export default function ProfilePage() {
                     />
                   ) : null}
                   <AvatarFallback className="text-2xl font-bold text-red-700">
-                    {getInitials(
-                      user.name,
-                      user.email,
-                      user.phone,
-                    )}
+                    {getInitials(user.name, user.email, user.phone)}
                   </AvatarFallback>
                 </Avatar>
 
@@ -843,11 +874,9 @@ export default function ProfilePage() {
                       <p className="mt-2 flex items-start gap-2 text-sm font-semibold text-neutral-600 sm:text-base">
                         <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
                         <span className="break-words">
-                          {[
-                            user.district ?? user.city,
-                            user.state,
-                          ].filter(Boolean).join(", ") ||
-                            "Location not provided"}
+                          {[user.district ?? user.city, user.state]
+                            .filter(Boolean)
+                            .join(", ") || "Location not provided"}
                         </span>
                       </p>
                     </div>
@@ -885,9 +914,7 @@ export default function ProfilePage() {
                       }
                     >
                       <CheckCircle2 className="h-3.5 w-3.5" />
-                      {user.phoneVerified
-                        ? "Verified"
-                        : "Verification pending"}
+                      {user.phoneVerified ? "Verified" : "Verification pending"}
                     </Badge>
 
                     <Badge className="rounded-full bg-red-50 px-3.5 py-1.5 font-bold text-red-700 hover:bg-red-100">
@@ -910,7 +937,6 @@ export default function ProfilePage() {
                       Member since {formatDate(user.createdAt)}
                     </Badge>
                   </div>
-
                 </div>
               </CardContent>
             </Card>
@@ -957,10 +983,9 @@ export default function ProfilePage() {
                   <InfoItem
                     icon={MapPin}
                     label="District and state"
-                    value={[
-                      user.district ?? user.city,
-                      user.state,
-                    ].filter(Boolean).join(", ")}
+                    value={[user.district ?? user.city, user.state]
+                      .filter(Boolean)
+                      .join(", ")}
                   />
                   <InfoItem
                     icon={MapPin}

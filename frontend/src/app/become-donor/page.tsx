@@ -8,6 +8,7 @@ import { Header } from '@/components/layout/Header';
 import { AuthModal } from '@/features/auth/components/AuthModal';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { BecomeDonorForm } from '@/features/donors/components/BecomeDonorForm';
+import { HeroSection } from '../../components/landing/HeroSection';
 
 export default function BecomeDonorPage() {
   const { meQuery } = useAuth();
@@ -23,6 +24,9 @@ export default function BecomeDonorPage() {
   return (
     <ProtectedRoute>
       <Header />
+      <div className="bg-slate-900 pt-16 text-neutral-950 sm:pt-18">
+      <HeroSection />
+      </div>
       <main className="min-h-screen bg-[linear-gradient(135deg,#f8fafc_0%,#ffffff_48%,#fff7f7_100%)] px-4 pb-8 pt-28 sm:px-6 sm:pb-10 sm:pt-32 lg:px-8">
         <Card className="mx-auto w-full max-w-5xl rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
           <CardContent className="grid gap-6 p-5 sm:gap-7 sm:p-8">

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Fragment, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { LucideIcon } from "lucide-react";
@@ -34,6 +35,8 @@ const HERO_SEARCH_STEPS: HeroSearchStep[] = [
 ];
 
 export function HeroSection() {
+  const pathname = usePathname();
+  const isHomeRoute = pathname === "/";
   const [filters, setFilters] =
     useState<DonorSearchFormValues>(initialDonorSearchFilters);
   const [searchFilters, setSearchFilters] = useState<DonorSearchFilters | null>(
@@ -208,22 +211,25 @@ export function HeroSection() {
             </div>
 
             {/* Search form — full width */}
-            <div
-              className="scroll-mt-20 grid w-full gap-4 rounded-4xl border border-white/10 bg-white/5 p-3 shadow-2xl shadow-black/40 backdrop-blur-md sm:scroll-mt-24 sm:p-4"
-              id="landing-donor-search"
-            >
-              <SearchBar
-                isSearching={donorQuery.isFetching || isSearchDebouncing}
-                onChange={updateFilters}
-                onSearch={handleFindDonors}
-                values={filters}
-              />
-              {validationError ? (
-                <p className="rounded-2xl border border-red-500/30 bg-red-950/60 px-4 py-3 text-sm font-semibold text-red-300 sm:text-left">
-                  {validationError}
-                </p>
-              ) : null}
-            </div>
+            
+            {isHomeRoute ? (
+              <div
+                className="scroll-mt-20 grid w-full gap-4 rounded-4xl border border-white/10 bg-white/5 p-3 shadow-2xl shadow-black/40 backdrop-blur-md sm:scroll-mt-24 sm:p-4"
+                id="landing-donor-search"
+              >
+                <SearchBar
+                  isSearching={donorQuery.isFetching || isSearchDebouncing}
+                  onChange={updateFilters}
+                  onSearch={handleFindDonors}
+                  values={filters}
+                />
+                {validationError ? (
+                  <p className="rounded-2xl border border-red-500/30 bg-red-950/60 px-4 py-3 text-sm font-semibold text-red-300 sm:text-left">
+                    {validationError}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
 
           </div>
         </div>

@@ -13,7 +13,6 @@ export default function Home() {
       <Header />
       <main className="bg-slate-900 pt-16 text-neutral-950 sm:pt-18">
         <HeroSection />
-        {/* <ActionCards /> */}
         <StatsSection />
         <AboutSection />
         <SuccessStories />
