@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { City, State } from "country-state-city";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
+import { HeartHandshake } from "lucide-react";
 import { IndiaPhoneInput } from "@/components/forms/IndiaPhoneInput";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,10 +37,10 @@ function FieldLabel({
 }: FieldLabelProps) {
   return (
     <label
-      className="grid gap-2 text-sm font-semibold text-neutral-700"
+      className="text-xs font-black uppercase tracking-normal text-neutral-500"
       htmlFor={htmlFor}
     >
-      <span>{children}</span>
+      {children}
     </label>
   );
 }
@@ -167,13 +168,13 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
 
   return (
     <form className="grid gap-6" onSubmit={formik.handleSubmit}>
-      <section className="grid gap-4">
+      <section className="grid gap-4 rounded-3xl border border-red-100 bg-red-50/25 p-4 sm:p-5">
         <h2 className="text-base font-bold text-neutral-950">Personal</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="grid gap-2">
             <FieldLabel htmlFor="name">Name</FieldLabel>
             <Input
-              className="h-12 rounded-2xl"
+              className="h-12 rounded-2xl bg-white"
               id="name"
               name="name"
               onChange={formik.handleChange}
@@ -198,7 +199,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
         </div>
       </section>
 
-      <section className="grid gap-4">
+      <section className="grid gap-4 rounded-3xl border border-red-100 bg-white p-4 shadow-sm shadow-neutral-950/5 sm:p-5">
         <h2 className="text-base font-bold text-neutral-950">Donor</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div className="grid gap-2">
@@ -209,7 +210,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               }
               value={formik.values.bloodGroup}
             >
-              <SelectTrigger aria-label="Blood group" className="h-12 rounded-2xl">
+              <SelectTrigger aria-label="Blood group" className="h-12 rounded-2xl bg-white">
                 <SelectValue placeholder="Select blood group" />
               </SelectTrigger>
               <SelectContent>
@@ -229,7 +230,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               }
               value={formik.values.gender}
             >
-              <SelectTrigger aria-label="Gender" className="h-12 rounded-2xl">
+              <SelectTrigger aria-label="Gender" className="h-12 rounded-2xl bg-white">
                 <SelectValue placeholder="Select gender" />
               </SelectTrigger>
               <SelectContent>
@@ -242,7 +243,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
           <div className="grid gap-2">
             <FieldLabel htmlFor="weight">Weight</FieldLabel>
             <Input
-              className="h-12 rounded-2xl"
+              className="h-12 rounded-2xl bg-white"
               id="weight"
               inputMode="numeric"
               name="weight"
@@ -254,7 +255,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
           <div className="grid gap-2">
             <FieldLabel htmlFor="birthDate">Birth date</FieldLabel>
             <Input
-              className="h-12 rounded-2xl"
+              className="h-12 rounded-2xl bg-white"
               id="birthDate"
               name="birthDate"
               onChange={formik.handleChange}
@@ -267,7 +268,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               Last donation date
             </FieldLabel>
             <Input
-              className="h-12 rounded-2xl"
+              className="h-12 rounded-2xl bg-white"
               id="lastDonationDate"
               name="lastDonationDate"
               onChange={formik.handleChange}
@@ -276,7 +277,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
             />
           </div>
           <div className="grid gap-2">
-            <span className="text-sm font-semibold text-neutral-700">
+            <span className="text-xs font-black uppercase tracking-normal text-neutral-500">
               Availability
             </span>
             <label className="flex h-12 items-center gap-2 rounded-2xl border border-neutral-200 bg-white px-3 text-sm font-semibold text-neutral-700">
@@ -292,7 +293,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
         </div>
       </section>
 
-      <section className="grid gap-4">
+      <section className="grid gap-4 rounded-3xl border border-red-100 bg-red-50/25 p-4 sm:p-5">
         <h2 className="text-base font-bold text-neutral-950">Contact</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div className="grid gap-2">
@@ -303,7 +304,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               }
               value={booleanSelectValue(formik.values.showMobile)}
             >
-              <SelectTrigger aria-label="Show mobile" className="h-12 rounded-2xl">
+              <SelectTrigger aria-label="Show mobile" className="h-12 rounded-2xl bg-white">
                 <SelectValue placeholder="Select visibility" />
               </SelectTrigger>
               <SelectContent>
@@ -320,7 +321,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               }
               value={booleanSelectValue(formik.values.smsAlert)}
             >
-              <SelectTrigger aria-label="SMS alert" className="h-12 rounded-2xl">
+              <SelectTrigger aria-label="SMS alert" className="h-12 rounded-2xl bg-white">
                 <SelectValue placeholder="Select SMS alert" />
               </SelectTrigger>
               <SelectContent>
@@ -332,7 +333,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
           <div className="grid gap-2">
             <FieldLabel htmlFor="pincode">Pincode</FieldLabel>
             <Input
-              className="h-12 rounded-2xl"
+              className="h-12 rounded-2xl bg-white"
               id="pincode"
               inputMode="numeric"
               maxLength={6}
@@ -345,7 +346,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
           <div className="grid gap-2 sm:col-span-2 lg:col-span-3">
             <FieldLabel htmlFor="addressLine">Address line</FieldLabel>
             <Input
-              className="h-12 rounded-2xl"
+              className="h-12 rounded-2xl bg-white"
               id="addressLine"
               name="addressLine"
               onChange={formik.handleChange}
@@ -359,7 +360,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               onValueChange={handleStateChange}
               value={formik.values.stateCode}
             >
-              <SelectTrigger aria-label="State" className="h-12 rounded-2xl">
+              <SelectTrigger aria-label="State" className="h-12 rounded-2xl bg-white">
                 <SelectValue placeholder="Select state" />
               </SelectTrigger>
               <SelectContent>
@@ -378,7 +379,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               onValueChange={handleDistrictChange}
               value={formik.values.district}
             >
-              <SelectTrigger aria-label="District" className="h-12 rounded-2xl">
+              <SelectTrigger aria-label="District" className="h-12 rounded-2xl bg-white">
                 <SelectValue placeholder="Select district" />
               </SelectTrigger>
               <SelectContent>
@@ -402,7 +403,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               }
               value={formik.values.tehsil}
             >
-              <SelectTrigger aria-label="Tehsil" className="h-12 rounded-2xl">
+              <SelectTrigger aria-label="Tehsil" className="h-12 rounded-2xl bg-white">
                 <SelectValue placeholder="Select tehsil optional" />
               </SelectTrigger>
               <SelectContent>
@@ -426,13 +427,16 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
         </p>
       ) : null}
 
-      <Button
-        className="h-12 w-full rounded-full bg-red-600 text-white hover:bg-red-700"
-        disabled={createDonorProfileMutation.isPending}
-        type="submit"
-      >
-        {createDonorProfileMutation.isPending ? "Saving..." : "Become a donor"}
-      </Button>
+      <div className="flex justify-center">
+        <Button
+          className="h-12 w-full rounded-full bg-red-700 px-8 text-white hover:bg-red-800 sm:w-auto"
+          disabled={createDonorProfileMutation.isPending}
+          type="submit"
+        >
+          <HeartHandshake className="h-4 w-4" />
+          {createDonorProfileMutation.isPending ? "Saving..." : "Join as a Donor"}
+        </Button>
+      </div>
     </form>
   );
 }

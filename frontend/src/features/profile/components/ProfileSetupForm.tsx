@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { City, State } from 'country-state-city';
 import { useFormik } from 'formik';
 import { useRouter } from 'next/navigation';
+import { Save } from 'lucide-react';
 import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -195,6 +196,7 @@ export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
         disabled={updateProfileMutation.isPending}
         type="submit"
       >
+        <Save className="h-4 w-4" />
         {updateProfileMutation.isPending ? 'Saving...' : 'Complete profile'}
       </Button>
     </form>

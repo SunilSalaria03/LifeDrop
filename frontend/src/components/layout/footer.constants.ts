@@ -1,1 +1,1 @@
-export const footerLinks = ['About', 'Contact', 'Privacy Policy'];
+export const footerLinks = ['About'];

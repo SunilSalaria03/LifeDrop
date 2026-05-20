@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
+import { RotateCcw, Send, ShieldCheck } from 'lucide-react';
 import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -136,7 +137,7 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
             id="otp"
             name="otp"
             inputMode="numeric"
-            placeholder="123456"
+            placeholder="xxxxxx"
             className="h-12 rounded-2xl bg-white"
             value={verifyFormik.values.otp}
             onBlur={verifyFormik.handleBlur}
@@ -158,6 +159,7 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
           type="submit"
           disabled={verifyOtpMutation.isPending || !phoneFromQuery}
         >
+          <ShieldCheck className="h-4 w-4" />
           {verifyOtpMutation.isPending ? 'Verifying...' : 'Verify OTP'}
         </Button>
 
@@ -168,6 +170,7 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
           type="button"
           variant="outline"
         >
+          <RotateCcw className="h-4 w-4" />
           {sendOtpMutation.isPending
             ? 'Resending...'
             : resendSeconds > 0
@@ -214,6 +217,7 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
         type="submit"
         disabled={sendOtpMutation.isPending}
       >
+        <Send className="h-4 w-4" />
         {sendOtpMutation.isPending ? 'Sending OTP...' : 'Send OTP'}
       </Button>
     </form>

@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Droplet, Loader2, LogOut, Settings } from "lucide-react";
+import {
+  Droplet,
+  HeartHandshake,
+  Loader2,
+  LogIn,
+  LogOut,
+  Settings,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LocationSelector } from "@/components/location/LocationSelector";
@@ -141,7 +148,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-red-100/80 bg-white/90 shadow-sm shadow-red-950/5 backdrop-blur-xl">
+      <header className="fixed top-0 z-40 w-full border-b border-red-100/80 bg-white/90 shadow-sm shadow-red-950/5 backdrop-blur-xl">
         <div className="mx-auto flex min-h-16 max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:min-h-18 sm:flex-nowrap sm:px-6 lg:px-8">
           <Link
             aria-label="LifeDrop home"
@@ -155,14 +162,14 @@ export function Header() {
               <span className="text-xl font-bold tracking-normal text-neutral-950 sm:text-2xl">
                 LifeDrop
               </span>
-              <span className="hidden text-xs font-semibold uppercase tracking-[0.14em] text-red-700 sm:block">
-                Blood donor network
+              <span className="hidden text-xs font-semibold leading-snug tracking-normal text-red-700 sm:block">
+                Connecting donors with patients in need
               </span>
             </span>
           </Link>
 
           <nav className="flex w-full min-w-0 flex-wrap items-center justify-start gap-2 sm:w-auto sm:flex-1 sm:flex-nowrap sm:justify-end sm:gap-3">
-            <LocationSelector />
+            {/* <LocationSelector /> */}
             {user ? (
               <div className="relative" ref={menuRef}>
                 <button
@@ -225,11 +232,12 @@ export function Header() {
             ) : (
               <>
                 <Button
-                  className="h-11 flex-1 rounded-full px-5 text-neutral-700 hover:bg-red-50 hover:text-red-700 sm:flex-none"
+                  className="h-11 flex-1 rounded-full border border-solid border-slate-300 bg-transparent px-5 font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950 sm:flex-none"
                   onClick={openAuthModal}
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                 >
+                  <LogIn className="h-4 w-4" />
                   Login
                 </Button>
               </>
@@ -240,7 +248,10 @@ export function Header() {
                   asChild
                   className="h-11 flex-1 rounded-full bg-red-700 px-5 text-white shadow-sm shadow-red-700/20 hover:bg-red-800 sm:flex-none"
                 >
-                  <Link href="/become-donor">Become a Donor</Link>
+                  <Link href="/become-donor">
+                    <HeartHandshake className="h-4 w-4" />
+                    Join as a Donor
+                  </Link>
                 </Button>
               ) : (
                 <Button
@@ -248,7 +259,8 @@ export function Header() {
                   onClick={handleBecomeDonor}
                   type="button"
                 >
-                  Become a Donor
+                  <HeartHandshake className="h-4 w-4" />
+                  Join as a Donor
                 </Button>
               )
             ) : null}

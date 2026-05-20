@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { City, State } from 'country-state-city';
-import { Droplet } from 'lucide-react';
+import { UserSearch } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -13,6 +13,9 @@ import {
 } from '@/components/ui/select';
 import { bloodGroups } from '@/lib/constants/locations';
 import { SearchBarProps } from './landing.types';
+
+const selectTriggerClassName =
+  'h-14 rounded-2xl border border-neutral-300 bg-white shadow-sm shadow-neutral-950/[0.06] ring-1 ring-neutral-950/[0.04] hover:border-neutral-400 hover:shadow-[0_1px_4px_-1px_rgba(0,0,0,0.08)] transition-[border-color,box-shadow]';
 
 export function SearchBar({
   values,
@@ -68,7 +71,7 @@ export function SearchBar({
       <Select onValueChange={updateBloodGroup} value={values.bloodGroup}>
         <SelectTrigger
           aria-label="Blood group"
-          className="h-14 rounded-2xl border-neutral-200 bg-white"
+          className={selectTriggerClassName}
         >
           <SelectValue placeholder="Blood group" />
         </SelectTrigger>
@@ -84,7 +87,7 @@ export function SearchBar({
       <Select onValueChange={updateState} value={values.stateCode}>
         <SelectTrigger
           aria-label="State"
-          className="h-14 rounded-2xl border-neutral-200 bg-white"
+          className={selectTriggerClassName}
         >
           <SelectValue placeholder="State" />
         </SelectTrigger>
@@ -104,7 +107,7 @@ export function SearchBar({
       >
         <SelectTrigger
           aria-label="City"
-          className="h-14 rounded-2xl border-neutral-200 bg-white"
+          className={selectTriggerClassName}
         >
           <SelectValue placeholder="City / district" />
         </SelectTrigger>
@@ -123,8 +126,8 @@ export function SearchBar({
         onClick={onSearch}
         type="button"
       >
-        <Droplet className="h-5 w-5" />
-        {isSearching ? 'Searching' : 'Find Blood'}
+        <UserSearch className="h-5 w-5 shrink-0" aria-hidden />
+        {isSearching ? 'Searching' : 'Search Donors'}
       </Button>
     </div>
   );

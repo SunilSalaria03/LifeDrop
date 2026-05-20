@@ -8,12 +8,14 @@ test('landing page loads the main LifeDrop experience', async ({ page }) => {
 
   await expect(page).toHaveTitle(/LifeDrop/i);
   await expect(
-    page.getByRole('heading', { name: /find blood donors near you instantly/i }),
+    page.getByRole('heading', {
+      name: /search donors by blood group and location across your city/i,
+    }),
   ).toBeVisible();
   await expect(page.getByRole('link', { name: /lifedrop home/i })).toBeVisible();
   await expect(page.getByRole('button', { name: /^login$/i })).toBeVisible();
   await expect(
-    page.getByRole('navigation').getByRole('button', { name: /become a donor/i }),
+    page.getByRole('navigation').getByRole('button', { name: /join as a donor/i }),
   ).toBeVisible();
-  await expect(page.getByRole('button', { name: /find blood/i })).toBeVisible();
+  await expect(page.getByRole('button', { name: /search donors/i })).toBeVisible();
 });

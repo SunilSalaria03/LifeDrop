@@ -2,11 +2,13 @@ import Link from "next/link";
 import {
   CalendarCheck,
   CheckCircle2,
+  Droplet,
   HeartPulse,
   MapPin,
   Navigation,
   Phone,
   ShieldCheck,
+  UserRound,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -29,12 +31,12 @@ function DetailRow({
   value: string;
 }) {
   return (
-    <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-white/80 bg-white/75 px-3 py-2.5 shadow-sm shadow-red-950/5">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-700 ring-1 ring-red-100">
+    <div className="group/row flex min-w-0 items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-3 py-2.5 shadow-sm shadow-neutral-950/5 transition hover:border-red-100 hover:bg-red-50/30">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-700 transition group-hover/row:bg-red-700 group-hover/row:text-white">
         <Icon className="h-4 w-4" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[11px] font-semibold uppercase tracking-normal text-neutral-500">
+        <span className="block text-[11px] font-black uppercase tracking-normal text-neutral-500">
           {label}
         </span>
         <span className="block truncate text-sm font-semibold text-neutral-900">
@@ -56,12 +58,12 @@ export function DonorCard({
     .join(", ");
 
   return (
-    <Card className="group overflow-hidden rounded-2xl border-white/80 bg-white shadow-xl shadow-red-950/10 transition duration-200 hover:-translate-y-1 hover:border-red-100 hover:shadow-2xl hover:shadow-red-950/15">
+    <Card className="group overflow-hidden rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5 transition duration-200 hover:-translate-y-1 hover:border-red-200 hover:shadow-md hover:shadow-red-950/10">
       <CardContent className="grid gap-0 p-0">
-        <div className="relative overflow-hidden bg-[linear-gradient(135deg,#fff7f7_0%,#ffffff_48%,#f8fbff_100%)] p-5">
+        <div className="relative overflow-hidden border-b border-red-50 bg-[linear-gradient(135deg,#fff7f7_0%,#ffffff_65%)] p-5">
           <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex min-w-0 items-center gap-4">
-              <Avatar className="h-16 w-16 border-4 border-white bg-red-50 shadow-lg shadow-red-950/10">
+              <Avatar className="h-16 w-16 border-4 border-white bg-red-50 shadow-sm shadow-neutral-950/10 ring-4 ring-red-50">
                 {donor.profileImage ? (
                   <AvatarImage alt={donorName} src={donor.profileImage} />
                 ) : null}
@@ -71,7 +73,7 @@ export function DonorCard({
               </Avatar>
               <div className="min-w-0">
                 <div className="flex min-w-0 items-center gap-1.5">
-                  <h3 className="truncate text-xl font-bold text-neutral-950">
+                  <h3 className="truncate text-xl font-black text-neutral-950">
                     {donorName}
                   </h3>
                   {donor.isVerified ? (
@@ -81,7 +83,7 @@ export function DonorCard({
                     />
                   ) : null}
                 </div>
-                <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-neutral-600">
+                <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-neutral-600">
                   <MapPin className="h-4 w-4 shrink-0 text-red-600" />
                   <span className="truncate">
                     {location || "Location not provided"}
@@ -90,7 +92,7 @@ export function DonorCard({
               </div>
             </div>
 
-            <Badge className="w-fit shrink-0 rounded-2xl bg-red-600 px-4 py-2 text-lg font-bold text-white shadow-lg shadow-red-500/20 ring-1 ring-red-500/20">
+            <Badge className="w-fit shrink-0 rounded-2xl bg-red-700 px-4 py-2 text-lg font-black text-white shadow-sm shadow-red-950/10">
               {donor.bloodGroup}
             </Badge>
           </div>
@@ -101,22 +103,22 @@ export function DonorCard({
             <Badge
               className={
                 donor.isAvailable
-                  ? "gap-1.5 bg-green-50 px-3.5 py-1.5 text-green-700 ring-1 ring-green-100"
-                  : "gap-1.5 bg-neutral-100 px-3.5 py-1.5 text-neutral-600 ring-1 ring-neutral-200"
+                  ? "gap-1.5 rounded-full bg-green-50 px-3.5 py-1.5 font-bold text-green-700 ring-1 ring-green-100"
+                  : "gap-1.5 rounded-full bg-neutral-100 px-3.5 py-1.5 font-bold text-neutral-600 ring-1 ring-neutral-200"
               }
             >
               <CheckCircle2 className="h-3.5 w-3.5" />
               {donor.isAvailable ? "Available now" : "Not available"}
             </Badge>
             {donor.isVerified ? (
-              <Badge className="gap-1.5 bg-blue-50 px-3.5 py-1.5 text-blue-700 ring-1 ring-blue-100">
+              <Badge className="gap-1.5 rounded-full bg-blue-50 px-3.5 py-1.5 font-bold text-blue-700 ring-1 ring-blue-100">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 Verified donor
               </Badge>
             ) : null}
           </div>
 
-          <div className="grid gap-2.5 rounded-2xl border border-red-50 bg-[linear-gradient(135deg,#fff7f7_0%,#ffffff_100%)] p-3.5">
+          <div className="grid gap-2.5 rounded-3xl border border-red-100 bg-red-50/25 p-3.5">
             {donor.distanceKm !== undefined ? (
               <DetailRow
                 icon={Navigation}
@@ -155,23 +157,25 @@ export function DonorCard({
           <div className={hideRequestButton ? "grid gap-3" : "grid gap-3 sm:grid-cols-2"}>
             {!hideRequestButton ? (
               <Button
-                className="h-12 rounded-full bg-red-700 text-base font-semibold text-white shadow-lg shadow-red-700/20 transition hover:bg-red-800 group-hover:shadow-red-700/30"
+                className="h-12 rounded-full bg-red-700 text-base font-bold text-white shadow-sm shadow-red-950/10 transition hover:bg-red-800"
                 disabled={!donor.isAvailable}
                 onClick={() => onRequest?.(donor)}
                 type="button"
               >
+                <Droplet className="h-4 w-4" />
                 Request
               </Button>
             ) : null}
             <Button
               asChild
-              className="h-12 rounded-full border-red-100 bg-white text-base font-semibold text-red-700 shadow-lg shadow-red-950/5 transition hover:bg-red-50"
+              className="h-12 rounded-full border-red-100 bg-white text-base font-bold text-red-700 shadow-sm shadow-neutral-950/5 transition hover:bg-red-50"
               variant="outline"
             >
               <Link
                 aria-label={`View ${donorName} donor profile`}
                 href={`/donors/${donor.id}`}
               >
+                <UserRound className="h-4 w-4" />
                 View Profile
               </Link>
             </Button>

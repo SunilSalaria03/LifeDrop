@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
-import { Droplet, MapPin, X } from 'lucide-react';
+import { Droplet, MapPin, Send, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
@@ -83,7 +83,7 @@ export function RequestBloodModal({
   return (
     <div
       aria-modal="true"
-      className="fixed inset-0 z-50 grid place-items-center bg-neutral-950/50 px-4 py-6 backdrop-blur-sm"
+      className="fixed inset-0 z-50 grid place-items-center bg-slate-950/70 px-4 py-6 backdrop-blur-md"
       role="dialog"
     >
       <button
@@ -93,19 +93,21 @@ export function RequestBloodModal({
         type="button"
       />
       <form
-        className="relative grid max-h-[calc(100svh-2rem)] w-full max-w-lg gap-0 overflow-y-auto rounded-3xl border border-white/80 bg-white shadow-2xl shadow-red-950/25"
+        className="relative grid max-h-[calc(100svh-2rem)] w-full max-w-lg gap-0 overflow-hidden rounded-[1.75rem] border border-white/80 bg-white shadow-[0_28px_90px_rgba(69,10,10,0.35)]"
         onSubmit={handleSubmit}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-neutral-100 p-5 sm:p-6">
-          <div className="flex min-w-0 gap-3">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-700 text-white shadow-lg shadow-red-700/20">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-[radial-gradient(circle_at_18%_0%,rgba(220,38,38,0.16),transparent_42%),linear-gradient(135deg,rgba(254,226,226,0.95),rgba(255,255,255,0.2))]" />
+        <div className="relative max-h-[calc(100svh-2rem)] overflow-y-auto">
+        <div className="flex items-start justify-between gap-5 border-b border-red-100/80 p-5 sm:p-6">
+          <div className="flex min-w-0 flex-1 items-start gap-4">
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-red-700 text-white shadow-xl shadow-red-700/25 ring-4 ring-white">
               <Droplet className="h-6 w-6" />
             </span>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase text-red-700">
+            <div className="min-w-0 pt-0.5">
+              <p className="text-xs font-black uppercase tracking-wider text-red-700">
                 Blood request
               </p>
-              <h2 className="mt-1 break-words text-2xl font-bold tracking-normal text-neutral-950">
+              <h2 className="mt-1 break-words text-2xl font-black leading-tight tracking-normal text-neutral-950">
                 Request {donorName}
               </h2>
               <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-neutral-600">
@@ -116,7 +118,7 @@ export function RequestBloodModal({
           </div>
           <button
             aria-label="Close request blood modal"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-neutral-500 transition hover:bg-red-50 hover:text-red-700"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-transparent text-neutral-500 transition hover:border-red-100 hover:bg-red-50 hover:text-red-700"
             onClick={() => onOpenChange(false)}
             type="button"
           >
@@ -184,6 +186,7 @@ export function RequestBloodModal({
               type="button"
               variant="outline"
             >
+              <X className="h-4 w-4" />
               Cancel
             </Button>
             <Button
@@ -191,9 +194,11 @@ export function RequestBloodModal({
               disabled={!canSubmit}
               type="submit"
             >
+              <Send className="h-4 w-4" />
               {isSubmitting ? 'Sending...' : 'Send request'}
             </Button>
           </div>
+        </div>
         </div>
       </form>
     </div>

@@ -1,7 +1,7 @@
 # LifeDrop Architecture
 
 ## Overview
-LifeDrop is an MVP social-service blood donation platform. It allows users to request blood, become donors, search nearby donors, and receive emergency notification-ready flows.
+LifeDrop is an MVP social-service blood donation platform. It allows users to request blood, join as donors, search nearby donors, and receive emergency notification-ready flows.
 
 ## Repository Layout
 ```text
@@ -79,7 +79,7 @@ Implemented foundation:
 - User roles are `user`, `donor`, and `admin`; new auth users start as `user`.
 - Google signup/login starts on the frontend through Google Identity Services using `NEXT_PUBLIC_GOOGLE_CLIENT_ID` and is verified on the backend with `GOOGLE_CLIENT_ID`. The backend also supports Firebase Google sign-in tokens.
 - Google users without `phoneVerified` are sent to `/profile/setup` to add and verify a phone number with OTP.
-- Normal users are not required to complete donor-style profile details; donor details are collected only when they become donors.
+- Normal users are not required to complete donor-style profile details; donor details are collected only when they join as donors.
 - Successful auth sets `access_token` and `refresh_token` as HttpOnly cookies and returns only the safe user object.
 - Access tokens expire after 15 minutes and refresh tokens expire after 7 days.
 - Access tokens protect `/auth/me` and future private endpoints through Passport JWT by reading the HttpOnly cookie.
@@ -202,7 +202,7 @@ Implemented foundation:
 - The header includes automatic browser geolocation detection with persisted localStorage selection.
 - The hero search uses reusable blood group selection and saved GPS coordinates, then calls donor search through TanStack Query and the shared Axios client.
 - Donor search targets `GET /api/v1/donors/search` and renders only backend database records.
-- Landing CTA buttons route to `/request-blood` and `/become-donor`; the hero `Find Blood` action routes to `/request-blood` with selected search query values.
+- Landing CTA buttons route to `/request-blood` and `/become-donor`; the hero `Search Donors` action routes to `/request-blood` with selected search query values.
 
 ## Deployment Shape
 - Frontend and backend deploy independently.

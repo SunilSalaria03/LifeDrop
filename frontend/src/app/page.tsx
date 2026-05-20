@@ -1,3 +1,4 @@
+import { AboutSection } from '@/components/landing/AboutSection';
 import { CTASection } from '@/components/landing/CTASection';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { HowItWorks } from '@/components/landing/HowItWorks';
@@ -10,10 +11,11 @@ export default function Home() {
   return (
     <>
       <Header />
-      <main className="bg-white text-neutral-950">
+      <main className="bg-slate-900 pt-16 text-neutral-950 sm:pt-18">
         <HeroSection />
         {/* <ActionCards /> */}
         <StatsSection />
+        <AboutSection />
         <SuccessStories />
         <HowItWorks />
         <CTASection />

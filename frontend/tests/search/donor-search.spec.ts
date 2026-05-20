@@ -27,7 +27,7 @@ test('searches donors in Chandigarh for A+ blood', async ({ page }) => {
     donorSearch.city,
   );
 
-  await page.getByRole('button', { name: /find blood/i }).click();
+  await page.getByRole('button', { name: /search donors/i }).click();
 
   await expect(page.getByRole('heading', { name: /available donors/i })).toBeVisible();
   await expect(page.getByText(/1 donors found/i)).toBeVisible();
@@ -55,7 +55,7 @@ test('shows a valid empty state when no donors match', async ({ page }) => {
     donorSearch.city,
   );
 
-  await page.getByRole('button', { name: /find blood/i }).click();
+  await page.getByRole('button', { name: /search donors/i }).click();
 
   await expect(page.getByRole('heading', { name: /no donors found/i })).toBeVisible();
   await expect(page.getByText(/try another blood group/i)).toBeVisible();

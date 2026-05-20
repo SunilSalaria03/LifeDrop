@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Droplet, ShieldCheck, X } from 'lucide-react';
+import { ArrowLeft, Droplet, RotateCcw, Send, ShieldCheck, X } from 'lucide-react';
 import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -199,14 +199,14 @@ export function AuthModal({
   const description =
     step === 'login'
       ? otpFlow === 'profile'
-        ? 'Enter your verified phone number to receive a secure verification code.'
-        : 'Enter your phone number to receive a secure verification code.'
-      : `Use the 6 digit code sent to +91 ${phoneForOtp}.`;
+        ? 'Enter your number to receive a verification code.'
+        : 'Enter your mobile number to receive a verification code.'
+      : `Enter the 6-digit code sent to +91 ${phoneForOtp}.`;
 
   return (
     <div
       aria-modal="true"
-      className="fixed inset-0 z-50 grid place-items-center bg-neutral-950/50 px-4 py-6 backdrop-blur-sm"
+      className="fixed inset-0 z-50 grid place-items-center bg-slate-950/70 px-4 py-6 backdrop-blur-md"
       role="dialog"
     >
       <button
@@ -215,27 +215,29 @@ export function AuthModal({
         onClick={onClose}
         type="button"
       />
-      <div className="relative grid max-h-[calc(100svh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-white/80 bg-white shadow-2xl shadow-red-950/25">
-        <div className="flex items-start justify-between gap-4 border-b border-neutral-100 p-5 sm:p-6">
-          <div className="flex min-w-0 gap-3">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-700 text-white shadow-lg shadow-red-700/20">
+      <div className="relative grid max-h-[calc(100svh-2rem)] w-full max-w-md overflow-hidden rounded-[1.75rem] border border-white/80 bg-white shadow-[0_28px_90px_rgba(69,10,10,0.35)]">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-[radial-gradient(circle_at_18%_0%,rgba(220,38,38,0.16),transparent_42%),linear-gradient(135deg,rgba(254,226,226,0.95),rgba(255,255,255,0.2))]" />
+        <div className="relative max-h-[calc(100svh-2rem)] overflow-y-auto">
+        <div className="flex items-start justify-between gap-5 border-b border-red-100/80 p-5 sm:p-6">
+          <div className="flex min-w-0 flex-1 items-start gap-4">
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-red-700 text-white shadow-xl shadow-red-700/25 ring-4 ring-white">
               <Droplet className="h-6 w-6" />
             </span>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase text-red-700">
+            <div className="min-w-0 pt-0.5">
+              <p className="text-xs font-black uppercase tracking-wider text-red-700">
                 Secure access
               </p>
-              <h2 className="mt-1 text-2xl font-bold tracking-normal text-neutral-950">
+              <h2 className="mt-1 text-2xl font-black leading-tight tracking-normal text-neutral-950">
                 {title}
               </h2>
-              <p className="mt-2 text-sm leading-6 text-neutral-600">
+              <p className="mt-2 max-w-xs text-sm font-medium leading-6 text-neutral-600">
                 {description}
               </p>
             </div>
           </div>
           <button
             aria-label="Close login modal"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-neutral-500 transition hover:bg-red-50 hover:text-red-700"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-transparent text-neutral-500 transition hover:border-red-100 hover:bg-red-50 hover:text-red-700"
             onClick={onClose}
             type="button"
           >
@@ -285,6 +287,7 @@ export function AuthModal({
                   disabled={sendOtpMutation.isPending || updateProfileMutation.isPending}
                   type="submit"
                 >
+                  <Send className="h-4 w-4" />
                   {sendOtpMutation.isPending || updateProfileMutation.isPending ? 'Sending OTP...' : 'Send OTP'}
                 </Button>
               </form>
@@ -294,7 +297,7 @@ export function AuthModal({
                   <div className="flex items-center gap-3">
                     <span className="h-px flex-1 bg-neutral-200" />
                     <span className="text-xs font-semibold uppercase text-neutral-400">
-                      or continue with
+                      or
                     </span>
                     <span className="h-px flex-1 bg-neutral-200" />
                   </div>
@@ -305,28 +308,19 @@ export function AuthModal({
             </>
           ) : (
             <form className="grid gap-4" onSubmit={verifyFormik.handleSubmit}>
-              <button
-                className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-neutral-600 transition hover:text-red-700"
-                onClick={handleBackToLogin}
-                type="button"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back to login
-              </button>
-
-              <div className="grid gap-2">
-                <label className="text-sm font-semibold text-neutral-900" htmlFor="auth-otp">
+              <div className="grid gap-2 rounded-3xl border border-red-100 bg-red-50/50 p-4">
+                <label className="text-sm font-black text-neutral-900" htmlFor="auth-otp">
                   OTP code
                 </label>
                 <Input
-                  className="h-14 rounded-2xl bg-white text-center text-lg font-bold tracking-[0.35em]"
+                  className="h-14 rounded-2xl border-red-100 bg-white text-center text-lg font-black tracking-[0.35em] shadow-sm placeholder:text-neutral-300 focus-visible:ring-red-200"
                   id="auth-otp"
                   inputMode="numeric"
                   maxLength={6}
                   name="otp"
                   onBlur={verifyFormik.handleBlur}
                   onChange={verifyFormik.handleChange}
-                  placeholder="123456"
+                  placeholder="xxxxxx"
                   value={verifyFormik.values.otp}
                 />
                 {verifyFormik.touched.otp && verifyFormik.errors.otp ? (
@@ -351,16 +345,18 @@ export function AuthModal({
                 }
                 type="submit"
               >
+                <ShieldCheck className="h-4 w-4" />
                 {verifyOtpMutation.isPending || verifyProfilePhoneMutation.isPending ? 'Verifying...' : 'Verify OTP'}
               </Button>
 
               <Button
-                className="h-12 rounded-full"
+                className="h-12 rounded-full border-red-100 bg-white font-bold text-neutral-500 shadow-sm hover:border-red-200 hover:bg-red-50 hover:text-red-700"
                 disabled={sendOtpMutation.isPending || resendSeconds > 0 || !phoneForOtp}
                 onClick={handleResendOtp}
                 type="button"
                 variant="outline"
               >
+                <RotateCcw className="h-4 w-4" />
                 {sendOtpMutation.isPending
                   ? 'Resending...'
                   : resendSeconds > 0
@@ -373,13 +369,23 @@ export function AuthModal({
                   Could not resend OTP yet. Please wait and try again.
                 </p>
               ) : null}
+
+              <button
+                className="mx-auto inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-black text-red-700 transition hover:bg-red-50 hover:text-red-800"
+                onClick={handleBackToLogin}
+                type="button"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to login
+              </button>
             </form>
           )}
 
-          <p className="flex items-start gap-2 rounded-2xl bg-red-50 px-4 py-3 text-left text-xs font-medium leading-5 text-red-800 ring-1 ring-red-100">
+          <p className="flex items-start gap-3 rounded-2xl border border-red-100 bg-[linear-gradient(135deg,#fff7f7,#fee2e2)] px-4 py-3 text-left text-xs font-bold leading-5 text-red-800 shadow-sm">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
             Your contact details stay private and are only used for approved request flows.
           </p>
+        </div>
         </div>
       </div>
     </div>

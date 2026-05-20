@@ -4,6 +4,7 @@ import { HeartHandshake } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Card, CardContent } from '@/components/ui/card';
+import { Header } from '@/components/layout/Header';
 import { AuthModal } from '@/features/auth/components/AuthModal';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { BecomeDonorForm } from '@/features/donors/components/BecomeDonorForm';
@@ -21,16 +22,17 @@ export default function BecomeDonorPage() {
 
   return (
     <ProtectedRoute>
-      <main className="min-h-screen bg-[linear-gradient(135deg,#f8fbff_0%,#ffffff_48%,#fff5f5_100%)] px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-        <Card className="mx-auto w-full max-w-5xl rounded-2xl border-white/80 bg-white/95 shadow-2xl shadow-red-950/10">
+      <Header />
+      <main className="min-h-screen bg-[linear-gradient(135deg,#f8fafc_0%,#ffffff_48%,#fff7f7_100%)] px-4 pb-8 pt-28 sm:px-6 sm:pb-10 sm:pt-32 lg:px-8">
+        <Card className="mx-auto w-full max-w-5xl rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
           <CardContent className="grid gap-6 p-5 sm:gap-7 sm:p-8">
             <div className="grid gap-4 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-600 text-white shadow-lg shadow-red-600/20">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-600 text-white shadow-sm shadow-red-950/10 ring-4 ring-red-50">
                 <HeartHandshake className="h-7 w-7" />
               </div>
               <div>
-                <p className="text-sm font-semibold uppercase text-red-600">
-                  Become a donor
+                <p className="text-sm font-semibold text-red-600">
+                  Join as a Donor
                 </p>
                 <h1 className="mt-2 text-2xl font-bold tracking-normal text-neutral-950 sm:text-3xl">
                   Share your donor availability

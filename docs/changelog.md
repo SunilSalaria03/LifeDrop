@@ -14,7 +14,7 @@
 - Normalized auth/profile/donor keys to `name`, `phone`, `phoneVerified`, and `pincode`; Google users and donor CTAs now require phone OTP verification before donor registration.
 - Refactored profile and donor onboarding so normal users keep basic fields only, donor fields appear only for donor accounts, and `/become-donor` uses one complete form that promotes the user to donor on save.
 - Added the profile setup flow at `/profile/setup`, including Google-user phone OTP verification and required profile completion before dashboard access.
-- Added the protected Become Donor flow at `/become-donor`; guests are redirected to login, and logged-in users can save a complete donor profile in one submit.
+- Added the protected join-as-a-donor flow at `/become-donor`; guests are redirected to login, and logged-in users can save a complete donor profile in one submit.
 - Added protected profile-phone verification with `POST /api/v1/auth/otp/verify-profile-phone` and tightened donor profile APIs so blocked or phone-unverified users cannot manage donor profiles.
 - Refined the login page/card UI with LifeDrop branding, cleaner phone OTP styling, Google login treatment, and trust helper text.
 - Added a static landing impact metrics section for registered donors, lives saved, blood requests, and cities covered.
