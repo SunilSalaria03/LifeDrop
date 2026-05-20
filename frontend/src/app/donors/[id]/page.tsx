@@ -33,6 +33,7 @@ import {
   getInitials,
 } from "@/components/landing/landing.helpers";
 import { DetailItemProps, DonorProfileHeaderProps } from "./donor-detail-page.types";
+import { HeroSection } from "../../../components/landing/HeroSection";
 function DetailItem({
   icon: Icon,
   label,
@@ -145,6 +146,9 @@ export default function DonorDetailPage() {
   return (
     <>
       <Header />
+      <div className="bg-slate-900 pt-16 text-neutral-950 sm:pt-18">
+      <HeroSection />
+      </div>
       <main className="relative min-h-screen overflow-hidden bg-[linear-gradient(135deg,#f8fafc_0%,#ffffff_48%,#fff7f7_100%)] px-4 pb-10 pt-28 text-neutral-950 sm:px-6 sm:pb-12 sm:pt-32 lg:px-8">
         <div className="pointer-events-none absolute -left-32 top-20 h-72 w-72 rounded-full bg-red-50 blur-3xl" />
         <div className="pointer-events-none absolute -right-32 top-96 h-72 w-72 rounded-full bg-red-50/80 blur-3xl" />
