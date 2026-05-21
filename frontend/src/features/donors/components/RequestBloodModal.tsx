@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
-import { Droplet, MapPin, Send, X } from 'lucide-react';
+import { Droplet, MapPin, Send, ShieldCheck, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
@@ -39,6 +39,12 @@ export function RequestBloodModal({
 
   const canSubmit = sendSms && consentToShareContact && !isSubmitting;
   const donorName = getDonorName(donor.name);
+  const donorLocationParts = [donor.city, donor.district, donor.state].filter(
+    Boolean,
+  );
+  const donorLocation = donorLocationParts
+    .filter((part, index) => part !== donorLocationParts[index - 1])
+    .join(', ');
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -108,12 +114,14 @@ export function RequestBloodModal({
                 Blood request
               </p>
               <h2 className="mt-1 break-words text-2xl font-black leading-tight tracking-normal text-neutral-950">
-                Request {donorName}
+                Send a request to {donorName}
               </h2>
-              <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-neutral-600">
-                <MapPin className="h-4 w-4 shrink-0 text-red-600" />
-                <span className="truncate">{donor.city || 'City not provided'}</span>
-              </p>
+              {donorLocation ? (
+                <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-neutral-600">
+                  <MapPin className="h-4 w-4 shrink-0 text-red-600" />
+                  <span className="truncate">{donorLocation}</span>
+                </p>
+              ) : null}
             </div>
           </div>
           <button
@@ -198,6 +206,13 @@ export function RequestBloodModal({
               {isSubmitting ? 'Sending...' : 'Send request'}
             </Button>
           </div>
+
+          <p className="flex items-start gap-3 rounded-2xl border border-red-100 bg-[linear-gradient(135deg,#fff7f7,#fee2e2)] px-4 py-3 text-left text-xs font-bold leading-5 text-red-800 shadow-sm">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+            Let {donorName} know you need {donor.bloodGroup} blood. Choose how
+            to alert them above; your contact details are shared only if you
+            agree.
+          </p>
         </div>
         </div>
       </form>

@@ -11,7 +11,9 @@ async function openRequestModal(page: import('@playwright/test').Page) {
   await mockDonorDetail(page);
   await page.goto(`/donors/${searchDonorResult.id}`);
   await page.getByRole('button', { name: /request blood/i }).click();
-  await expect(page.getByRole('dialog')).toContainText(`Request ${searchDonorResult.name}`);
+  await expect(page.getByRole('dialog')).toContainText(
+    `Send a request to ${searchDonorResult.name}`,
+  );
 }
 
 test('consent and SMS selection are required before sending request', async ({ page }) => {

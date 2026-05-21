@@ -46,6 +46,8 @@ test('logged-in user can open request blood modal from donor detail', async ({ p
   await page.goto(`/donors/${searchDonorResult.id}`);
   await page.getByRole('button', { name: /request blood/i }).click();
 
-  await expect(page.getByRole('dialog')).toContainText(`Request ${searchDonorResult.name}`);
+  await expect(page.getByRole('dialog')).toContainText(
+    `Send a request to ${searchDonorResult.name}`,
+  );
   await expect(page.getByRole('checkbox', { name: /send sms alert/i })).toBeVisible();
 });
