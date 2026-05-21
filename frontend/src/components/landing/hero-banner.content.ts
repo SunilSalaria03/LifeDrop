@@ -45,7 +45,7 @@ export const HERO_SEARCH_BANNER: HeroBannerContent = {
   ],
   stepsGroupAriaLabel:
     'How search works: choose blood group, then state, then city or area, run search donors, then contact donors from the results.',
-  footnote: 'Then contact donors who appear in your results',
+  footnote: 'Then contact donors who appear in your results.',
 };
 
 export const HERO_BECOME_DONOR_BANNER: HeroBannerContent = {
@@ -62,7 +62,7 @@ export const HERO_BECOME_DONOR_BANNER: HeroBannerContent = {
   ],
   stepsGroupAriaLabel:
     'Registration: add blood group and location, then go live in donor search.',
-  footnote: 'Register below to join LifeDrop as a donor',
+  footnote: 'Register below to join LifeDrop as a donor.',
 };
 
 export const HERO_PROFILE_BANNER: HeroBannerContent = {
