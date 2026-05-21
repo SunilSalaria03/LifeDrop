@@ -12,7 +12,6 @@ import {
   MapPin,
   Phone,
   ShieldCheck,
-  UserPlus,
   UserRound,
   X,
 } from "lucide-react";
@@ -208,21 +207,6 @@ export function ProfileHeaderCard({
                 </Badge>
               ) : null}
             </div>
-
-            {!isDonorAccount ? (
-              <div className="mt-4">
-                <Button
-                  asChild
-                  className="h-10 rounded-lg border-neutral-200 font-semibold shadow-sm"
-                  variant="outline"
-                >
-                  <Link href="/become-donor">
-                    <UserPlus className="h-4 w-4" />
-                    Become a donor
-                  </Link>
-                </Button>
-              </div>
-            ) : null}
           </div>
         </div>
       </CardContent>
