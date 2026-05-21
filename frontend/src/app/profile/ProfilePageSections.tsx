@@ -144,7 +144,7 @@ export function ProfileHeaderCard({
 
               <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
                 <Button
-                  className="h-10 rounded-lg bg-red-700 px-4 font-semibold text-white shadow-sm hover:bg-red-800"
+                  className="h-10 px-4"
                   onClick={onToggleEdit}
                   type="button"
                 >
@@ -335,7 +335,7 @@ export function DonorInformationCard({
               />
             </div>
             <Button
-              className="h-11 w-full rounded-full bg-red-700 font-semibold text-white shadow-sm hover:bg-red-800"
+              className="h-11 w-full"
               onClick={onToggleDonorEdit}
               type="button"
             >
@@ -359,7 +359,7 @@ export function DonorInformationCard({
             </div>
             <Button
               asChild
-              className="h-11 w-full rounded-full bg-red-700 font-semibold text-white shadow-sm hover:bg-red-800"
+              className="h-11 w-full"
             >
               <Link href="/become-donor">
                 <HeartHandshake className="h-4 w-4" />

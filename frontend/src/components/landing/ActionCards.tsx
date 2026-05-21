@@ -57,7 +57,7 @@ export function ActionCards() {
                 <p className="max-w-xl text-sm leading-6 text-neutral-600 sm:text-base sm:leading-7">{action.description}</p>
               </div>
               <div>
-                <Button className={`${action.button} h-11 rounded-full px-6 text-white`} onClick={() => handleAction(action.href)} type="button">
+                <Button className={`${action.button} h-11 px-6 text-white`} onClick={() => handleAction(action.href)} type="button">
                   <Icon className="h-4 w-4" />
                   {action.buttonLabel}
                 </Button>

@@ -121,7 +121,7 @@ export function SearchBar({
       </Select>
 
       <Button
-        className="h-14 w-full rounded-2xl bg-red-600 px-6 text-base text-white shadow-lg shadow-red-500/20 hover:bg-red-700 md:w-auto"
+        className="h-14 w-full px-6 text-base shadow-lg shadow-red-500/20 hover:bg-red-800 md:w-auto"
         disabled={isSearching}
         onClick={onSearch}
         type="button"

@@ -14,7 +14,7 @@ function DonorSkeletonCard() {
   return (
     <Card className="overflow-hidden rounded-2xl border-neutral-200 shadow-sm">
       <CardContent className="grid gap-4 p-5 sm:p-6">
-        <div className="flex items-start gap-4 border-b border-neutral-100 pb-4">
+        <div className="flex items-start gap-4 border-b border-neutral-200 pb-4">
           <div className="h-14 w-14 shrink-0 rounded-full bg-neutral-200" />
           <div className="grid flex-1 gap-2">
             <div className="h-5 w-32 rounded bg-neutral-200" />
@@ -22,7 +22,7 @@ function DonorSkeletonCard() {
             <div className="h-3 w-24 rounded bg-neutral-100" />
           </div>
         </div>
-        <div className="grid gap-0 divide-y divide-neutral-100">
+        <div className="grid gap-0 divide-y divide-neutral-200">
           {Array.from({ length: 4 }).map((_, index) => (
             <div key={index} className="flex justify-between py-2.5">
               <div className="h-4 w-20 rounded bg-neutral-100" />
@@ -31,8 +31,8 @@ function DonorSkeletonCard() {
           ))}
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
-          <div className="h-10 rounded-full bg-neutral-100 sm:h-11" />
-          <div className="h-10 rounded-full bg-neutral-100 sm:h-11" />
+          <div className="h-10 rounded-full border border-neutral-200 bg-neutral-50 sm:h-11" />
+          <div className="h-10 rounded-full bg-neutral-200 sm:h-11" />
         </div>
       </CardContent>
     </Card>

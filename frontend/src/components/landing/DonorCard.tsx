@@ -69,7 +69,7 @@ export function DonorCard({
   return (
     <Card className="overflow-hidden rounded-2xl border-neutral-200 shadow-sm transition hover:border-neutral-300 hover:shadow-md">
       <CardContent className="flex h-full flex-col p-5 sm:p-6">
-        <div className="flex items-start gap-4 border-b border-neutral-100 pb-4">
+        <div className="flex items-start gap-4 border-b border-neutral-200 pb-4">
           <Avatar className="h-14 w-14 shrink-0 border border-neutral-200 bg-neutral-50">
             {donor.profileImage ? (
               <AvatarImage alt={donorName} src={donor.profileImage} />
@@ -128,7 +128,7 @@ export function DonorCard({
           </div>
         </div>
 
-        <dl className="divide-y divide-neutral-100 py-1">
+        <dl className="divide-y divide-neutral-200 py-1">
           {details.map((item) => (
             <DetailItem key={item.label} label={item.label} value={item.value} />
           ))}
@@ -140,20 +140,9 @@ export function DonorCard({
             hideRequestButton ? "grid-cols-1" : "sm:grid-cols-2",
           )}
         >
-          {!hideRequestButton ? (
-            <Button
-              className="h-10 rounded-full bg-red-700 px-5 text-sm font-semibold text-white shadow-sm shadow-red-700/20 hover:bg-red-800 sm:h-11"
-              disabled={!donor.isAvailable}
-              onClick={() => onRequest?.(donor)}
-              type="button"
-            >
-              <HeartHandshake className="h-4 w-4" />
-              Request blood
-            </Button>
-          ) : null}
           <Button
             asChild
-            className="h-10 rounded-full border-neutral-200 px-5 text-sm font-semibold text-neutral-800 shadow-sm hover:bg-neutral-50 sm:h-11"
+            className="h-10 border-neutral-200 px-5 sm:h-11"
             variant="outline"
           >
             <Link
@@ -164,6 +153,17 @@ export function DonorCard({
               View profile
             </Link>
           </Button>
+          {!hideRequestButton ? (
+            <Button
+              className="h-10 px-5 sm:h-11"
+              disabled={!donor.isAvailable}
+              onClick={() => onRequest?.(donor)}
+              type="button"
+            >
+              <HeartHandshake className="h-4 w-4" />
+              Request blood
+            </Button>
+          ) : null}
         </div>
       </CardContent>
     </Card>

@@ -102,7 +102,7 @@ function DonorProfileHeader({
               {!isOwnDonorProfile ? (
                 <div className="flex shrink-0">
                   <Button
-                    className="h-10 rounded-lg bg-red-700 px-4 font-semibold text-white shadow-sm hover:bg-red-800"
+                    className="h-10 px-4"
                     disabled={!donor.isAvailable}
                     onClick={onRequestBlood}
                     type="button"
@@ -302,7 +302,7 @@ export default function DonorDetailPage() {
                     </p>
                     {!isOwnDonorProfile ? (
                       <Button
-                        className="h-11 w-full rounded-lg bg-red-700 font-semibold text-white shadow-sm hover:bg-red-800"
+                        className="h-11 w-full"
                         disabled={!donor.isAvailable}
                         onClick={handleRequestBlood}
                         type="button"
@@ -313,7 +313,7 @@ export default function DonorDetailPage() {
                     ) : null}
                     <Button
                       asChild
-                      className="h-11 w-full rounded-lg border-neutral-200 font-semibold shadow-sm"
+                      className="h-11 w-full border-neutral-200"
                       variant="outline"
                     >
                       <Link href="/">
