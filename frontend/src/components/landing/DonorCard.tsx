@@ -1,13 +1,5 @@
 import Link from "next/link";
-import {
-  CalendarCheck,
-  HeartHandshake,
-  MapPin,
-  Navigation,
-  Phone,
-  ShieldCheck,
-  UserRound,
-} from "lucide-react";
+import { HeartHandshake, MapPin, ShieldCheck, UserRound } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -75,7 +67,7 @@ export function DonorCard({
   });
 
   return (
-    <Card className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm transition hover:border-neutral-300 hover:shadow-md">
+    <Card className="overflow-hidden rounded-2xl border-neutral-200 shadow-sm transition hover:border-neutral-300 hover:shadow-md">
       <CardContent className="flex h-full flex-col p-5 sm:p-6">
         <div className="flex items-start gap-4 border-b border-neutral-100 pb-4">
           <Avatar className="h-14 w-14 shrink-0 border border-neutral-200 bg-neutral-50">
@@ -150,7 +142,7 @@ export function DonorCard({
         >
           {!hideRequestButton ? (
             <Button
-              className="h-10 rounded-lg bg-red-700 text-sm font-semibold text-white hover:bg-red-800"
+              className="h-10 rounded-full bg-red-700 px-5 text-sm font-semibold text-white shadow-sm shadow-red-700/20 hover:bg-red-800 sm:h-11"
               disabled={!donor.isAvailable}
               onClick={() => onRequest?.(donor)}
               type="button"
@@ -161,7 +153,7 @@ export function DonorCard({
           ) : null}
           <Button
             asChild
-            className="h-10 rounded-lg border-neutral-200 text-sm font-semibold text-neutral-800 hover:bg-neutral-50"
+            className="h-10 rounded-full border-neutral-200 px-5 text-sm font-semibold text-neutral-800 shadow-sm hover:bg-neutral-50 sm:h-11"
             variant="outline"
           >
             <Link

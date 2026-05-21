@@ -12,7 +12,7 @@ import { DonorListProps } from './landing.types';
 
 function DonorSkeletonCard() {
   return (
-    <Card className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+    <Card className="overflow-hidden rounded-2xl border-neutral-200 shadow-sm">
       <CardContent className="grid gap-4 p-5 sm:p-6">
         <div className="flex items-start gap-4 border-b border-neutral-100 pb-4">
           <div className="h-14 w-14 shrink-0 rounded-full bg-neutral-200" />
@@ -31,8 +31,8 @@ function DonorSkeletonCard() {
           ))}
         </div>
         <div className="grid gap-2 sm:grid-cols-2">
-          <div className="h-10 rounded-lg bg-neutral-100" />
-          <div className="h-10 rounded-lg bg-neutral-100" />
+          <div className="h-10 rounded-full bg-neutral-100 sm:h-11" />
+          <div className="h-10 rounded-full bg-neutral-100 sm:h-11" />
         </div>
       </CardContent>
     </Card>
