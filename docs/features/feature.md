@@ -23,12 +23,12 @@ The application supports:
 
 ## Frontend
 
-* React + Vite
+* React + Next Js
 * TypeScript
 * Tailwind CSS
 * shadcn/ui
-* React Hook Form
-* Zod Validation
+* Formik
+* Yup Validation
 * TanStack Query
 * Axios
 * Sonner Toast

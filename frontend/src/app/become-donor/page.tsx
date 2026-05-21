@@ -3,11 +3,18 @@
 import { HeartHandshake } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Header } from '@/components/layout/Header';
 import { AuthModal } from '@/features/auth/components/AuthModal';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { BecomeDonorForm } from '@/features/donors/components/BecomeDonorForm';
+import {
+  profileCard,
+  profileCardBody,
+  profileCardHeader,
+} from '@/app/profile/profile-card.styles';
+import { HeroSection } from '../../components/landing/HeroSection';
 
 export default function BecomeDonorPage() {
   const { meQuery } = useAuth();
@@ -23,29 +30,74 @@ export default function BecomeDonorPage() {
   return (
     <ProtectedRoute>
       <Header />
-      <main className="min-h-screen bg-[linear-gradient(135deg,#f8fafc_0%,#ffffff_48%,#fff7f7_100%)] px-4 pb-8 pt-28 sm:px-6 sm:pb-10 sm:pt-32 lg:px-8">
-        <Card className="mx-auto w-full max-w-5xl rounded-3xl border border-red-100 bg-white shadow-sm shadow-neutral-950/5">
-          <CardContent className="grid gap-6 p-5 sm:gap-7 sm:p-8">
-            <div className="grid gap-4 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-600 text-white shadow-sm shadow-red-950/10 ring-4 ring-red-50">
-                <HeartHandshake className="h-7 w-7" />
+      <div className="bg-slate-900 pt-16 text-neutral-950 sm:pt-18">
+        <HeroSection />
+      </div>
+      <main className="min-h-screen bg-neutral-50 px-4 pb-12 pt-10 text-neutral-950 sm:px-6 sm:pt-12 lg:px-8">
+        <div className="relative mx-auto grid w-full max-w-7xl gap-6">
+          <Card className={profileCard}>
+            <CardContent className={profileCardBody}>
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-red-50 shadow-sm sm:h-24 sm:w-24">
+                  <HeartHandshake className="h-9 w-9 text-red-700 sm:h-10 sm:w-10" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-red-700">
+                    Become a LifeDrop donor
+                  </p>
+                  <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-950 sm:text-3xl">
+                    Offer blood support in your area
+                  </h1>
+                  <p className="mt-2 text-sm leading-6 text-neutral-600">
+                    Add your blood group and availability so people nearby can
+                    find you through LifeDrop&apos;s privacy-safe donor search.
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Badge
+                      className="rounded-md border border-neutral-200 bg-neutral-50 font-medium text-neutral-700"
+                      variant="outline"
+                    >
+                      Privacy-safe listing
+                    </Badge>
+                    {user?.phoneVerified ? (
+                      <Badge
+                        className="rounded-md border border-green-200 bg-green-50 font-medium text-green-800"
+                        variant="outline"
+                      >
+                        Phone verified
+                      </Badge>
+                    ) : (
+                      <Badge
+                        className="rounded-md border border-amber-200 bg-amber-50 font-medium text-amber-800"
+                        variant="outline"
+                      >
+                        Phone verification required
+                      </Badge>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-semibold text-red-600">
-                  Join as a Donor
-                </p>
-                <h1 className="mt-2 text-2xl font-bold tracking-normal text-neutral-950 sm:text-3xl">
-                  Share your donor availability
-                </h1>
-                <p className="mt-2 text-sm leading-6 text-neutral-600">
-                  Your donor profile is saved in LifeDrop and shown only through privacy-safe donor search.
-                </p>
-              </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            {user?.phoneVerified ? <BecomeDonorForm user={user} /> : null}
-          </CardContent>
-        </Card>
+          {user?.phoneVerified ? (
+            <Card className={profileCard}>
+              <CardHeader className={profileCardHeader}>
+                <h2 className="text-lg font-bold text-neutral-950">
+                  Complete your donor profile
+                </h2>
+                <p className="text-sm text-neutral-600">
+                  Enter your donor and contact details below. Accurate
+                  information helps patients reach you and keeps your listing
+                  visible in search.
+                </p>
+              </CardHeader>
+              <CardContent className={profileCardBody}>
+                <BecomeDonorForm user={user} />
+              </CardContent>
+            </Card>
+          ) : null}
+        </div>
       </main>
       <AuthModal
         initialPhone={user?.phone}

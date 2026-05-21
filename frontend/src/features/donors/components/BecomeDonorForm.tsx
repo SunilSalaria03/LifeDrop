@@ -27,9 +27,11 @@ import {
   findStateCode,
   formatDateInputValue,
 } from "@/features/profile/profile.helpers";
+import { profileInsetPanel } from "@/app/profile/profile-card.styles";
 import { BecomeDonorFormProps, FieldLabelProps } from "../donor-component.types";
 import { useDonorProfile } from "../hooks/useDonorProfile";
 import { donorProfileSchema } from "../validations/donor.validation";
+import { cn } from "@/lib/utils";
 
 function FieldLabel({
   children,
@@ -168,7 +170,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
 
   return (
     <form className="grid gap-6" onSubmit={formik.handleSubmit}>
-      <section className="grid gap-4 rounded-3xl border border-red-100 bg-red-50/25 p-4 sm:p-5">
+      <section className={cn(profileInsetPanel, "grid gap-4 sm:p-5")}>
         <h2 className="text-base font-bold text-neutral-950">Personal</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="grid gap-2">
@@ -199,7 +201,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
         </div>
       </section>
 
-      <section className="grid gap-4 rounded-3xl border border-red-100 bg-white p-4 shadow-sm shadow-neutral-950/5 sm:p-5">
+      <section className={cn(profileInsetPanel, "grid gap-4 sm:p-5")}>
         <h2 className="text-base font-bold text-neutral-950">Donor</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div className="grid gap-2">
@@ -293,7 +295,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
         </div>
       </section>
 
-      <section className="grid gap-4 rounded-3xl border border-red-100 bg-red-50/25 p-4 sm:p-5">
+      <section className={cn(profileInsetPanel, "grid gap-4 sm:p-5")}>
         <h2 className="text-base font-bold text-neutral-950">Contact</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div className="grid gap-2">

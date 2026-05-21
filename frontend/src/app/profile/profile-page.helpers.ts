@@ -31,3 +31,35 @@ export function formatDate(date?: string) {
     year: 'numeric',
   }).format(new Date(date));
 }
+
+export function getProfileLocation(user?: AuthUser) {
+  return [user?.district ?? user?.city, user?.state]
+    .filter(Boolean)
+    .join(', ');
+}
+
+export function getProfileHeadline(
+  user?: AuthUser,
+  bloodGroup?: string | null,
+) {
+  const isDonor = user?.role === 'donor' || Boolean(bloodGroup);
+
+  if (isDonor) {
+    const group = bloodGroup || user?.bloodGroup;
+    return group
+      ? `Blood donor · ${group}`
+      : 'Blood donor on LifeDrop';
+  }
+
+  return 'LifeDrop community member';
+}
+
+export function getMemberSinceYear(date?: string) {
+  if (!date) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat('en-IN', { year: 'numeric' }).format(
+    new Date(date),
+  );
+}
