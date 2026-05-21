@@ -2,6 +2,9 @@
 
 import { Droplet } from 'lucide-react';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { Header } from '@/components/layout/Header';
+import { BannerBreadcrumbStrip } from '@/components/layout/BannerBreadcrumbStrip';
+import { breadcrumbProfileSetup } from '@/components/layout/breadcrumb.presets';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { PhoneVerificationForm } from '@/features/profile/components/PhoneVerificationForm';
@@ -13,7 +16,9 @@ export default function ProfileSetupPage() {
 
   return (
     <ProtectedRoute>
-      <main className="min-h-screen bg-[linear-gradient(135deg,#f8fbff_0%,#ffffff_48%,#fff5f5_100%)] px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+      <Header />
+      <BannerBreadcrumbStrip items={breadcrumbProfileSetup} />
+      <main className="min-h-screen bg-[linear-gradient(135deg,#f8fbff_0%,#ffffff_48%,#fff5f5_100%)] px-4 pb-12 pt-10 sm:px-6 sm:pt-12 lg:px-8">
         <Card className="mx-auto w-full max-w-2xl rounded-2xl border-white/80 bg-white/95 shadow-2xl shadow-red-950/10">
           <CardContent className="grid gap-6 p-5 sm:gap-7 sm:p-8">
             <div className="grid gap-4 text-center">

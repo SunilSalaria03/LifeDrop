@@ -6,7 +6,6 @@ import { StatsSection } from '@/components/landing/StatsSection';
 import { SuccessStories } from '@/components/landing/SuccessStories';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
-
 export default function Home() {
   return (
     <>

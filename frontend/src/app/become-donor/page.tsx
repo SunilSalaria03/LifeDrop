@@ -6,6 +6,8 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Header } from '@/components/layout/Header';
+import { BannerBreadcrumbStrip } from '@/components/layout/BannerBreadcrumbStrip';
+import { breadcrumbBecomeDonor } from '@/components/layout/breadcrumb.presets';
 import { AuthModal } from '@/features/auth/components/AuthModal';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { BecomeDonorForm } from '@/features/donors/components/BecomeDonorForm';
@@ -30,7 +32,8 @@ export default function BecomeDonorPage() {
   return (
     <ProtectedRoute>
       <Header />
-      <div className="bg-slate-900 pt-16 text-neutral-950 sm:pt-18">
+      <div className="bg-slate-900 text-neutral-950">
+        <BannerBreadcrumbStrip items={breadcrumbBecomeDonor} />
         <HeroSection />
       </div>
       <main className="min-h-screen bg-neutral-50 px-4 pb-12 pt-10 text-neutral-950 sm:px-6 sm:pt-12 lg:px-8">

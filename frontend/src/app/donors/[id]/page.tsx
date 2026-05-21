@@ -22,6 +22,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
+import { BannerBreadcrumbStrip } from "@/components/layout/BannerBreadcrumbStrip";
+import { breadcrumbDonorDetail } from "@/components/layout/breadcrumb.presets";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { RequestBloodModal } from "@/features/donors/components/RequestBloodModal";
 import { useDonorDetails } from "@/features/donors/hooks/useDonorDetails";
@@ -161,6 +163,7 @@ export default function DonorDetailPage() {
   const { meQuery } = useAuth();
   const donorQuery = useDonorDetails(donorId);
   const donor = donorQuery.data;
+  const donorName = donor ? getDonorName(donor.name) : undefined;
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const isOwnDonorProfile = Boolean(
     donor?.userId && meQuery.data?.id && donor.userId === meQuery.data.id,
@@ -178,22 +181,12 @@ export default function DonorDetailPage() {
   return (
     <>
       <Header />
-      <div className="bg-slate-900 pt-16 text-neutral-950 sm:pt-18">
+      <div className="bg-slate-900 text-neutral-950">
+        <BannerBreadcrumbStrip items={breadcrumbDonorDetail(donorName)} />
         <HeroSection />
       </div>
       <main className="min-h-screen bg-neutral-50 px-4 pb-12 pt-10 text-neutral-950 sm:px-6 sm:pt-12 lg:px-8">
         <div className="relative mx-auto grid w-full max-w-7xl gap-6">
-          <Button
-            asChild
-            className="h-10 w-fit rounded-lg border-neutral-200 bg-white font-semibold shadow-sm hover:bg-neutral-50"
-            variant="outline"
-          >
-            <Link href="/">
-              <ArrowLeft className="h-4 w-4" />
-              Back to search
-            </Link>
-          </Button>
-
           {donorQuery.isLoading ? (
             <Card className={`${profileCard} animate-pulse`}>
               <CardContent className={profileCardBody}>

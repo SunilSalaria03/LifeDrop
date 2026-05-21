@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/select";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
+import { BannerBreadcrumbStrip } from "@/components/layout/BannerBreadcrumbStrip";
+import { breadcrumbProfile } from "@/components/layout/breadcrumb.presets";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { AuthUser } from "@/features/auth/types/auth.types";
 import { useDonorProfile } from "@/features/donors/hooks/useDonorProfile";
@@ -795,12 +797,15 @@ export default function ProfilePage() {
   return (
     <ProtectedRoute>
       <Header />
-      <div className="bg-slate-900 pt-16 text-neutral-950 sm:pt-18">
+      <div className="bg-slate-900 text-neutral-950">
+        <BannerBreadcrumbStrip items={breadcrumbProfile} />
         <HeroSection />
       </div>
       <main className="min-h-screen bg-neutral-50 px-4 pb-12 pt-10 text-neutral-950 sm:px-6 sm:pt-12 lg:px-8">
         {isLoading || !user ? (
-          <ProfileSkeleton />
+          <div className="mx-auto w-full max-w-7xl">
+            <ProfileSkeleton />
+          </div>
         ) : (
           <div className="relative mx-auto grid w-full max-w-7xl gap-6">
             <ProfileHeaderCard
