@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { UsersRound } from 'lucide-react';
+import { UserSearch, UsersRound } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { RequestBloodModal } from '@/features/donors/components/RequestBloodModal';
@@ -12,24 +12,28 @@ import { DonorListProps } from './landing.types';
 
 function DonorSkeletonCard() {
   return (
-    <Card className="overflow-hidden rounded-2xl border-white/80 bg-white/90 shadow-lg shadow-blue-950/5">
-      <CardContent className="grid gap-5 p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex min-w-0 flex-1 items-center gap-3">
-            <div className="h-12 w-12 rounded-full bg-neutral-200" />
-            <div className="grid flex-1 gap-2">
-              <div className="h-4 w-32 rounded-full bg-neutral-200" />
-              <div className="h-3 w-40 max-w-full rounded-full bg-neutral-100" />
-            </div>
+    <Card className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+      <CardContent className="grid gap-4 p-5 sm:p-6">
+        <div className="flex items-start gap-4 border-b border-neutral-100 pb-4">
+          <div className="h-14 w-14 shrink-0 rounded-full bg-neutral-200" />
+          <div className="grid flex-1 gap-2">
+            <div className="h-5 w-32 rounded bg-neutral-200" />
+            <div className="h-4 w-40 max-w-full rounded bg-neutral-100" />
+            <div className="h-3 w-24 rounded bg-neutral-100" />
           </div>
-          <div className="h-8 w-14 rounded-full bg-red-100" />
         </div>
-        <div className="grid gap-3">
-          <div className="h-4 w-full rounded-full bg-neutral-100" />
-          <div className="h-4 w-5/6 rounded-full bg-neutral-100" />
-          <div className="h-4 w-3/4 rounded-full bg-neutral-100" />
+        <div className="grid gap-0 divide-y divide-neutral-100">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="flex justify-between py-2.5">
+              <div className="h-4 w-20 rounded bg-neutral-100" />
+              <div className="h-4 w-24 rounded bg-neutral-200" />
+            </div>
+          ))}
         </div>
-        <div className="h-11 rounded-full bg-neutral-100" />
+        <div className="grid gap-2 sm:grid-cols-2">
+          <div className="h-10 rounded-lg bg-neutral-100" />
+          <div className="h-10 rounded-lg bg-neutral-100" />
+        </div>
       </CardContent>
     </Card>
   );
@@ -44,7 +48,9 @@ export function DonorList({ donors, isLoading, hasSearched, errorMessage }: Dono
     return null;
   }
 
-  const donorCountLabel = isLoading ? 'Searching...' : `${donors.length} donors found`;
+  const donorCountLabel = isLoading
+    ? 'Searching…'
+    : `${donors.length} ${donors.length === 1 ? 'donor' : 'donors'}`;
 
   const handleRequest = (donor: DonorListItem) => {
     if (!meQuery.data && !userStorage.getUser()) {
@@ -65,18 +71,24 @@ export function DonorList({ donors, isLoading, hasSearched, errorMessage }: Dono
   };
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl gap-5 text-left">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="w-fit rounded-full border border-red-100 bg-red-50 px-4 py-2 text-sm font-black uppercase tracking-wider text-red-700 shadow-sm">
+    <div className="mx-auto grid w-full max-w-6xl gap-6 text-left">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="grid max-w-2xl gap-2">
+          <p className="inline-flex w-fit max-w-full items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-2 text-[14px] font-semibold capitalize leading-snug tracking-[0.12em] text-red-700 shadow-sm sm:px-4 sm:tracking-[0.14em]">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-lg shadow-red-700/50">
+              <UserSearch className="h-4 w-4" aria-hidden />
+            </span>
             Search results
           </p>
-          <h2 className="mt-1 text-2xl font-bold text-neutral-950">
-            Available Donors
+          <h2 className="text-2xl font-bold tracking-normal text-neutral-950 sm:text-3xl">
+            Donors in your area
           </h2>
+          <p className="text-sm leading-6 text-neutral-600">
+            Compare distance and availability, then request blood or open a profile.
+          </p>
         </div>
-        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-red-100 bg-red-50 px-3.5 py-2 text-sm font-bold text-red-700 shadow-sm shadow-neutral-950/5">
-          <UsersRound className="h-4 w-4" />
+        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3.5 py-2 text-sm font-medium text-neutral-700">
+          <UsersRound className="h-4 w-4 text-neutral-500" aria-hidden />
           {donorCountLabel}
         </span>
       </div>
@@ -91,13 +103,13 @@ export function DonorList({ donors, isLoading, hasSearched, errorMessage }: Dono
           ))}
         </div>
       ) : errorMessage ? (
-        <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-center shadow-sm">
-          <h3 className="text-lg font-bold text-red-800">API failed</h3>
-          <p className="mt-2 text-sm font-medium text-red-700">{errorMessage}</p>
+        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
+          <h3 className="text-lg font-semibold text-red-800">Search unavailable</h3>
+          <p className="mt-2 text-sm text-red-700">{errorMessage}</p>
         </div>
       ) : donors.length === 0 ? (
-        <div className="rounded-2xl border border-neutral-100 bg-neutral-50 p-8 text-center shadow-sm">
-          <h3 className="text-lg font-bold text-neutral-950">No donors found</h3>
+        <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-8 text-center">
+          <h3 className="text-lg font-semibold text-neutral-950">No donors found</h3>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-neutral-600">
             Try another blood group, city, or nearby district to widen your search.
           </p>
