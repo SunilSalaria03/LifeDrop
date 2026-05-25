@@ -41,7 +41,7 @@ export function HeroSection({ breadcrumb }: HeroSectionProps = {}) {
     handlePageChange,
     viewAllHref,
     mode,
-  } = useDonorSearch({ mode: searchMode });
+  } = useDonorSearch({ mode: searchMode, enabled: isSearchPage });
 
   const showViewAll =
     mode === "preview" &&
@@ -183,7 +183,7 @@ export function HeroSection({ breadcrumb }: HeroSectionProps = {}) {
         </div>
       </section>
 
-      {hasSearched ? (
+      {isSearchPage && hasSearched ? (
         <section
           className="bg-white px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16"
           id="donor-search-results"

@@ -28,7 +28,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { RequestBloodModal } from "@/features/donors/components/RequestBloodModal";
 import { useDonorDetails } from "@/features/donors/hooks/useDonorDetails";
 import { userStorage } from "@/lib/auth/user-storage";
-import { getLastDonorSearchBackHref } from "@/lib/navigation/donor-search-params";
+import { getLastDonorSearchBackHref } from "@/lib/donor-search/donor-search-session";
 import {
   formatDonorDate,
   formatDonorPhone,

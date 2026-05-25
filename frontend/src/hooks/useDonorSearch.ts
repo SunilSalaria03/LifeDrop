@@ -11,12 +11,11 @@ import {
 import { initialDonorSearchFilters } from '@/components/landing/landing.constants';
 import { DonorSearchFormValues } from '@/components/landing/landing.types';
 import {
-  buildDonorListUrl,
-  buildHomeSearchUrl,
-  donorSearchToQueryString,
-  parseDonorSearchFromSearchParams,
-  saveLastDonorSearch,
-} from '@/lib/navigation/donor-search-params';
+  DONOR_LIST_PATH,
+  DonorSearchSession,
+  getDonorSearchSession,
+  setDonorSearchSession,
+} from '@/lib/donor-search/donor-search-session';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 
 export type DonorSearchMode = 'preview' | 'paginated';
@@ -32,6 +31,15 @@ const EMPTY_RESPONSE: DonorSearchResponse = {
 
 type UseDonorSearchOptions = {
   mode: DonorSearchMode;
+  /** When false, skip session restore and search API (banner-only pages) */
+  enabled?: boolean;
+};
+
+type RestoredSearchState = {
+  filters: DonorSearchFormValues;
+  page: number;
+  hasSearched: boolean;
+  searchRequest: DonorSearchFilters;
 };
 
 function scrollToSearchResults() {
@@ -42,24 +50,75 @@ function scrollToSearchResults() {
   });
 }
 
-export function useDonorSearch({ mode }: UseDonorSearchOptions) {
+function restoreSearchFromSession(
+  mode: DonorSearchMode,
+  isDonorListPage: boolean,
+): RestoredSearchState | null {
+  const stored = getDonorSearchSession();
+
+  if (!stored?.hasSearched) {
+    return null;
+  }
+
+  const page = mode === 'paginated' ? stored.page : 1;
+  const limit = mode === 'paginated' ? 12 : 6;
+
+  return {
+    filters: stored.filters,
+    page,
+    hasSearched: true,
+    searchRequest: {
+      bloodGroup: stored.filters.bloodGroup,
+      lat: stored.filters.lat,
+      lng: stored.filters.lng,
+      page,
+      limit,
+    },
+  };
+}
+
+function persistSearchSession(
+  values: DonorSearchFormValues,
+  page: number,
+  source: DonorSearchSession['source'],
+): void {
+  setDonorSearchSession({
+    filters: values,
+    hasSearched: true,
+    page,
+    source,
+  });
+}
+
+export function useDonorSearch({
+  mode,
+  enabled = true,
+}: UseDonorSearchOptions) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const isHomePage = pathname === '/';
-  const isDonorListPage = pathname === '/donor-list';
-  const shouldSyncUrl = isHomePage || isDonorListPage;
-  const pageSize = mode === 'preview' ? 6 : 12;
+  const isDonorListPage = pathname === DONOR_LIST_PATH;
+  const isSearchPage = isHomePage || isDonorListPage;
+  const pageSize = mode === 'paginated' ? 12 : 6;
 
-  const [filters, setFilters] =
-    useState<DonorSearchFormValues>(initialDonorSearchFilters);
-  const [page, setPage] = useState(1);
+  const restoredRef = useRef(
+    enabled ? restoreSearchFromSession(mode, isDonorListPage) : null,
+  );
+  const restored = enabled ? restoredRef.current : null;
+
+  const [filters, setFilters] = useState<DonorSearchFormValues>(
+    () => restored?.filters ?? initialDonorSearchFilters,
+  );
+  const [page, setPage] = useState(() => restored?.page ?? 1);
   const [searchRequest, setSearchRequest] = useState<DonorSearchFilters | null>(
-    null,
+    () => restored?.searchRequest ?? null,
   );
   const [validationError, setValidationError] = useState('');
-  const [hasSearched, setHasSearched] = useState(false);
-  const skipUrlHydrationRef = useRef<string | null>(null);
+  const [hasSearched, setHasSearched] = useState(
+    () => restored?.hasSearched ?? false,
+  );
+  const strippedLegacyQueryRef = useRef(false);
 
   const debouncedSearchRequest = useDebouncedValue(searchRequest, 450);
 
@@ -93,35 +152,29 @@ export function useDonorSearch({ mode }: UseDonorSearchOptions) {
 
   const runSearchWithValues = useCallback(
     (values: DonorSearchFormValues, nextPage = 1) => {
-      const urlPage = isDonorListPage ? nextPage : 1;
-      const urlKey = donorSearchToQueryString(values, urlPage);
+      if (!enabled) {
+        return;
+      }
+
+      const effectivePage = isDonorListPage ? nextPage : 1;
 
       setHasSearched(true);
-      setPage(urlPage);
+      setPage(effectivePage);
       setSearchRequest({
         bloodGroup: values.bloodGroup,
         lat: values.lat,
         lng: values.lng,
-        page: urlPage,
+        page: effectivePage,
         limit: pageSize,
       });
 
-      saveLastDonorSearch(
+      persistSearchSession(
         values,
-        urlPage,
+        effectivePage,
         isDonorListPage ? 'donor-list' : 'home',
       );
-
-      if (shouldSyncUrl) {
-        skipUrlHydrationRef.current = urlKey;
-        const href = isDonorListPage
-          ? buildDonorListUrl(values, urlPage)
-          : buildHomeSearchUrl(values, 1);
-
-        router.replace(href, { scroll: false });
-      }
     },
-    [isDonorListPage, pageSize, router, shouldSyncUrl],
+    [enabled, isDonorListPage, pageSize],
   );
 
   const validateFilters = useCallback(() => {
@@ -188,55 +241,37 @@ export function useDonorSearch({ mode }: UseDonorSearchOptions) {
     setFilters(values);
   }, []);
 
-  const viewAllHref = useMemo(() => {
-    if (
-      !filters.bloodGroup ||
-      filters.lat === undefined ||
-      filters.lng === undefined
-    ) {
-      return buildDonorListUrl(initialDonorSearchFilters, 1);
-    }
+  const viewAllHref = DONOR_LIST_PATH;
 
-    return buildDonorListUrl(filters, 1);
-  }, [filters]);
-
+  /** Remove legacy query-string search params from the address bar */
   useEffect(() => {
-    if (!shouldSyncUrl) {
+    if (!enabled || !isSearchPage || strippedLegacyQueryRef.current) {
       return;
     }
 
-    const urlKey = searchParams.toString();
+    strippedLegacyQueryRef.current = true;
 
-    if (skipUrlHydrationRef.current === urlKey) {
-      skipUrlHydrationRef.current = null;
+    if (searchParams.toString()) {
+      router.replace(pathname, { scroll: false });
+    }
+  }, [enabled, isSearchPage, pathname, router, searchParams]);
+
+  /** When opening donor-list from home, mark session source for back navigation */
+  useEffect(() => {
+    if (!enabled || !isDonorListPage || !hasSearched) {
       return;
     }
 
-    const parsed = parseDonorSearchFromSearchParams(searchParams);
+    const stored = getDonorSearchSession();
 
-    if (!parsed) {
-      return;
+    if (stored && stored.source !== 'donor-list') {
+      setDonorSearchSession({
+        ...stored,
+        source: 'donor-list',
+        page: stored.page || page,
+      });
     }
-
-    const { page: urlPage, ...formValues } = parsed;
-    const effectivePage = isDonorListPage ? urlPage : 1;
-
-    setFilters(formValues);
-    setValidationError('');
-    setHasSearched(true);
-    setPage(effectivePage);
-    setSearchRequest({
-      bloodGroup: formValues.bloodGroup,
-      lat: formValues.lat,
-      lng: formValues.lng,
-      page: effectivePage,
-      limit: pageSize,
-    });
-
-    if (isHomePage) {
-      scrollToSearchResults();
-    }
-  }, [isDonorListPage, isHomePage, pageSize, searchParams, shouldSyncUrl]);
+  }, [enabled, hasSearched, isDonorListPage, page]);
 
   return {
     filters,
