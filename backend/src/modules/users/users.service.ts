@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
@@ -16,6 +17,10 @@ import {
 } from './schemas/user.schema';
 import { UserDocument } from './schemas/user.schema.types';
 import { CreateGoogleUserInput, CreatePhoneUserInput } from './users.types';
+import {
+  INDIAN_PHONE_DUPLICATE_MESSAGE,
+  normalizeIndianPhoneToE164OrThrow,
+} from '../../common/phone/indian-phone';
 
 @Injectable()
 export class UsersService {
@@ -53,8 +58,10 @@ export class UsersService {
   }
 
   createPhoneUser(input: CreatePhoneUserInput): Promise<UserDocument> {
+    const normalizedPhone = normalizeIndianPhoneToE164OrThrow(input.phone);
+
     return this.userModel.create({
-      phone: input.phone,
+      phone: normalizedPhone,
       authProvider: AuthProvider.Phone,
       phoneVerified: false,
     });
@@ -161,8 +168,19 @@ export class UsersService {
 
     const update: Record<string, unknown> = {};
     const nextName = dto.name;
-    const nextPhone = dto.phone;
+    const nextPhone =
+      dto.phone !== undefined
+        ? normalizeIndianPhoneToE164OrThrow(dto.phone)
+        : undefined;
     const isDonor = user.role === UserRole.Donor;
+
+    if (nextPhone && nextPhone !== user.phone) {
+      const existingPhoneUser = await this.findByPhone(nextPhone);
+
+      if (existingPhoneUser && existingPhoneUser.id !== user.id) {
+        throw new ConflictException(INDIAN_PHONE_DUPLICATE_MESSAGE);
+      }
+    }
 
     for (const field of [
       'email',
@@ -287,8 +305,10 @@ export class UsersService {
     ] as const) {
       if (dto[field] !== undefined) {
         donorUpdate[field] =
-          field === 'lastDonationDate' || field === 'birthDate'
-            ? new Date(dto[field])
+          field === 'phone'
+            ? normalizeIndianPhoneToE164OrThrow(dto[field] as string)
+            : field === 'lastDonationDate' || field === 'birthDate'
+            ? new Date(dto[field] as string)
             : dto[field];
       }
     }

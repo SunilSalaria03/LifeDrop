@@ -1,4 +1,8 @@
 import * as yup from 'yup';
+import {
+  INDIAN_MOBILE_VALIDATION_MESSAGE,
+  isValidIndianNationalNumber,
+} from '@/lib/phone/india-phone';
 
 export const profileSetupSchema = yup.object({
   name: yup.string().trim().min(2, 'Enter your full name.').required('Name is required.'),
@@ -13,8 +17,8 @@ export const profileSetupSchema = yup.object({
     .trim()
     .test(
       'optional-indian-phone',
-      'Enter a 10 digit Indian mobile number.',
-      (value) => !value || /^\d{10}$/.test(value),
+      INDIAN_MOBILE_VALIDATION_MESSAGE,
+      (value) => !value || isValidIndianNationalNumber(value),
     )
     .optional(),
   state: yup.string().trim().required('State is required.'),
@@ -33,7 +37,11 @@ export const updateProfileFormSchema = yup.object({
   phone: yup
     .string()
     .trim()
-    .matches(/^\d{10}$/, 'Enter a 10 digit Indian mobile number.')
+    .test(
+      'valid-indian-phone',
+      INDIAN_MOBILE_VALIDATION_MESSAGE,
+      (value) => isValidIndianNationalNumber(value),
+    )
     .required('Mobile number is required.'),
   bloodGroup: yup.string().trim().optional(),
   gender: yup.string().trim().oneOf(['male', 'female', 'other', ''], 'Select a valid gender.').optional(),
@@ -41,8 +49,9 @@ export const updateProfileFormSchema = yup.object({
   weight: yup
     .number()
     .transform((value, originalValue) =>
-      originalValue === '' || Number.isNaN(value) ? undefined : value,
+      originalValue === '' ? undefined : value,
     )
+    .typeError('Enter a valid weight.')
     .min(1, 'Enter a valid weight.')
     .optional(),
   lastDonationDate: yup.string().trim().optional(),
@@ -67,7 +76,11 @@ export const profilePhoneSchema = yup.object({
   phone: yup
     .string()
     .trim()
-    .matches(/^\d{10}$/, 'Enter a 10 digit Indian mobile number.')
+    .test(
+      'valid-indian-phone',
+      INDIAN_MOBILE_VALIDATION_MESSAGE,
+      (value) => isValidIndianNationalNumber(value),
+    )
     .required('Phone number is required.'),
   otp: yup.string().trim().matches(/^\d{6}$/, 'Enter the 6 digit OTP.').optional(),
 });

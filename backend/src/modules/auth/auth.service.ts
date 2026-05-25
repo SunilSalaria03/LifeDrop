@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   HttpException,
   Injectable,
@@ -29,6 +30,10 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { UserRole } from '../users/schemas/user.schema';
 import { UserDocument } from '../users/schemas/user.schema.types';
 import { UsersService } from '../users/users.service';
+import {
+  INDIAN_PHONE_DUPLICATE_MESSAGE,
+  normalizeIndianPhoneToE164OrThrow,
+} from '../../common/phone/indian-phone';
 
 @Injectable()
 export class AuthService {
@@ -53,19 +58,22 @@ export class AuthService {
   }
 
   async sendPhoneOtp(phoneOtpSendDto: PhoneOtpSendDto) {
-    let user = await this.usersService.findByPhoneWithOtp(
+    const normalizedPhone = normalizeIndianPhoneToE164OrThrow(
       phoneOtpSendDto.phone,
+    );
+    let user = await this.usersService.findByPhoneWithOtp(
+      normalizedPhone,
     );
 
     if (!user) {
       user = await this.usersService.createPhoneUser({
-        phone: phoneOtpSendDto.phone,
+        phone: normalizedPhone,
       });
     }
 
     this.assertCanLogin(user);
     this.assertCanResendOtp(user);
-    const developmentOtp = await this.sendOtpSms(user.id, phoneOtpSendDto.phone);
+    const developmentOtp = await this.sendOtpSms(user.id, normalizedPhone);
 
     return {
       message: 'OTP sent successfully',
@@ -76,8 +84,11 @@ export class AuthService {
   async verifyPhoneOtp(
     phoneOtpVerifyDto: PhoneOtpVerifyDto,
   ): Promise<AuthResponse> {
-    const user = await this.usersService.findByPhoneWithOtp(
+    const normalizedPhone = normalizeIndianPhoneToE164OrThrow(
       phoneOtpVerifyDto.phone,
+    );
+    const user = await this.usersService.findByPhoneWithOtp(
+      normalizedPhone,
     );
 
     if (!user) {
@@ -104,15 +115,16 @@ export class AuthService {
     phoneOtpVerifyDto: PhoneOtpVerifyDto,
   ) {
     this.assertCanLogin(currentUser);
-
-    const existingPhoneUser = await this.usersService.findByPhone(
+    const normalizedPhone = normalizeIndianPhoneToE164OrThrow(
       phoneOtpVerifyDto.phone,
     );
 
+    const existingPhoneUser = await this.usersService.findByPhone(
+      normalizedPhone,
+    );
+
     if (existingPhoneUser && existingPhoneUser.id !== currentUser.id) {
-      throw new BadRequestException(
-        'Phone number is already used by another account.',
-      );
+      throw new ConflictException(INDIAN_PHONE_DUPLICATE_MESSAGE);
     }
 
     const userWithOtp = await this.usersService.findByIdWithOtp(currentUser.id);
@@ -121,7 +133,7 @@ export class AuthService {
       throw new UnauthorizedException('User does not exist.');
     }
 
-    if (userWithOtp.phone !== phoneOtpVerifyDto.phone) {
+    if (userWithOtp.phone !== normalizedPhone) {
       throw new BadRequestException(
         'Please save this phone number in your profile before verifying OTP.',
       );

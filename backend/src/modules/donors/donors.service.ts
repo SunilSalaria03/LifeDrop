@@ -24,6 +24,10 @@ import {
 import { DonorProfileDocument } from "./schemas/donor-profile.schema.types";
 import { User, UserRole } from "../users/schemas/user.schema";
 import { UserDocument } from "../users/schemas/user.schema.types";
+import {
+  INDIAN_PHONE_DUPLICATE_MESSAGE,
+  normalizeIndianPhoneToE164OrThrow,
+} from "../../common/phone/indian-phone";
 
 @Injectable()
 export class DonorsService {
@@ -219,6 +223,14 @@ export class DonorsService {
       data.nextEligibleDate = this.getNextEligibleDate(lastDonationDate);
     }
 
+    if (dto.phone !== undefined) {
+      data.phone = normalizeIndianPhoneToE164OrThrow(dto.phone);
+    }
+
+    if (dto.alternatePhone !== undefined) {
+      data.alternatePhone = normalizeIndianPhoneToE164OrThrow(dto.alternatePhone);
+    }
+
     return data;
   }
 
@@ -238,7 +250,10 @@ export class DonorsService {
     const update: Record<string, unknown> = {};
 
     const nextName = dto?.name ?? user.name;
-    const nextPhone = dto?.phone ?? profile.phone ?? user.phone;
+    const nextPhoneInput = dto?.phone ?? profile.phone ?? user.phone;
+    const nextPhone = nextPhoneInput
+      ? normalizeIndianPhoneToE164OrThrow(nextPhoneInput)
+      : undefined;
 
     if (dto?.name !== undefined) {
       update.name = dto.name;
@@ -249,6 +264,14 @@ export class DonorsService {
     }
 
     if (nextPhone) {
+      const existingPhoneUser = await this.userModel
+        .findOne({ phone: nextPhone, _id: { $ne: user._id } })
+        .exec();
+
+      if (existingPhoneUser) {
+        throw new ConflictException(INDIAN_PHONE_DUPLICATE_MESSAGE);
+      }
+
       update.phone = nextPhone;
     }
 

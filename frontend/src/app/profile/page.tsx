@@ -3,8 +3,7 @@
 import { ReactNode, useMemo, useState } from "react";
 import { City, State } from "country-state-city";
 import { useFormik } from "formik";
-import * as yup from "yup";
-import { Edit3, Save, X } from "lucide-react";
+import { Save, X } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { IndiaPhoneInput } from "@/components/forms/IndiaPhoneInput";
 import { Button } from "@/components/ui/button";
@@ -23,13 +22,14 @@ import { BannerBreadcrumbStrip } from "@/components/layout/BannerBreadcrumbStrip
 import { breadcrumbProfile } from "@/components/layout/breadcrumb.presets";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { AuthUser } from "@/features/auth/types/auth.types";
-import { useDonorProfile } from "@/features/donors/hooks/useDonorProfile";
-import { MyDonorProfile } from "@/features/donors/types/donor.types";
 import { useProfile } from "@/features/profile/hooks/useProfile";
 import { updateProfileFormSchema } from "@/features/profile/validations/profile.validation";
 import { bloodGroups } from "@/lib/constants/locations";
 import { getApiErrorMessage } from "@/lib/api/error-message";
-import { toIndianE164, toIndianNationalNumber } from "@/lib/phone/india-phone";
+import {
+  toIndianE164,
+  toIndianNationalNumber,
+} from "@/lib/phone/india-phone";
 import { useToast } from "@/components/ui/toast";
 import {
   booleanSelectValue,
@@ -57,6 +57,23 @@ function FieldLabel({ children }: { children: ReactNode }) {
     <span className="text-xs font-black uppercase tracking-normal text-neutral-500">
       {children}
     </span>
+  );
+}
+
+function FieldError({ active, message }: { active: boolean; message?: string }) {
+  if (!active) {
+    return null;
+  }
+
+  return (
+    <p
+      className={cn(
+        "min-h-4 text-xs font-medium",
+        message ? "text-red-700" : "text-transparent",
+      )}
+    >
+      {message || "\u00A0"}
+    </p>
   );
 }
 
@@ -104,7 +121,7 @@ function ProfileEditForm({
     },
     validationSchema: updateProfileFormSchema,
     enableReinitialize: true,
-    validateOnChange: false,
+    validateOnChange: true,
     onSubmit: async (values) => {
       try {
         await updateProfileMutation.mutateAsync({
@@ -169,7 +186,7 @@ function ProfileEditForm({
       tehsil: "",
       lat: undefined,
       lng: undefined,
-    });
+    }, true);
   };
 
   const handleDistrictChange = (districtName: string) => {
@@ -186,10 +203,20 @@ function ProfileEditForm({
       lng: selectedDistrict?.longitude
         ? Number(selectedDistrict.longitude)
         : undefined,
-    });
+    }, true);
   };
 
-  const firstError = Object.values(formik.errors)[0];
+  const getFieldError = (field: keyof typeof formik.values) => {
+    if (formik.submitCount === 0) {
+      return undefined;
+    }
+    const error = formik.errors[field];
+    return typeof error === "string" ? error : undefined;
+  };
+
+  const getFirstError = (fields: Array<keyof typeof formik.values>) =>
+    fields.map(getFieldError).find(Boolean);
+  const showValidationFeedback = formik.submitCount > 0;
 
   return (
     <form className="grid gap-6" onSubmit={formik.handleSubmit}>
@@ -202,19 +229,26 @@ function ProfileEditForm({
             <FieldLabel>Full name</FieldLabel>
             <Input
               aria-label="Full name"
-              className="h-12 rounded-2xl bg-white"
+              className={cn(
+                "h-12 rounded-2xl bg-white",
+                getFieldError("name") && "border-red-500 focus:border-red-500",
+              )}
               name="name"
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
               placeholder="Full name"
               value={formik.values.name}
             />
+            <FieldError active={showValidationFeedback} message={getFieldError("name")} />
           </label>
           <label className="grid gap-2">
             <FieldLabel>Email</FieldLabel>
             <Input
               aria-label="Email"
-              className="h-12 rounded-2xl bg-white"
+              className={cn(
+                "h-12 rounded-2xl bg-white",
+                getFieldError("email") && "border-red-500 focus:border-red-500",
+              )}
               name="email"
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
@@ -222,6 +256,7 @@ function ProfileEditForm({
               type="email"
               value={formik.values.email}
             />
+            <FieldError active={showValidationFeedback} message={getFieldError("email")} />
           </label>
           <label className="grid gap-2">
             <FieldLabel>Mobile number</FieldLabel>
@@ -250,13 +285,16 @@ function ProfileEditForm({
               <FieldLabel>Blood group</FieldLabel>
               <Select
                 onValueChange={(bloodGroup) =>
-                  void formik.setFieldValue("bloodGroup", bloodGroup, false)
+                  void formik.setFieldValue("bloodGroup", bloodGroup, true)
                 }
                 value={formik.values.bloodGroup}
               >
                 <SelectTrigger
                   aria-label="Blood group"
-                  className="h-12 rounded-2xl bg-white"
+                  className={cn(
+                    "h-12 rounded-2xl bg-white",
+                    getFieldError("bloodGroup") && "border-red-500 focus:border-red-500",
+                  )}
                 >
                   <SelectValue placeholder="Blood group" />
                 </SelectTrigger>
@@ -268,18 +306,25 @@ function ProfileEditForm({
                   ))}
                 </SelectContent>
               </Select>
+              <FieldError
+                active={showValidationFeedback}
+                message={getFieldError("bloodGroup")}
+              />
             </label>
             <label className="grid gap-2">
               <FieldLabel>Gender</FieldLabel>
               <Select
                 onValueChange={(gender) =>
-                  void formik.setFieldValue("gender", gender, false)
+                  void formik.setFieldValue("gender", gender, true)
                 }
                 value={formik.values.gender}
               >
                 <SelectTrigger
                   aria-label="Gender"
-                  className="h-12 rounded-2xl bg-white"
+                  className={cn(
+                    "h-12 rounded-2xl bg-white",
+                    getFieldError("gender") && "border-red-500 focus:border-red-500",
+                  )}
                 >
                   <SelectValue placeholder="Gender" />
                 </SelectTrigger>
@@ -289,18 +334,27 @@ function ProfileEditForm({
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
+              <FieldError active={showValidationFeedback} message={getFieldError("gender")} />
             </label>
             <label className="grid gap-2">
               <FieldLabel>Weight</FieldLabel>
               <Input
                 aria-label="Weight"
-                className="h-12 rounded-2xl bg-white"
+                className={cn(
+                  "h-12 rounded-2xl bg-white",
+                  getFieldError("weight") && "border-red-500 focus:border-red-500",
+                )}
                 inputMode="numeric"
+                min={1}
                 name="weight"
-                onChange={formik.handleChange}
+                onChange={(event) =>
+                  void formik.setFieldValue("weight", event.target.value, true)
+                }
                 placeholder="Weight"
+                type="number"
                 value={formik.values.weight}
               />
+              <FieldError active={showValidationFeedback} message={getFieldError("weight")} />
             </label>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -308,22 +362,36 @@ function ProfileEditForm({
               <FieldLabel>Birth date</FieldLabel>
               <Input
                 aria-label="Birth date"
-                className="h-12 rounded-2xl bg-white"
+                className={cn(
+                  "h-12 rounded-2xl bg-white",
+                  getFieldError("birthDate") && "border-red-500 focus:border-red-500",
+                )}
                 name="birthDate"
                 onChange={formik.handleChange}
                 type="date"
                 value={formik.values.birthDate}
+              />
+              <FieldError
+                active={showValidationFeedback}
+                message={getFieldError("birthDate")}
               />
             </label>
             <label className="grid gap-2">
               <FieldLabel>Last donation date</FieldLabel>
               <Input
                 aria-label="Last donation date"
-                className="h-12 rounded-2xl bg-white"
+                className={cn(
+                  "h-12 rounded-2xl bg-white",
+                  getFieldError("lastDonationDate") && "border-red-500 focus:border-red-500",
+                )}
                 name="lastDonationDate"
                 onChange={formik.handleChange}
                 type="date"
                 value={formik.values.lastDonationDate}
+              />
+              <FieldError
+                active={showValidationFeedback}
+                message={getFieldError("lastDonationDate")}
               />
             </label>
           </div>
@@ -387,7 +455,10 @@ function ProfileEditForm({
             <FieldLabel>Pin code</FieldLabel>
             <Input
               aria-label="Pin code"
-              className="h-12 rounded-2xl bg-white"
+              className={cn(
+                "h-12 rounded-2xl bg-white",
+                getFieldError("pincode") && "border-red-500 focus:border-red-500",
+              )}
               inputMode="numeric"
               maxLength={6}
               name="pincode"
@@ -395,6 +466,7 @@ function ProfileEditForm({
               placeholder="Pin code"
               value={formik.values.pincode}
             />
+            <FieldError active={showValidationFeedback} message={getFieldError("pincode")} />
           </label>
           <label className="grid gap-2">
             <FieldLabel>Address line</FieldLabel>
@@ -417,7 +489,10 @@ function ProfileEditForm({
             >
               <SelectTrigger
                 aria-label="State"
-                className="h-12 rounded-2xl bg-white"
+                className={cn(
+                  "h-12 rounded-2xl bg-white",
+                  getFirstError(["stateCode", "state"]) && "border-red-500 focus:border-red-500",
+                )}
               >
                 <SelectValue placeholder="State" />
               </SelectTrigger>
@@ -429,6 +504,10 @@ function ProfileEditForm({
                 ))}
               </SelectContent>
             </Select>
+            <FieldError
+              active={showValidationFeedback}
+              message={getFirstError(["stateCode", "state"])}
+            />
           </label>
 
           <label className="grid gap-2">
@@ -440,7 +519,10 @@ function ProfileEditForm({
             >
               <SelectTrigger
                 aria-label="District"
-                className="h-12 rounded-2xl bg-white"
+                className={cn(
+                  "h-12 rounded-2xl bg-white",
+                  getFieldError("district") && "border-red-500 focus:border-red-500",
+                )}
               >
                 <SelectValue placeholder="District" />
               </SelectTrigger>
@@ -455,6 +537,7 @@ function ProfileEditForm({
                 ))}
               </SelectContent>
             </Select>
+            <FieldError active={showValidationFeedback} message={getFieldError("district")} />
           </label>
           <label className="grid gap-2">
             <FieldLabel>Tehsil</FieldLabel>
@@ -486,12 +569,6 @@ function ProfileEditForm({
         </div>
       </section>
 
-      {firstError ? (
-        <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
-          {firstError}
-        </p>
-      ) : null}
-
       {updateProfileMutation.isError ? (
         <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
           Profile could not be updated. Please check the details and try again.
@@ -521,267 +598,9 @@ function ProfileEditForm({
   );
 }
 
-const donorEditSchema = yup.object({
-  bloodGroup: yup.string().required("Blood group is required."),
-  phone: yup
-    .string()
-    .trim()
-    .matches(/^\d{10}$/, "Enter a 10 digit Indian mobile number.")
-    .required("Phone is required."),
-  alternatePhone: yup
-    .string()
-    .trim()
-    .test(
-      "optional-e164",
-      "Enter a 10 digit Indian mobile number.",
-      (value) => !value || /^\d{10}$/.test(value),
-    ),
-  state: yup.string().required("State is required."),
-  stateCode: yup.string().required("State is required."),
-  city: yup.string().required("City is required."),
-  district: yup.string().optional(),
-  addressLine: yup.string().optional(),
-  addressText: yup.string().optional(),
-  lat: yup.number().optional(),
-  lng: yup.number().optional(),
-  lastDonationDate: yup.string().optional(),
-  isAvailable: yup.boolean().optional(),
-});
-
-function DonorEditForm({
-  donor,
-  onCancel,
-}: {
-  donor: MyDonorProfile;
-  onCancel: () => void;
-}) {
-  const { updateDonorProfileMutation } = useDonorProfile();
-  const states = useMemo(() => State.getStatesOfCountry("IN"), []);
-
-  const formik = useFormik({
-    initialValues: {
-      bloodGroup: donor.bloodGroup ?? "",
-      phone: toIndianNationalNumber(donor.phone),
-      alternatePhone: toIndianNationalNumber(donor.alternatePhone),
-      state: donor.state ?? "",
-      stateCode: findStateCode(donor.state),
-      city: donor.city ?? "",
-      district: donor.district ?? "",
-      addressLine: donor.addressLine ?? donor.addressText ?? "",
-      lat: undefined as number | undefined,
-      lng: undefined as number | undefined,
-      lastDonationDate: donor.lastDonationDate ?? "",
-      isAvailable: donor.isAvailable ?? true,
-    },
-    validationSchema: donorEditSchema,
-    enableReinitialize: true,
-    validateOnChange: false,
-    onSubmit: async (values) => {
-      await updateDonorProfileMutation.mutateAsync({
-        bloodGroup: values.bloodGroup,
-        phone: toIndianE164(values.phone),
-        alternatePhone: values.alternatePhone
-          ? toIndianE164(values.alternatePhone)
-          : undefined,
-        state: values.state,
-        city: values.city,
-        district: values.district || undefined,
-        addressLine: values.addressLine || undefined,
-        addressText: values.addressLine || undefined,
-        lat: typeof values.lat === "number" ? values.lat : undefined,
-        lng: typeof values.lng === "number" ? values.lng : undefined,
-        lastDonationDate: values.lastDonationDate || undefined,
-        isAvailable: values.isAvailable,
-      });
-      onCancel();
-    },
-  });
-
-  const cities = useMemo(() => {
-    if (!formik.values.stateCode) {
-      return [];
-    }
-
-    return City.getCitiesOfState("IN", formik.values.stateCode);
-  }, [formik.values.stateCode]);
-
-  const handleStateChange = (stateCode: string) => {
-    const selectedState = states.find((state) => state.isoCode === stateCode);
-    void formik.setValues({
-      ...formik.values,
-      stateCode,
-      state: selectedState?.name ?? "",
-      city: "",
-      lat: undefined,
-      lng: undefined,
-    });
-  };
-
-  const handleCityChange = (cityName: string) => {
-    const selectedCity = cities.find((city) => city.name === cityName);
-    void formik.setValues({
-      ...formik.values,
-      city: cityName,
-      lat: selectedCity?.latitude ? Number(selectedCity.latitude) : undefined,
-      lng: selectedCity?.longitude ? Number(selectedCity.longitude) : undefined,
-    });
-  };
-
-  const firstError = Object.values(formik.errors)[0];
-
-  return (
-    <form className="grid gap-4" onSubmit={formik.handleSubmit}>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Select
-          onValueChange={(bloodGroup) =>
-            void formik.setFieldValue("bloodGroup", bloodGroup)
-          }
-          value={formik.values.bloodGroup}
-        >
-          <SelectTrigger className="h-12 rounded-2xl">
-            <SelectValue placeholder="Blood group" />
-          </SelectTrigger>
-          <SelectContent>
-            {bloodGroups.map((bloodGroup) => (
-              <SelectItem key={bloodGroup} value={bloodGroup}>
-                {bloodGroup}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <IndiaPhoneInput
-          disabled
-          name="phone"
-          onChange={(phone) => void formik.setFieldValue("phone", phone, false)}
-          placeholder="Donor phone"
-          value={formik.values.phone}
-        />
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <IndiaPhoneInput
-          name="alternatePhone"
-          onChange={(phone) =>
-            void formik.setFieldValue("alternatePhone", phone, false)
-          }
-          placeholder="Alternate phone optional"
-          value={formik.values.alternatePhone}
-        />
-        <Input
-          className="h-12 rounded-2xl"
-          name="lastDonationDate"
-          onChange={formik.handleChange}
-          type="date"
-          value={formik.values.lastDonationDate}
-        />
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Select
-          onValueChange={handleStateChange}
-          value={formik.values.stateCode}
-        >
-          <SelectTrigger className="h-12 rounded-2xl">
-            <SelectValue placeholder="State" />
-          </SelectTrigger>
-          <SelectContent>
-            {states.map((state) => (
-              <SelectItem key={state.isoCode} value={state.isoCode}>
-                {state.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          disabled={!formik.values.stateCode}
-          onValueChange={handleCityChange}
-          value={formik.values.city}
-        >
-          <SelectTrigger className="h-12 rounded-2xl">
-            <SelectValue placeholder="City" />
-          </SelectTrigger>
-          <SelectContent>
-            {cities.map((city) => (
-              <SelectItem
-                key={`${city.name}-${city.latitude}`}
-                value={city.name}
-              >
-                {city.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Input
-          className="h-12 rounded-2xl"
-          name="district"
-          onChange={formik.handleChange}
-          placeholder="District optional"
-          value={formik.values.district}
-        />
-        <Input
-          className="h-12 rounded-2xl"
-          name="addressLine"
-          onChange={formik.handleChange}
-          placeholder="Address line optional"
-          value={formik.values.addressLine}
-        />
-      </div>
-
-      <label className="flex h-12 items-center gap-2 rounded-2xl border border-neutral-200 bg-white px-3 text-sm font-semibold text-neutral-700">
-        <input
-          checked={formik.values.isAvailable}
-          name="isAvailable"
-          onChange={formik.handleChange}
-          type="checkbox"
-        />
-        Available for donation requests
-      </label>
-
-      {firstError ? (
-        <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
-          {firstError}
-        </p>
-      ) : null}
-
-      {updateDonorProfileMutation.isError ? (
-        <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
-          Donor details could not be updated. Please check the form and try
-          again.
-        </p>
-      ) : null}
-
-      <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-        <Button
-          className="h-12 rounded-full"
-          onClick={onCancel}
-          type="button"
-          variant="outline"
-        >
-          <X className="h-4 w-4" />
-          Cancel
-        </Button>
-        <Button
-          className="h-12 rounded-full bg-red-700 text-white hover:bg-red-800"
-          disabled={updateDonorProfileMutation.isPending}
-          type="submit"
-        >
-          <Save className="h-4 w-4" />
-          {updateDonorProfileMutation.isPending
-            ? "Updating..."
-            : "Update donor details"}
-        </Button>
-      </div>
-    </form>
-  );
-}
-
 export default function ProfilePage() {
   const { meQuery } = useAuth();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [isEditingDonor, setIsEditingDonor] = useState(false);
   const user = meQuery.data;
   const donor = user?.donorProfile ?? null;
   const isLoading = meQuery.isLoading;
@@ -847,32 +666,12 @@ export default function ProfilePage() {
 
               <DonorInformationCard
                 donor={donor}
-                isEditingDonor={isEditingDonor}
-                onToggleDonorEdit={() =>
-                  setIsEditingDonor((current) => !current)
+                isEditingProfile={isEditingProfile}
+                onToggleProfileEdit={() =>
+                  setIsEditingProfile((current) => !current)
                 }
               />
             </div>
-
-            {donor && isEditingDonor ? (
-              <Card className={profileCard}>
-                <CardHeader className={profileCardHeader}>
-                  <h2 className="text-lg font-bold text-neutral-950">
-                    Update Donor Details
-                  </h2>
-                  <p className="text-sm text-neutral-600">
-                    Update your blood group, contact preferences, location, and
-                    availability.
-                  </p>
-                </CardHeader>
-                <CardContent className={profileCardBody}>
-                  <DonorEditForm
-                    donor={donor}
-                    onCancel={() => setIsEditingDonor(false)}
-                  />
-                </CardContent>
-              </Card>
-            ) : null}
           </div>
         )}
       </main>
