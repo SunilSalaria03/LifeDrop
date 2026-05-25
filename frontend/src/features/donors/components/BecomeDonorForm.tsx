@@ -96,11 +96,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
     date.setDate(date.getDate() - 90);
     return toDateInputValue(date);
   }, []);
-  const maxBirthDateLabel = useMemo(() => toReadableDate(maxBirthDate), [maxBirthDate]);
-  const maxLastDonationDateLabel = useMemo(
-    () => toReadableDate(maxLastDonationDate),
-    [maxLastDonationDate],
-  );
+ 
   const initialBirthDate = formatDateInputValue(user.birthDate) || maxBirthDate;
   const initialLastDonationDate =
     formatDateInputValue(user.lastDonationDate) || maxLastDonationDate;
