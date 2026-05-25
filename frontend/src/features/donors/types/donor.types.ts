@@ -16,6 +16,8 @@ export type DonorSearchFilters = {
   lat?: number;
   lng?: number;
   radiusKm?: number;
+  page?: number;
+  limit?: number;
 };
 
 export type DonorProfilePayload = {
@@ -86,6 +88,9 @@ export type MyDonorProfile = DonorListItem & {
 export type DonorSearchResponse = {
   items: DonorListItem[];
   count: number;
+  page: number;
+  limit: number;
+  totalPages: number;
   radiusKm: number;
 };
 

@@ -2,134 +2,95 @@
 
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Fragment, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { Fragment } from "react";
 import { Sparkles } from "lucide-react";
-import { searchDonors } from "@/features/donors/api/donors.api";
-import { DonorSearchFilters } from "@/features/donors/types/donor.types";
-import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { cn } from "@/lib/utils";
+import { BannerBreadcrumbStrip } from "@/components/layout/BannerBreadcrumbStrip";
+import { BreadcrumbItem } from "@/components/layout/breadcrumb.types";
+import { useDonorSearch } from "@/hooks/useDonorSearch";
 import bannerImage from "@/assets/images/banner.png";
-import { initialDonorSearchFilters } from "./landing.constants";
 import { DonorList } from "./DonorList";
 import { SearchBar } from "./SearchBar";
 import { getHeroBannerContent } from "./hero-banner.content";
-import { DonorSearchFormValues } from "./landing.types";
 
-export function HeroSection() {
+type HeroSectionProps = {
+  breadcrumb?: BreadcrumbItem[];
+};
+
+export function HeroSection({ breadcrumb }: HeroSectionProps = {}) {
   const pathname = usePathname();
   const isHomeRoute = pathname === "/";
+  const isDonorListPage = pathname === "/donor-list";
+  const isSearchPage = isHomeRoute || isDonorListPage;
+  const searchMode = isHomeRoute ? "preview" : "paginated";
+
   const banner = getHeroBannerContent(pathname);
   const BadgeIcon = banner.BadgeIcon;
-  const [filters, setFilters] =
-    useState<DonorSearchFormValues>(initialDonorSearchFilters);
-  const [searchFilters, setSearchFilters] = useState<DonorSearchFilters | null>(
-    null,
-  );
-  const [validationError, setValidationError] = useState("");
-  const [hasSearched, setHasSearched] = useState(false);
-  const debouncedSearchFilters = useDebouncedValue(searchFilters, 450);
 
-  const queryKey = useMemo(
-    () => [
-      "landing-donor-search",
-      debouncedSearchFilters?.bloodGroup ?? "",
-      debouncedSearchFilters?.lat ?? "",
-      debouncedSearchFilters?.lng ?? "",
-    ],
-    [debouncedSearchFilters],
-  );
+  const {
+    filters,
+    page,
+    pageSize,
+    hasSearched,
+    showResultsSection,
+    showDonorSkeletons,
+    isSearchInProgress,
+    validationError,
+    searchResult,
+    isLoading,
+    errorMessage,
+    updateFilters,
+    handleFindDonors,
+    handlePageChange,
+    viewAllHref,
+    mode,
+  } = useDonorSearch({ mode: searchMode, enabled: isSearchPage });
 
-  const donorQuery = useQuery({
-    enabled: Boolean(debouncedSearchFilters),
-    queryKey,
-    queryFn: () => searchDonors(debouncedSearchFilters as DonorSearchFilters),
-    retry: 1,
-  });
-
-  const isSearchDebouncing = Boolean(
-    searchFilters && searchFilters !== debouncedSearchFilters,
-  );
-
-  const updateFilters = (values: DonorSearchFormValues) => {
-    setValidationError("");
-    setFilters(values);
-  };
-
-  const validateFilters = () => {
-    if (!filters.bloodGroup) {
-      setValidationError('Please select blood group before searching.');
-      return false;
-    }
-
-    if (!filters.state || !filters.city) {
-      setValidationError("Please select state and city / district before searching.");
-      return false;
-    }
-
-    if (filters.lat === undefined || filters.lng === undefined) {
-      setValidationError("Selected city coordinates were not found. Please choose another city / district.");
-      return false;
-    }
-
-    setValidationError("");
-    return true;
-  };
-
-  const handleFindDonors = () => {
-    if (!validateFilters()) {
-      return;
-    }
-
-    setHasSearched(true);
-
-    setSearchFilters({
-      bloodGroup: filters.bloodGroup,
-      lat: filters.lat,
-      lng: filters.lng,
-    });
-  };
+  const showViewAll =
+    mode === "preview" &&
+    hasSearched &&
+    !isLoading &&
+    searchResult.count > pageSize;
 
   return (
     <>
-      {/* ── Dark hero: banner image + headline + search ── */}
       <section className="relative min-h-[700px] overflow-hidden bg-slate-900">
-      {/* ── Illustration panel: right 50%, desktop only ── */}
-      <div className="absolute inset-y-0 right-0 hidden w-[50%] lg:block">
-        <Image
-          src={bannerImage}
-          alt="Blood donor hero"
-          fill
-          priority
-          className="object-contain object-bottom opacity-85"
-        />
-        {/* Dark tint to kill the white-background glow */}
-        <div className="absolute inset-0 bg-slate-900/30" />
-        {/* Left edge: wide fade so illustration bleeds in naturally */}
-        <div className="absolute inset-y-0 left-0 w-64 bg-[linear-gradient(to_right,#0f172a,transparent)]" />
-        {/* Right edge: remove hard white corner */}
-        <div className="absolute inset-y-0 right-0 w-16 bg-[linear-gradient(to_left,#0f172a,transparent)]" />
-        {/* Top edge: hides any white bleed at the top */}
-        <div className="absolute inset-x-0 top-0 h-36 bg-[linear-gradient(to_bottom,#0f172a,transparent)]" />
-        {/* Bottom edge */}
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(to_top,#0f172a,transparent)]" />
-      </div>
+        {breadcrumb && breadcrumb.length > 0 ? (
+          <BannerBreadcrumbStrip items={breadcrumb} overlay />
+        ) : null}
 
-      {/* ── Main dark overlay: text panel solid, fades toward illustration ── */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,1)_0%,rgba(15,23,42,1)_44%,rgba(15,23,42,0.70)_58%,rgba(15,23,42,0.25)_75%,rgba(15,23,42,0.15)_100%)]" />
+        <div className="absolute inset-y-0 right-0 hidden w-[50%] lg:block">
+          <Image
+            src={bannerImage}
+            alt="Blood donor hero"
+            fill
+            priority={isHomeRoute}
+            className="object-contain object-bottom opacity-85"
+          />
+          <div className="absolute inset-0 bg-slate-900/30" />
+          <div className="absolute inset-y-0 left-0 w-64 bg-[linear-gradient(to_right,#0f172a,transparent)]" />
+          <div className="absolute inset-y-0 right-0 w-16 bg-[linear-gradient(to_left,#0f172a,transparent)]" />
+          <div className="absolute inset-x-0 top-0 h-36 bg-[linear-gradient(to_bottom,#0f172a,transparent)]" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(to_top,#0f172a,transparent)]" />
+        </div>
 
-      {/* ── Full-section top gradient: header area always dark ── */}
-      <div className="absolute inset-x-0 top-0 h-28 bg-[linear-gradient(to_bottom,rgba(15,23,42,0.90),transparent)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,1)_0%,rgba(15,23,42,1)_44%,rgba(15,23,42,0.70)_58%,rgba(15,23,42,0.25)_75%,rgba(15,23,42,0.15)_100%)]" />
 
-      {/* ── Full-section bottom fade into next section ── */}
-      <div className="absolute inset-x-0 bottom-0 h-28 bg-[linear-gradient(to_top,rgba(15,23,42,1),transparent)]" />
+        <div className="absolute inset-x-0 top-0 h-28 bg-[linear-gradient(to_bottom,rgba(15,23,42,0.90),transparent)]" />
 
-      {/* ── Red ambient glow near feet of figure ── */}
-      <div className="pointer-events-none absolute bottom-0 right-[22%] h-64 w-64 rounded-full bg-red-700/20 blur-3xl" />
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-[linear-gradient(to_top,rgba(15,23,42,1),transparent)]" />
 
-        <div className="relative mx-auto flex min-h-[700px] max-w-7xl items-center px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+        <div className="pointer-events-none absolute bottom-0 right-[22%] h-64 w-64 rounded-full bg-red-700/20 blur-3xl" />
+
+        <div
+          className={cn(
+            "relative mx-auto flex min-h-[700px] max-w-7xl px-4 sm:px-6 lg:px-8",
+            breadcrumb?.length
+              ? "items-center py-16 pb-20 pt-24 sm:py-20 sm:pt-28 lg:py-24"
+              : "items-center py-16 sm:py-20 lg:py-24",
+          )}
+        >
           <div className="grid w-full gap-7">
-
-            {/* Badge + headline + subtitle — left-anchored to left column */}
             <div className="grid max-w-2xl gap-5 md:max-w-3xl lg:max-w-[58%]">
               <p
                 aria-label={banner.badgeAriaLabel}
@@ -190,7 +151,7 @@ export function HeroSection() {
                   ) : null}
                   {banner.footnote ? (
                     <p
-                      className={`flex items-start gap-2 text-xs font-normal leading-relaxed text-slate-300/95 sm:text-sm${banner.steps.length > 0 ? ' mt-3 sm:mt-3.5' : ''}`}
+                      className={`flex items-start gap-2 text-xs font-normal leading-relaxed text-slate-300/95 sm:text-sm${banner.steps.length > 0 ? " mt-3 sm:mt-3.5" : ""}`}
                     >
                       <Sparkles
                         className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-300/90 sm:h-4 sm:w-4"
@@ -203,15 +164,13 @@ export function HeroSection() {
               ) : null}
             </div>
 
-            {/* Search form — full width */}
-            
-            {isHomeRoute ? (
+            {isSearchPage ? (
               <div
                 className="scroll-mt-20 grid w-full gap-4 rounded-4xl border border-white/10 bg-white/5 p-3 shadow-2xl shadow-black/40 backdrop-blur-md sm:scroll-mt-24 sm:p-4"
                 id="landing-donor-search"
               >
                 <SearchBar
-                  isSearching={donorQuery.isFetching || isSearchDebouncing}
+                  isSearching={isSearchInProgress}
                   onChange={updateFilters}
                   onSearch={handleFindDonors}
                   values={filters}
@@ -223,24 +182,35 @@ export function HeroSection() {
                 ) : null}
               </div>
             ) : null}
-
           </div>
         </div>
       </section>
 
-      {/* ── Search results: white background, outside the banner ── */}
-      {hasSearched && (
-        <section className="bg-white px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
+      {showResultsSection ? (
+        <section
+          className="min-h-[28rem] bg-white px-4 py-10 sm:min-h-[32rem] sm:px-6 sm:py-12 lg:px-8 lg:py-16"
+          id="donor-search-results"
+        >
           <div className="mx-auto max-w-6xl">
             <DonorList
-              donors={donorQuery.data ?? []}
-              errorMessage={donorQuery.error?.message}
+              donors={searchResult.items}
+              errorMessage={errorMessage}
               hasSearched={hasSearched}
-              isLoading={donorQuery.isFetching || isSearchDebouncing}
+              isLoading={showDonorSkeletons}
+              mode={mode}
+              onPageChange={
+                mode === "paginated" ? handlePageChange : undefined
+              }
+              page={page}
+              pageSize={pageSize}
+              showViewAll={showViewAll}
+              totalCount={searchResult.count}
+              totalPages={searchResult.totalPages}
+              viewAllHref={viewAllHref}
             />
           </div>
         </section>
-      )}
+      ) : null}
     </>
   );
 }

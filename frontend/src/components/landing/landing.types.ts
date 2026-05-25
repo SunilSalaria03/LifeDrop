@@ -23,11 +23,21 @@ export type DonorCardProps = {
   onRequest?: (donor: DonorListItem) => void;
 };
 
+export type DonorListMode = 'preview' | 'paginated';
+
 export type DonorListProps = {
   donors: DonorListItem[];
   isLoading: boolean;
   hasSearched: boolean;
   errorMessage?: string;
+  mode?: DonorListMode;
+  totalCount?: number;
+  page?: number;
+  totalPages?: number;
+  pageSize?: number;
+  onPageChange?: (page: number) => void;
+  viewAllHref?: string;
+  showViewAll?: boolean;
 };
 
 export type LandingAction = {
