@@ -29,7 +29,12 @@ import { useProfile } from "@/features/profile/hooks/useProfile";
 import { updateProfileFormSchema } from "@/features/profile/validations/profile.validation";
 import { bloodGroups } from "@/lib/constants/locations";
 import { getApiErrorMessage } from "@/lib/api/error-message";
-import { toIndianE164, toIndianNationalNumber } from "@/lib/phone/india-phone";
+import {
+  INDIAN_MOBILE_VALIDATION_MESSAGE,
+  isValidIndianNationalNumber,
+  toIndianE164,
+  toIndianNationalNumber,
+} from "@/lib/phone/india-phone";
 import { useToast } from "@/components/ui/toast";
 import {
   booleanSelectValue,
@@ -526,15 +531,19 @@ const donorEditSchema = yup.object({
   phone: yup
     .string()
     .trim()
-    .matches(/^\d{10}$/, "Enter a 10 digit Indian mobile number.")
+    .test(
+      "valid-indian-phone",
+      INDIAN_MOBILE_VALIDATION_MESSAGE,
+      (value) => isValidIndianNationalNumber(value),
+    )
     .required("Phone is required."),
   alternatePhone: yup
     .string()
     .trim()
     .test(
       "optional-e164",
-      "Enter a 10 digit Indian mobile number.",
-      (value) => !value || /^\d{10}$/.test(value),
+      INDIAN_MOBILE_VALIDATION_MESSAGE,
+      (value) => !value || isValidIndianNationalNumber(value),
     ),
   state: yup.string().required("State is required."),
   stateCode: yup.string().required("State is required."),

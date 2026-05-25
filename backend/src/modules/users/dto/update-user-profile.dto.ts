@@ -9,13 +9,13 @@ import {
   IsLongitude,
   IsNumber,
   IsOptional,
-  IsPhoneNumber,
   IsPostalCode,
   IsString,
   Max,
   MaxLength,
   Min,
 } from 'class-validator';
+import { IsIndianMobilePhone } from '../../../common/decorators/is-indian-mobile-phone.decorator';
 import { Gender } from '../schemas/user.schema';
 
 export class UpdateUserProfileDto {
@@ -32,7 +32,7 @@ export class UpdateUserProfileDto {
 
   @ApiPropertyOptional({ example: '+919999999999' })
   @IsOptional()
-  @IsPhoneNumber('IN')
+  @IsIndianMobilePhone()
   phone?: string;
 
   @ApiPropertyOptional({

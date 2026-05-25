@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { INDIAN_PHONE_DUPLICATE_MESSAGE } from '../phone/indian-phone';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -63,6 +64,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
   private getUnhandledMessage(exception: unknown): string {
     if (this.isMongoDuplicateError(exception)) {
+      if (this.isPhoneDuplicateError(exception)) {
+        return INDIAN_PHONE_DUPLICATE_MESSAGE;
+      }
+
       return 'Account already exists with the same phone, email, or Google account.';
     }
 
@@ -79,13 +84,19 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
   private isMongoDuplicateError(
     exception: unknown,
-  ): exception is { code: number } {
+  ): exception is { code: number; keyPattern?: Record<string, unknown> } {
     return (
       typeof exception === 'object' &&
       exception !== null &&
       'code' in exception &&
       exception.code === 11000
     );
+  }
+
+  private isPhoneDuplicateError(exception: {
+    keyPattern?: Record<string, unknown>;
+  }): boolean {
+    return Boolean(exception.keyPattern?.phone);
   }
 
   private isMongooseValidationError(exception: unknown): exception is Error {

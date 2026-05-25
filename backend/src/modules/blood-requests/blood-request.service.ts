@@ -27,6 +27,7 @@ import { DonorProfile } from "../donors/schemas/donor-profile.schema";
 import { DonorProfileDocument } from "../donors/schemas/donor-profile.schema.types";
 import { User } from "../users/schemas/user.schema";
 import { UserDocument } from "../users/schemas/user.schema.types";
+import { normalizeIndianPhoneToE164 } from "../../common/phone/indian-phone";
 
 @Injectable()
 export class BloodRequestService {
@@ -342,23 +343,7 @@ export class BloodRequestService {
       return undefined;
     }
 
-    const trimmedPhone = phone.trim();
-
-    if (/^\+[1-9]\d{7,14}$/.test(trimmedPhone)) {
-      return trimmedPhone;
-    }
-
-    const digits = trimmedPhone.replace(/\D/g, "");
-
-    if (/^\d{10}$/.test(digits)) {
-      return `+91${digits}`;
-    }
-
-    if (/^91\d{10}$/.test(digits)) {
-      return `+${digits}`;
-    }
-
-    return trimmedPhone;
+    return normalizeIndianPhoneToE164(phone) ?? undefined;
   }
 
   private toTwilioWhatsappAddress(phone?: string) {

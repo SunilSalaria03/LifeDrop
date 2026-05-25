@@ -1,4 +1,8 @@
 import * as yup from 'yup';
+import {
+  INDIAN_MOBILE_VALIDATION_MESSAGE,
+  isValidIndianNationalNumber,
+} from '@/lib/phone/india-phone';
 
 const parseDateFromInput = (value?: string) => {
   if (!value) {
@@ -26,7 +30,11 @@ export const donorProfileSchema = yup.object({
   phone: yup
     .string()
     .trim()
-    .matches(/^\d{10}$/, 'Enter a 10 digit Indian mobile number.')
+    .test(
+      'valid-indian-phone',
+      INDIAN_MOBILE_VALIDATION_MESSAGE,
+      (value) => isValidIndianNationalNumber(value),
+    )
     .required('Mobile number is required.'),
   bloodGroup: yup.string().trim().required('Blood group is required.'),
   gender: yup.string().trim().oneOf(['male', 'female', 'other'], 'Select a valid gender.').required('Gender is required.'),

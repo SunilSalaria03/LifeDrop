@@ -9,13 +9,13 @@ import {
   IsLongitude,
   IsNumber,
   IsOptional,
-  IsPhoneNumber,
   IsPostalCode,
   IsString,
   Max,
   MaxLength,
   Min,
 } from 'class-validator';
+import { IsIndianMobilePhone } from '../../../common/decorators/is-indian-mobile-phone.decorator';
 import { CreateDonorProfileDto } from './create-donor-profile.dto';
 import { BloodGroup } from '../schemas/donor-profile.schema';
 import { Gender } from '../../users/schemas/user.schema';
@@ -34,7 +34,7 @@ export class UpdateDonorProfileDto implements Partial<CreateDonorProfileDto> {
 
   @ApiPropertyOptional({ example: '+919999999999' })
   @IsOptional()
-  @IsPhoneNumber('IN')
+  @IsIndianMobilePhone()
   phone?: string;
 
   @ApiPropertyOptional({ enum: BloodGroup, example: BloodGroup.APositive })
@@ -61,7 +61,7 @@ export class UpdateDonorProfileDto implements Partial<CreateDonorProfileDto> {
 
   @ApiPropertyOptional({ example: '+918888888888' })
   @IsOptional()
-  @IsPhoneNumber('IN')
+  @IsIndianMobilePhone()
   alternatePhone?: string;
 
   @ApiPropertyOptional({ example: 'Tamil Nadu' })
