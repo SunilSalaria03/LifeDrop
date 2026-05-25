@@ -102,23 +102,17 @@ export function useDonorSearch({
   const isSearchPage = isHomePage || isDonorListPage;
   const pageSize = mode === 'paginated' ? 12 : 6;
 
-  const restoredRef = useRef(
-    enabled ? restoreSearchFromSession(mode, isDonorListPage) : null,
-  );
-  const restored = enabled ? restoredRef.current : null;
-
   const [filters, setFilters] = useState<DonorSearchFormValues>(
-    () => restored?.filters ?? initialDonorSearchFilters,
+    initialDonorSearchFilters,
   );
-  const [page, setPage] = useState(() => restored?.page ?? 1);
+  const [page, setPage] = useState(1);
   const [searchRequest, setSearchRequest] = useState<DonorSearchFilters | null>(
-    () => restored?.searchRequest ?? null,
+    null,
   );
   const [validationError, setValidationError] = useState('');
-  const [hasSearched, setHasSearched] = useState(
-    () => restored?.hasSearched ?? false,
-  );
+  const [hasSearched, setHasSearched] = useState(false);
   const strippedLegacyQueryRef = useRef(false);
+  const restoredFromStorageRef = useRef(false);
 
   const debouncedSearchRequest = useDebouncedValue(searchRequest, 450);
 
@@ -239,7 +233,37 @@ export function useDonorSearch({
   const updateFilters = useCallback((values: DonorSearchFormValues) => {
     setValidationError('');
     setFilters(values);
+
+    const stored = getDonorSearchSession();
+
+    if (stored?.hasSearched) {
+      setDonorSearchSession({
+        ...stored,
+        filters: values,
+      });
+    }
   }, []);
+
+  /** Restore search from sessionStorage after refresh (same tab) */
+  useEffect(() => {
+    if (!enabled || restoredFromStorageRef.current) {
+      return;
+    }
+
+    restoredFromStorageRef.current = true;
+
+    const restored = restoreSearchFromSession(mode, isDonorListPage);
+
+    if (!restored) {
+      return;
+    }
+
+    setFilters(restored.filters);
+    setValidationError('');
+    setHasSearched(true);
+    setPage(restored.page);
+    setSearchRequest(restored.searchRequest);
+  }, [enabled, isDonorListPage, mode]);
 
   const viewAllHref = DONOR_LIST_PATH;
 

@@ -1,6 +1,8 @@
 import { DonorSearchFormValues } from '@/components/landing/landing.types';
 import { initialDonorSearchFilters } from '@/components/landing/landing.constants';
 
+export const DONOR_SEARCH_STORAGE_KEY = 'lifedrop:donor-search';
+
 export type DonorSearchSource = 'home' | 'donor-list';
 
 export type DonorSearchSession = {
@@ -10,22 +12,85 @@ export type DonorSearchSession = {
   source: DonorSearchSource;
 };
 
-/** In-memory only — cleared on full page refresh; survives in-app navigation */
-let session: DonorSearchSession | null = null;
+/** Fast read path after first load in this tab */
+let memoryCache: DonorSearchSession | null = null;
+
+function isValidSession(data: unknown): data is DonorSearchSession {
+  if (!data || typeof data !== 'object') {
+    return false;
+  }
+
+  const session = data as DonorSearchSession;
+
+  return (
+    session.hasSearched === true &&
+    hasValidDonorSearchFilters(session.filters) &&
+    Number.isFinite(session.page) &&
+    session.page >= 1 &&
+    (session.source === 'home' || session.source === 'donor-list')
+  );
+}
+
+function readFromSessionStorage(): DonorSearchSession | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    const raw = sessionStorage.getItem(DONOR_SEARCH_STORAGE_KEY);
+
+    if (!raw) {
+      return null;
+    }
+
+    const parsed: unknown = JSON.parse(raw);
+
+    if (!isValidSession(parsed)) {
+      sessionStorage.removeItem(DONOR_SEARCH_STORAGE_KEY);
+      return null;
+    }
+
+    return parsed;
+  } catch {
+    sessionStorage.removeItem(DONOR_SEARCH_STORAGE_KEY);
+    return null;
+  }
+}
 
 export function getDonorSearchSession(): DonorSearchSession | null {
-  return session;
+  if (memoryCache) {
+    return memoryCache;
+  }
+
+  const stored = readFromSessionStorage();
+  memoryCache = stored;
+
+  return stored;
 }
 
 export function setDonorSearchSession(next: DonorSearchSession): void {
-  session = next;
+  memoryCache = next;
+
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  sessionStorage.setItem(DONOR_SEARCH_STORAGE_KEY, JSON.stringify(next));
 }
 
 export function clearDonorSearchSession(): void {
-  session = null;
+  memoryCache = null;
+
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  sessionStorage.removeItem(DONOR_SEARCH_STORAGE_KEY);
 }
 
 export function getLastDonorSearchBackHref(): string {
+  const session = getDonorSearchSession();
+
   if (!session?.hasSearched) {
     return '/';
   }
@@ -48,7 +113,7 @@ export function hasValidDonorSearchFilters(
 }
 
 export function isEmptyDonorSearchSession(): boolean {
-  return !session?.hasSearched;
+  return !getDonorSearchSession()?.hasSearched;
 }
 
 export { initialDonorSearchFilters };
