@@ -34,6 +34,7 @@ export function HeroSection({ breadcrumb }: HeroSectionProps = {}) {
     hasSearched,
     showResultsSection,
     showDonorSkeletons,
+    isSearchInProgress,
     validationError,
     searchResult,
     isLoading,
@@ -169,7 +170,7 @@ export function HeroSection({ breadcrumb }: HeroSectionProps = {}) {
                 id="landing-donor-search"
               >
                 <SearchBar
-                  isSearching={showDonorSkeletons}
+                  isSearching={isSearchInProgress}
                   onChange={updateFilters}
                   onSearch={handleFindDonors}
                   values={filters}
@@ -194,7 +195,7 @@ export function HeroSection({ breadcrumb }: HeroSectionProps = {}) {
             <DonorList
               donors={searchResult.items}
               errorMessage={errorMessage}
-              hasSearched
+              hasSearched={hasSearched}
               isLoading={showDonorSkeletons}
               mode={mode}
               onPageChange={

@@ -98,22 +98,6 @@ function persistSearchSession(
   });
 }
 
-function subscribeToDonorSearchSession(onStoreChange: () => void) {
-  if (typeof window === 'undefined') {
-    return () => undefined;
-  }
-
-  const notify = () => onStoreChange();
-
-  window.addEventListener('storage', notify);
-  window.addEventListener('lifedrop:donor-search-session', notify);
-
-  return () => {
-    window.removeEventListener('storage', notify);
-    window.removeEventListener('lifedrop:donor-search-session', notify);
-  };
-}
-
 function readHasStoredDonorSearch(enabled: boolean): boolean {
   if (!enabled) {
     return false;
@@ -133,12 +117,6 @@ export function useDonorSearch({
   const isDonorListPage = pathname === DONOR_LIST_PATH;
   const isSearchPage = isHomePage || isDonorListPage;
   const pageSize = mode === 'paginated' ? 12 : 6;
-
-  const hasStoredSearch = useSyncExternalStore(
-    subscribeToDonorSearchSession,
-    () => readHasStoredDonorSearch(enabled),
-    () => false,
-  );
 
   const [filters, setFilters] = useState<DonorSearchFormValues>(
     initialDonorSearchFilters,
@@ -213,22 +191,18 @@ export function useDonorSearch({
     donorQuery.isPending ||
     isAwaitingFirstResults;
 
-  const showDonorResults =
-    hasSearched ||
-    hasStoredSearch ||
-    clientSessionActive ||
-    isLoading ||
-    Boolean(searchRequest);
-
   const showPendingResultsSkeleton =
     isClient && !sessionCheckDone && clientSessionActive;
 
+  const showResultsSection =
+    isSearchPage && (hasSearched || showPendingResultsSkeleton);
+
   const showDonorSkeletons =
     showPendingResultsSkeleton ||
-    isLoading ||
-    (hasSearched && isAwaitingFirstResults);
+    (hasSearched &&
+      (isLoading || isSearchDebouncing || isAwaitingFirstResults));
 
-  const showResultsSection = isSearchPage && showDonorResults;
+  const isSearchInProgress = hasSearched && isLoading;
 
   const runSearchWithValues = useCallback(
     (values: DonorSearchFormValues, nextPage = 1) => {
@@ -411,9 +385,9 @@ export function useDonorSearch({
     page: searchResult.page || page,
     pageSize,
     hasSearched,
-    showDonorResults,
     showResultsSection,
     showDonorSkeletons,
+    isSearchInProgress,
     validationError,
     searchResult,
     isLoading,
