@@ -62,8 +62,9 @@ export const donorProfileSchema = yup.object({
   weight: yup
     .number()
     .transform((value, originalValue) =>
-      originalValue === '' || Number.isNaN(value) ? undefined : value,
+      originalValue === '' ? undefined : value,
     )
+    .typeError('Enter a valid weight.')
     .min(1, 'Enter a valid weight.')
     .required('Weight is required.'),
   lastDonationDate: yup

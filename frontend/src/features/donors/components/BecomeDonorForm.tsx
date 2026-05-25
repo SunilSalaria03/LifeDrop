@@ -47,6 +47,23 @@ function FieldLabel({
   );
 }
 
+function FieldError({ active, message }: { active: boolean; message?: string }) {
+  if (!active) {
+    return null;
+  }
+
+  return (
+    <p
+      className={cn(
+        "min-h-4 text-xs font-medium",
+        message ? "text-red-700" : "text-transparent",
+      )}
+    >
+      {message || "\u00A0"}
+    </p>
+  );
+}
+
 const toDateInputValue = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -183,7 +200,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
       tehsil: "",
       lat: undefined,
       lng: undefined,
-    });
+    }, true);
   };
 
   const handleDistrictChange = (districtName: string) => {
@@ -198,10 +215,20 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
       lng: selectedDistrict?.longitude
         ? Number(selectedDistrict.longitude)
         : undefined,
-    });
+    }, true);
   };
 
-  const firstError = Object.values(formik.errors)[0];
+  const getFieldError = (field: keyof typeof formik.values) => {
+    if (formik.submitCount === 0) {
+      return undefined;
+    }
+    const error = formik.errors[field];
+    return typeof error === "string" ? error : undefined;
+  };
+
+  const getFirstError = (fields: Array<keyof typeof formik.values>) =>
+    fields.map(getFieldError).find(Boolean);
+  const showValidationFeedback = formik.submitCount > 0;
 
   return (
     <form className="grid gap-6" onSubmit={formik.handleSubmit}>
@@ -211,13 +238,17 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
           <div className="grid gap-2">
             <FieldLabel htmlFor="name">Name</FieldLabel>
             <Input
-              className="h-12 rounded-2xl bg-white"
+              className={cn(
+                "h-12 rounded-2xl bg-white",
+                getFieldError("name") && "border-red-500 focus:border-red-500",
+              )}
               id="name"
               name="name"
               onChange={formik.handleChange}
               placeholder="Enter name"
               value={formik.values.name}
             />
+            <FieldError active={showValidationFeedback} message={getFieldError("name")} />
           </div>
           <div className="grid gap-2">
             <FieldLabel htmlFor="phone">Phone</FieldLabel>
@@ -243,11 +274,17 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
             <FieldLabel>Blood group</FieldLabel>
             <Select
               onValueChange={(bloodGroup) =>
-                void formik.setFieldValue("bloodGroup", bloodGroup, false)
+                void formik.setFieldValue("bloodGroup", bloodGroup, true)
               }
               value={formik.values.bloodGroup}
             >
-              <SelectTrigger aria-label="Blood group" className="h-12 rounded-2xl bg-white">
+              <SelectTrigger
+                aria-label="Blood group"
+                className={cn(
+                  "h-12 rounded-2xl bg-white",
+                  getFieldError("bloodGroup") && "border-red-500 focus:border-red-500",
+                )}
+              >
                 <SelectValue placeholder="Select blood group" />
               </SelectTrigger>
               <SelectContent>
@@ -258,16 +295,26 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
                 ))}
               </SelectContent>
             </Select>
+            <FieldError
+              active={showValidationFeedback}
+              message={getFieldError("bloodGroup")}
+            />
           </div>
           <div className="grid gap-2">
             <FieldLabel>Gender</FieldLabel>
             <Select
               onValueChange={(gender) =>
-                void formik.setFieldValue("gender", gender, false)
+                void formik.setFieldValue("gender", gender, true)
               }
               value={formik.values.gender}
             >
-              <SelectTrigger aria-label="Gender" className="h-12 rounded-2xl bg-white">
+              <SelectTrigger
+                aria-label="Gender"
+                className={cn(
+                  "h-12 rounded-2xl bg-white",
+                  getFieldError("gender") && "border-red-500 focus:border-red-500",
+                )}
+              >
                 <SelectValue placeholder="Select gender" />
               </SelectTrigger>
               <SelectContent>
@@ -276,23 +323,35 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
                 <SelectItem value="other">Other</SelectItem>
               </SelectContent>
             </Select>
+            <FieldError active={showValidationFeedback} message={getFieldError("gender")} />
           </div>
           <div className="grid gap-2">
             <FieldLabel htmlFor="weight">Weight</FieldLabel>
             <Input
-              className="h-12 rounded-2xl bg-white"
+              className={cn(
+                "h-12 rounded-2xl bg-white",
+                getFieldError("weight") && "border-red-500 focus:border-red-500",
+              )}
               id="weight"
               inputMode="numeric"
+              min={1}
               name="weight"
-              onChange={formik.handleChange}
+              onChange={(event) =>
+                void formik.setFieldValue("weight", event.target.value, true)
+              }
               placeholder="Enter weight in kg"
+              type="number"
               value={formik.values.weight}
             />
+            <FieldError active={showValidationFeedback} message={getFieldError("weight")} />
           </div>
           <div className="grid gap-2">
             <FieldLabel htmlFor="birthDate">Birth date</FieldLabel>
             <Input
-              className="h-12 rounded-2xl bg-white"
+              className={cn(
+                "h-12 rounded-2xl bg-white",
+                getFieldError("birthDate") && "border-red-500 focus:border-red-500",
+              )}
               id="birthDate"
               max={maxBirthDate}
               name="birthDate"
@@ -300,16 +359,18 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               type="date"
               value={formik.values.birthDate}
             />
-            <p className="text-xs text-neutral-500">
-              Must be on or before {maxBirthDateLabel} (18+ years).
-            </p>
+            <FieldError active={showValidationFeedback} message={getFieldError("birthDate")} />
+           
           </div>
           <div className="grid gap-2">
             <FieldLabel htmlFor="lastDonationDate">
               Last donation date
             </FieldLabel>
             <Input
-              className="h-12 rounded-2xl bg-white"
+              className={cn(
+                "h-12 rounded-2xl bg-white",
+                getFieldError("lastDonationDate") && "border-red-500 focus:border-red-500",
+              )}
               id="lastDonationDate"
               max={maxLastDonationDate}
               name="lastDonationDate"
@@ -317,9 +378,11 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               type="date"
               value={formik.values.lastDonationDate}
             />
-            <p className="text-xs text-neutral-500">
-              Must be on or before {maxLastDonationDateLabel} (at least 90 days ago).
-            </p>
+            <FieldError
+              active={showValidationFeedback}
+              message={getFieldError("lastDonationDate")}
+            />
+             
           </div>
           <div className="grid gap-2">
             <span className="text-xs font-black uppercase tracking-normal text-neutral-500">
@@ -378,7 +441,10 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
           <div className="grid gap-2">
             <FieldLabel htmlFor="pincode">Pincode</FieldLabel>
             <Input
-              className="h-12 rounded-2xl bg-white"
+              className={cn(
+                "h-12 rounded-2xl bg-white",
+                getFieldError("pincode") && "border-red-500 focus:border-red-500",
+              )}
               id="pincode"
               inputMode="numeric"
               maxLength={6}
@@ -387,6 +453,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               placeholder="Enter pincode optional"
               value={formik.values.pincode}
             />
+            <FieldError active={showValidationFeedback} message={getFieldError("pincode")} />
           </div>
           <div className="grid gap-2 sm:col-span-2 lg:col-span-3">
             <FieldLabel htmlFor="addressLine">Address line</FieldLabel>
@@ -405,7 +472,13 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               onValueChange={handleStateChange}
               value={formik.values.stateCode}
             >
-              <SelectTrigger aria-label="State" className="h-12 rounded-2xl bg-white">
+              <SelectTrigger
+                aria-label="State"
+                className={cn(
+                  "h-12 rounded-2xl bg-white",
+                  getFirstError(["stateCode", "state"]) && "border-red-500 focus:border-red-500",
+                )}
+              >
                 <SelectValue placeholder="Select state" />
               </SelectTrigger>
               <SelectContent>
@@ -416,6 +489,10 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
                 ))}
               </SelectContent>
             </Select>
+            <FieldError
+              active={showValidationFeedback}
+              message={getFirstError(["stateCode", "state"])}
+            />
           </div>
           <div className="grid gap-2">
             <FieldLabel>District</FieldLabel>
@@ -424,7 +501,14 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               onValueChange={handleDistrictChange}
               value={formik.values.district}
             >
-              <SelectTrigger aria-label="District" className="h-12 rounded-2xl bg-white">
+              <SelectTrigger
+                aria-label="District"
+                className={cn(
+                  "h-12 rounded-2xl bg-white",
+                  getFirstError(["district", "lat", "lng"]) &&
+                    "border-red-500 focus:border-red-500",
+                )}
+              >
                 <SelectValue placeholder="Select district" />
               </SelectTrigger>
               <SelectContent>
@@ -438,6 +522,10 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
                 ))}
               </SelectContent>
             </Select>
+            <FieldError
+              active={showValidationFeedback}
+              message={getFirstError(["district", "lat", "lng"])}
+            />
           </div>
           <div className="grid gap-2">
             <FieldLabel>Tehsil</FieldLabel>
@@ -465,12 +553,6 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
           </div>
         </div>
       </section>
-
-      {firstError ? (
-        <p className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-medium text-red-800 ring-1 ring-red-100">
-          {firstError}
-        </p>
-      ) : null}
 
       <div className="flex justify-center">
         <Button

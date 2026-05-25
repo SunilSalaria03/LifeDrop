@@ -281,12 +281,12 @@ export function PersonalInformationCard({
 
 export function DonorInformationCard({
   donor,
-  isEditingDonor,
-  onToggleDonorEdit,
+  isEditingProfile,
+  onToggleProfileEdit,
 }: {
   donor: MyDonorProfile | null;
-  isEditingDonor: boolean;
-  onToggleDonorEdit: () => void;
+  isEditingProfile: boolean;
+  onToggleProfileEdit: () => void;
 }) {
   return (
     <Card className={cn(profileCard, "h-fit")}>
@@ -334,14 +334,7 @@ export function DonorInformationCard({
                 value={formatDate(donor.lastDonationDate)}
               />
             </div>
-            <Button
-              className="h-11 w-full"
-              onClick={onToggleDonorEdit}
-              type="button"
-            >
-              <Edit3 className="h-4 w-4" />
-              {isEditingDonor ? "Close donor form" : "Update donor details"}
-            </Button>
+            
           </>
         ) : (
           <div className={cn(profileInsetPanel, "grid gap-4")}>

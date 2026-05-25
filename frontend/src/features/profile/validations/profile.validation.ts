@@ -49,8 +49,9 @@ export const updateProfileFormSchema = yup.object({
   weight: yup
     .number()
     .transform((value, originalValue) =>
-      originalValue === '' || Number.isNaN(value) ? undefined : value,
+      originalValue === '' ? undefined : value,
     )
+    .typeError('Enter a valid weight.')
     .min(1, 'Enter a valid weight.')
     .optional(),
   lastDonationDate: yup.string().trim().optional(),
