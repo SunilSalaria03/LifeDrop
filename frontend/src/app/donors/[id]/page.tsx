@@ -118,7 +118,7 @@ function DonorProfileHeader({
             <div className="mt-4 flex flex-wrap gap-2">
               <Badge
                 className="rounded-md border border-red-200 bg-red-50 font-medium text-red-800"
-                variant="outline"
+                
               >
                 {donor.bloodGroup}
               </Badge>
@@ -128,7 +128,7 @@ function DonorProfileHeader({
                     ? "gap-1 rounded-md border border-green-200 bg-green-50 font-medium text-green-800"
                     : "rounded-md border border-neutral-200 bg-neutral-50 font-medium text-neutral-600"
                 }
-                variant="outline"
+                
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 {donor.isAvailable ? "Available" : "Not available"}
@@ -136,7 +136,7 @@ function DonorProfileHeader({
               {donor.isVerified ? (
                 <Badge
                   className="gap-1 rounded-md border border-green-200 bg-green-50 font-medium text-green-800"
-                  variant="outline"
+                  
                 >
                   <ShieldCheck className="h-3.5 w-3.5" />
                   Verified donor
@@ -145,7 +145,7 @@ function DonorProfileHeader({
               {donor.distanceKm !== undefined ? (
                 <Badge
                   className="rounded-md border border-neutral-200 bg-neutral-50 font-medium text-neutral-700"
-                  variant="outline"
+                  
                 >
                   {donor.distanceKm} km away
                 </Badge>
@@ -321,7 +321,7 @@ export default function DonorDetailPage() {
                     <Button
                       asChild
                       className="h-11 w-full border-neutral-200"
-                      variant="outline"
+                      
                     >
                       <Link href={backToSearchHref}>
                         <ArrowLeft className="h-4 w-4" />

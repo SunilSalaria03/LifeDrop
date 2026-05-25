@@ -58,21 +58,21 @@ export default function BecomeDonorPage() {
                   <div className="mt-4 flex flex-wrap gap-2">
                     <Badge
                       className="rounded-md border border-neutral-200 bg-neutral-50 font-medium text-neutral-700"
-                      variant="outline"
+                      
                     >
                       Privacy-safe listing
                     </Badge>
                     {user?.phoneVerified ? (
                       <Badge
                         className="rounded-md border border-green-200 bg-green-50 font-medium text-green-800"
-                        variant="outline"
+                        
                       >
                         Phone verified
                       </Badge>
                     ) : (
                       <Badge
                         className="rounded-md border border-amber-200 bg-amber-50 font-medium text-amber-800"
-                        variant="outline"
+                        
                       >
                         Phone verification required
                       </Badge>

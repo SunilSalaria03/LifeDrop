@@ -1,16 +1,13 @@
 import { expect, Locator, Page } from '@playwright/test';
+import type {
+  GoogleAccounts,
+  GoogleButtonOptions,
+  GoogleCredentialResponse,
+} from '../../src/features/auth/google.types';
 
 declare global {
   interface Window {
-    __lifedropGoogleCallback?: (response: { credential: string }) => void;
-    google?: {
-      accounts: {
-        id: {
-          initialize: (config: { callback: (response: { credential: string }) => void }) => void;
-          renderButton: (container: HTMLElement) => void;
-        };
-      };
-    };
+    __lifedropGoogleCallback?: (response: GoogleCredentialResponse) => void;
   }
 }
 
@@ -30,13 +27,16 @@ export async function selectRadixOption(
 
 export async function installMockGoogleButton(page: Page) {
   await page.addInitScript(() => {
-    window.google = {
+    const googleMock: GoogleAccounts = {
       accounts: {
         id: {
-          initialize: (config: { callback: (response: { credential: string }) => void }) => {
+          initialize: (config: {
+            client_id: string;
+            callback: (response: GoogleCredentialResponse) => void;
+          }) => {
             window.__lifedropGoogleCallback = config.callback;
           },
-          renderButton: (container: HTMLElement) => {
+          renderButton: (container: HTMLElement, _options: GoogleButtonOptions) => {
             const button = document.createElement('button');
             button.type = 'button';
             button.textContent = 'Continue with Google';
@@ -48,5 +48,6 @@ export async function installMockGoogleButton(page: Page) {
         },
       },
     };
+    window.google = googleMock;
   });
 }
