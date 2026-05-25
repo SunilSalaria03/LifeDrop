@@ -161,13 +161,13 @@ export function ProfileHeaderCard({
             <div className="mt-4 flex flex-wrap gap-2">
               <Badge
                 className="rounded-md border border-neutral-200 bg-neutral-50 font-medium text-neutral-700"
-                variant="outline"
+                
               >
                 {isDonorAccount ? "Donor account" : "User account"}
               </Badge>
               <Badge
                 className="rounded-md border border-red-200 bg-red-50 font-medium text-red-800"
-                variant="outline"
+                
               >
                 Profile {completionPercent}% complete
               </Badge>
@@ -177,7 +177,7 @@ export function ProfileHeaderCard({
                     ? "gap-1 rounded-md border border-green-200 bg-green-50 font-medium text-green-800"
                     : "gap-1 rounded-md border border-amber-200 bg-amber-50 font-medium text-amber-800"
                 }
-                variant="outline"
+                
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 {user.phoneVerified ? "Phone verified" : "Phone pending"}
@@ -185,7 +185,7 @@ export function ProfileHeaderCard({
               {memberYear ? (
                 <Badge
                   className="rounded-md border border-neutral-200 bg-neutral-50 font-medium text-neutral-700"
-                  variant="outline"
+                  
                 >
                   Member since {memberYear}
                 </Badge>
@@ -193,7 +193,7 @@ export function ProfileHeaderCard({
               {(donor?.bloodGroup || user.bloodGroup) && (
                 <Badge
                   className="rounded-md border border-red-200 bg-red-50 font-medium text-red-800"
-                  variant="outline"
+                  
                 >
                   {donor?.bloodGroup ?? user.bloodGroup}
                 </Badge>
@@ -201,7 +201,7 @@ export function ProfileHeaderCard({
               {isDonorAccount && donor ? (
                 <Badge
                   className="rounded-md border border-green-200 bg-green-50 font-medium text-green-800"
-                  variant="outline"
+                  
                 >
                   Active donor
                 </Badge>
@@ -303,7 +303,7 @@ export function DonorInformationCard({
           {donor ? (
             <Badge
               className="shrink-0 border border-red-100 bg-red-50 font-medium text-red-700"
-              variant="outline"
+              
             >
               Donor
             </Badge>

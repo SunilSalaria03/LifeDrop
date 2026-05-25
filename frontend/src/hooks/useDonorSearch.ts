@@ -269,7 +269,7 @@ export function useDonorSearch({
         return;
       }
 
-      const totalPages = searchResult.totalPages;
+      const totalPages = (searchResult as DonorSearchResponse).totalPages;
       const clampedPage =
         totalPages > 0
           ? Math.min(Math.max(1, nextPage), totalPages)
@@ -285,7 +285,7 @@ export function useDonorSearch({
       filters,
       isDonorListPage,
       runSearchWithValues,
-      searchResult.totalPages,
+      (searchResult as DonorSearchResponse).totalPages,
       validateFilters,
     ],
   );
@@ -382,7 +382,7 @@ export function useDonorSearch({
 
   return {
     filters,
-    page: searchResult.page || page,
+    page: (searchResult as DonorSearchResponse).page || page,
     pageSize,
     hasSearched,
     showResultsSection,

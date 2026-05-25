@@ -10,6 +10,7 @@ type DonorListPaginationProps = {
   onPageChange: (page: number) => void;
   isLoading?: boolean;
   className?: string;
+  ariaLabel?: string;
 };
 
 function getVisiblePages(page: number, totalPages: number): number[] {
@@ -33,6 +34,7 @@ export function DonorListPagination({
   onPageChange,
   isLoading = false,
   className,
+  ariaLabel = 'Results pagination',
 }: DonorListPaginationProps) {
   if (totalPages <= 1) {
     return null;
@@ -42,7 +44,7 @@ export function DonorListPagination({
 
   return (
     <nav
-      aria-label="Donor results pagination"
+      aria-label={ariaLabel}
       className={cn('flex flex-wrap items-center justify-center gap-2', className)}
     >
       <Button
