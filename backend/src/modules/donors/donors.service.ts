@@ -126,17 +126,46 @@ export class DonorsService {
   async search(query: DonorSearchQueryDto) {
     this.assertValidSearchMode(query);
     const radiusKm = this.normalizeRadiusKm(query.radiusKm);
+    const page = this.normalizePage(query.page);
+    const limit = this.normalizeLimit(query.limit);
+    const skip = (page - 1) * limit;
 
     const baseFilter = this.buildEligibleFilter(query);
     const pipeline = this.hasGeoSearch(query)
       ? this.buildGeoSearchPipeline(query, radiusKm, baseFilter)
       : this.buildManualSearchPipeline(baseFilter);
 
-    const items = await this.donorProfileModel.aggregate(pipeline).exec();
+    const paginatedPipeline: PipelineStage[] = [
+      ...pipeline,
+      {
+        $facet: {
+          metadata: [{ $count: "total" }],
+          items: [{ $skip: skip }, { $limit: limit }],
+        },
+      },
+      {
+        $project: {
+          items: 1,
+          count: {
+            $ifNull: [{ $arrayElemAt: ["$metadata.total", 0] }, 0],
+          },
+        },
+      },
+    ];
+
+    const [result] = await this.donorProfileModel
+      .aggregate(paginatedPipeline)
+      .exec();
+
+    const count = Number(result?.count ?? 0);
+    const items = Array.isArray(result?.items) ? result.items : [];
 
     return {
       items,
-      count: items.length,
+      count,
+      page,
+      limit,
+      totalPages: count === 0 ? 0 : Math.ceil(count / limit),
       radiusKm,
     };
   }
@@ -309,6 +338,38 @@ export class DonorsService {
         "Provide lat/lng or at least one location filter.",
       );
     }
+  }
+
+  private normalizePage(page?: number): number {
+    const normalizedPage = page ?? 1;
+
+    if (!Number.isFinite(Number(normalizedPage))) {
+      throw new BadRequestException("page must be a valid number.");
+    }
+
+    if (normalizedPage < 1) {
+      throw new BadRequestException("page must be at least 1.");
+    }
+
+    return Math.floor(Number(normalizedPage));
+  }
+
+  private normalizeLimit(limit?: number): number {
+    const normalizedLimit = limit ?? 12;
+
+    if (!Number.isFinite(Number(normalizedLimit))) {
+      throw new BadRequestException("limit must be a valid number.");
+    }
+
+    if (normalizedLimit < 1) {
+      throw new BadRequestException("limit must be at least 1.");
+    }
+
+    if (normalizedLimit > 50) {
+      throw new BadRequestException("limit must be less than or equal to 50.");
+    }
+
+    return Math.floor(Number(normalizedLimit));
   }
 
   private normalizeRadiusKm(radiusKm?: number): number {

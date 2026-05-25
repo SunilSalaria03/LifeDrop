@@ -1,13 +1,16 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
-import { UserSearch, UsersRound } from 'lucide-react';
+import { ArrowRight, UserSearch, UsersRound } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { RequestBloodModal } from '@/features/donors/components/RequestBloodModal';
 import { DonorListItem } from '@/features/donors/types/donor.types';
 import { userStorage } from '@/lib/auth/user-storage';
 import { DonorCard } from './DonorCard';
+import { DonorListPagination } from './DonorListPagination';
 import { DonorListProps } from './landing.types';
 
 function DonorSkeletonCard() {
@@ -39,7 +42,43 @@ function DonorSkeletonCard() {
   );
 }
 
-export function DonorList({ donors, isLoading, hasSearched, errorMessage }: DonorListProps) {
+function formatDonorCountLabel(totalCount: number, isLoading: boolean): string {
+  if (isLoading) {
+    return 'Searching…';
+  }
+
+  return `${totalCount} ${totalCount === 1 ? 'donor' : 'donors'}`;
+}
+
+function formatRangeLabel(
+  page: number,
+  pageSize: number,
+  totalCount: number,
+): string {
+  if (totalCount === 0) {
+    return '';
+  }
+
+  const start = (page - 1) * pageSize + 1;
+  const end = Math.min(page * pageSize, totalCount);
+
+  return `Showing ${start}–${end} of ${totalCount}`;
+}
+
+export function DonorList({
+  donors,
+  isLoading,
+  hasSearched,
+  errorMessage,
+  mode = 'paginated',
+  totalCount = donors.length,
+  page = 1,
+  totalPages = 1,
+  pageSize = 12,
+  onPageChange,
+  viewAllHref,
+  showViewAll = false,
+}: DonorListProps) {
   const { meQuery } = useAuth();
   const [selectedDonor, setSelectedDonor] = useState<DonorListItem | null>(null);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
@@ -48,9 +87,20 @@ export function DonorList({ donors, isLoading, hasSearched, errorMessage }: Dono
     return null;
   }
 
-  const donorCountLabel = isLoading
-    ? 'Searching…'
-    : `${donors.length} ${donors.length === 1 ? 'donor' : 'donors'}`;
+  const isPreview = mode === 'preview';
+  const skeletonCount = isPreview ? 6 : pageSize;
+  const donorCountLabel = isPreview
+    ? isLoading
+      ? 'Searching…'
+      : totalCount > donors.length
+        ? `Showing ${donors.length} of ${totalCount} donors`
+        : formatDonorCountLabel(totalCount, isLoading)
+    : formatDonorCountLabel(totalCount, isLoading);
+
+  const rangeLabel =
+    !isPreview && totalCount > 0
+      ? formatRangeLabel(page, pageSize, totalCount)
+      : null;
 
   const handleRequest = (donor: DonorListItem) => {
     if (!meQuery.data && !userStorage.getUser()) {
@@ -84,8 +134,12 @@ export function DonorList({ donors, isLoading, hasSearched, errorMessage }: Dono
             Donors in your area
           </h2>
           <p className="text-sm leading-6 text-neutral-600">
-            Compare distance and availability, then request blood or open a profile.
+            Compare distance and availability, then request blood or open a
+            profile.
           </p>
+          {rangeLabel ? (
+            <p className="text-sm font-medium text-neutral-500">{rangeLabel}</p>
+          ) : null}
         </div>
         <span className="inline-flex w-fit items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3.5 py-2 text-sm font-medium text-neutral-700">
           <UsersRound className="h-4 w-4 text-neutral-500" aria-hidden />
@@ -98,35 +152,65 @@ export function DonorList({ donors, isLoading, hasSearched, errorMessage }: Dono
           className="grid animate-pulse gap-4 sm:grid-cols-2 xl:grid-cols-3"
           aria-label="Loading donor results"
         >
-          {Array.from({ length: 6 }).map((_, index) => (
+          {Array.from({ length: skeletonCount }).map((_, index) => (
             <DonorSkeletonCard key={index} />
           ))}
         </div>
       ) : errorMessage ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
-          <h3 className="text-lg font-semibold text-red-800">Search unavailable</h3>
+          <h3 className="text-lg font-semibold text-red-800">
+            Search unavailable
+          </h3>
           <p className="mt-2 text-sm text-red-700">{errorMessage}</p>
         </div>
       ) : donors.length === 0 ? (
         <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-8 text-center">
-          <h3 className="text-lg font-semibold text-neutral-950">No donors found</h3>
+          <h3 className="text-lg font-semibold text-neutral-950">
+            No donors found
+          </h3>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-neutral-600">
-            Try another blood group, city, or nearby district to widen your search.
+            Try another blood group, city, or nearby district to widen your
+            search.
           </p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {donors.map((donor) => (
-            <DonorCard
-              donor={donor}
-              hideRequestButton={Boolean(
-                meQuery.data?.id && donor.userId === meQuery.data.id,
-              )}
-              key={donor.id}
-              onRequest={handleRequest}
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {donors.map((donor) => (
+              <DonorCard
+                donor={donor}
+                hideRequestButton={Boolean(
+                  meQuery.data?.id && donor.userId === meQuery.data.id,
+                )}
+                key={donor.id}
+                onRequest={handleRequest}
+              />
+            ))}
+          </div>
+
+          {showViewAll && viewAllHref ? (
+            <div className="flex justify-center pt-2">
+              <Button
+                asChild
+                className="h-11 gap-2 px-6"
+              >
+                <Link href={viewAllHref}>
+                  View all
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          ) : null}
+
+          {!isPreview && onPageChange ? (
+            <DonorListPagination
+              isLoading={isLoading}
+              onPageChange={onPageChange}
+              page={page}
+              totalPages={totalPages}
             />
-          ))}
-        </div>
+          ) : null}
+        </>
       )}
 
       <RequestBloodModal

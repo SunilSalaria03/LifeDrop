@@ -90,6 +90,10 @@ export function getHeroBannerVariant(pathname: string): HeroBannerVariant {
     return 'becomeDonor';
   }
 
+  if (pathname === '/donor-list') {
+    return 'search';
+  }
+
   if (pathname === '/profile') {
     return 'profile';
   }

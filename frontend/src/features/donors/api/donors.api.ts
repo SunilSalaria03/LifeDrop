@@ -21,7 +21,20 @@ export async function searchDonors(params: DonorSearchFilters) {
       },
     );
 
-    return response.data.data?.items ?? [];
+    const data = response.data.data;
+
+    if (!data) {
+      return {
+        items: [],
+        count: 0,
+        page: params.page ?? 1,
+        limit: params.limit ?? 12,
+        totalPages: 0,
+        radiusKm: params.radiusKm ?? 50,
+      } satisfies DonorSearchResponse;
+    }
+
+    return data;
   } catch (error) {
     throw new Error(
       getApiErrorMessage(error, 'Donor search API failed. Please try again.'),
