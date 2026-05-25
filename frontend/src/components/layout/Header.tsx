@@ -9,6 +9,7 @@ import {
   Loader2,
   LogIn,
   LogOut,
+  Megaphone,
   Settings,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -242,6 +243,15 @@ export function Header() {
                 </Button>
               </>
             )}
+            <Button
+              asChild
+              className="h-11 flex-1 rounded-full bg-red-700 px-5 text-white shadow-sm shadow-red-700/20 hover:bg-red-800 sm:flex-none"
+            >
+              <Link href="/campaigns">
+                <Megaphone className="h-4 w-4" />
+                Campaign
+              </Link>
+            </Button>
             {shouldShowBecomeDonor ? (
               user?.phoneVerified ? (
                 <Button

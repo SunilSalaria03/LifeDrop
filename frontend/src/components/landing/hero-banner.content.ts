@@ -5,6 +5,7 @@ import {
   HeartHandshake,
   HeartPulse,
   MapPin,
+  Megaphone,
   Phone,
   ShieldCheck,
   UserRound,
@@ -82,12 +83,33 @@ export const HERO_PROFILE_BANNER: HeroBannerContent = {
   footnote: 'Keep your details accurate in the sections below.',
 };
 
-export type HeroBannerVariant = 'search' | 'becomeDonor' | 'profile' | 'donorDetail';
+export const HERO_CAMPAIGNS_BANNER: HeroBannerContent = {
+  badgeAriaLabel: 'Public campaign directory. No login required.',
+  badgeText: 'Public directory · no login required',
+  BadgeIcon: Megaphone,
+  titleBefore: 'Blood donation ',
+  titleHighlight: 'campaigns',
+  titleAfter: ' across your city',
+  steps: [],
+  stepsGroupAriaLabel: '',
+  footnote: '',
+};
+
+export type HeroBannerVariant =
+  | 'search'
+  | 'becomeDonor'
+  | 'profile'
+  | 'donorDetail'
+  | 'campaigns';
 
 
 export function getHeroBannerVariant(pathname: string): HeroBannerVariant {
   if (pathname === '/become-donor') {
     return 'becomeDonor';
+  }
+
+  if (pathname === '/campaigns' || pathname.startsWith('/campaigns/')) {
+    return 'campaigns';
   }
 
   if (pathname === '/donor-list') {
@@ -137,6 +159,10 @@ export function getHeroBannerContent(pathname: string): HeroBannerContent {
 
   if (variant === 'donorDetail') {
     return HERO_DONOR_DETAIL_BANNER;
+  }
+
+  if (variant === 'campaigns') {
+    return HERO_CAMPAIGNS_BANNER;
   }
 
   return HERO_SEARCH_BANNER;

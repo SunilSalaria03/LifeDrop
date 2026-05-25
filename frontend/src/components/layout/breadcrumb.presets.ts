@@ -15,6 +15,19 @@ export const breadcrumbDonorList: BreadcrumbItem[] = [
   { label: 'Donor List' },
 ];
 
+export const breadcrumbCampaigns: BreadcrumbItem[] = [
+  { label: 'Home', href: '/' },
+  { label: 'Campaigns' },
+];
+
+export function breadcrumbCampaignDetail(campaignTitle: string): BreadcrumbItem[] {
+  return [
+    { label: 'Home', href: '/' },
+    { label: 'Campaigns', href: '/campaigns' },
+    { label: campaignTitle },
+  ];
+}
+
 export const breadcrumbProfileSetup: BreadcrumbItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Profile', href: '/profile' },
