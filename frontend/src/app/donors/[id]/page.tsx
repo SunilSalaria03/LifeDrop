@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   CalendarCheck,
@@ -28,6 +28,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { RequestBloodModal } from "@/features/donors/components/RequestBloodModal";
 import { useDonorDetails } from "@/features/donors/hooks/useDonorDetails";
 import { userStorage } from "@/lib/auth/user-storage";
+import { getLastDonorSearchBackHref } from "@/lib/navigation/donor-search-params";
 import {
   formatDonorDate,
   formatDonorPhone,
@@ -165,6 +166,12 @@ export default function DonorDetailPage() {
   const donor = donorQuery.data;
   const donorName = donor ? getDonorName(donor.name) : undefined;
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+  const [backToSearchHref, setBackToSearchHref] = useState('/');
+
+  useEffect(() => {
+    setBackToSearchHref(getLastDonorSearchBackHref());
+  }, []);
+
   const isOwnDonorProfile = Boolean(
     donor?.userId && meQuery.data?.id && donor.userId === meQuery.data.id,
   );
@@ -316,7 +323,7 @@ export default function DonorDetailPage() {
                       className="h-11 w-full border-neutral-200"
                       variant="outline"
                     >
-                      <Link href="/">
+                      <Link href={backToSearchHref}>
                         <ArrowLeft className="h-4 w-4" />
                         Back to search
                       </Link>

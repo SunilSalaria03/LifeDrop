@@ -3,8 +3,17 @@ import { bloodGroups } from '@/lib/constants/locations';
 
 const BLOOD_GROUP_SET = new Set<string>(bloodGroups);
 
+export const LAST_DONOR_SEARCH_STORAGE_KEY = 'lifedrop:last-donor-search';
+
 export type DonorSearchUrlState = DonorSearchFormValues & {
   page: number;
+};
+
+export type DonorSearchSource = 'home' | 'donor-list';
+
+type StoredDonorSearch = {
+  query: string;
+  source: DonorSearchSource;
 };
 
 function parsePositiveInt(value: string | null, fallback: number): number {
@@ -74,9 +83,67 @@ export function donorSearchToQueryString(
   return searchParams.toString();
 }
 
+export function buildHomeSearchUrl(
+  values: DonorSearchFormValues,
+  page = 1,
+): string {
+  return `/?${donorSearchToQueryString(values, page)}`;
+}
+
 export function buildDonorListUrl(
   values: DonorSearchFormValues,
   page = 1,
 ): string {
   return `/donor-list?${donorSearchToQueryString(values, page)}`;
+}
+
+export function saveLastDonorSearch(
+  values: DonorSearchFormValues,
+  page: number,
+  source: DonorSearchSource,
+): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const stored: StoredDonorSearch = {
+    query: donorSearchToQueryString(values, page),
+    source,
+  };
+
+  sessionStorage.setItem(
+    LAST_DONOR_SEARCH_STORAGE_KEY,
+    JSON.stringify(stored),
+  );
+}
+
+export function getLastDonorSearchBackHref(): string {
+  if (typeof window === 'undefined') {
+    return '/';
+  }
+
+  try {
+    const raw = sessionStorage.getItem(LAST_DONOR_SEARCH_STORAGE_KEY);
+
+    if (!raw) {
+      return '/';
+    }
+
+    const stored = JSON.parse(raw) as StoredDonorSearch;
+    const parsed = parseDonorSearchFromSearchParams(
+      new URLSearchParams(stored.query),
+    );
+
+    if (!parsed) {
+      return '/';
+    }
+
+    if (stored.source === 'donor-list') {
+      return `/donor-list?${stored.query}`;
+    }
+
+    return `/?${stored.query}`;
+  } catch {
+    return '/';
+  }
 }

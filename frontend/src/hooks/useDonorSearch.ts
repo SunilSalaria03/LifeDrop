@@ -12,8 +12,10 @@ import { initialDonorSearchFilters } from '@/components/landing/landing.constant
 import { DonorSearchFormValues } from '@/components/landing/landing.types';
 import {
   buildDonorListUrl,
+  buildHomeSearchUrl,
   donorSearchToQueryString,
   parseDonorSearchFromSearchParams,
+  saveLastDonorSearch,
 } from '@/lib/navigation/donor-search-params';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 
@@ -32,11 +34,21 @@ type UseDonorSearchOptions = {
   mode: DonorSearchMode;
 };
 
+function scrollToSearchResults() {
+  requestAnimationFrame(() => {
+    document
+      .getElementById('donor-search-results')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
 export function useDonorSearch({ mode }: UseDonorSearchOptions) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const isHomePage = pathname === '/';
   const isDonorListPage = pathname === '/donor-list';
+  const shouldSyncUrl = isHomePage || isDonorListPage;
   const pageSize = mode === 'preview' ? 6 : 12;
 
   const [filters, setFilters] =
@@ -70,6 +82,7 @@ export function useDonorSearch({ mode }: UseDonorSearchOptions) {
     queryFn: () =>
       searchDonors(debouncedSearchRequest as DonorSearchFilters),
     retry: 1,
+    staleTime: 60_000,
   });
 
   const isSearchDebouncing = Boolean(
@@ -80,24 +93,35 @@ export function useDonorSearch({ mode }: UseDonorSearchOptions) {
 
   const runSearchWithValues = useCallback(
     (values: DonorSearchFormValues, nextPage = 1) => {
-      const urlKey = donorSearchToQueryString(values, nextPage);
+      const urlPage = isDonorListPage ? nextPage : 1;
+      const urlKey = donorSearchToQueryString(values, urlPage);
 
       setHasSearched(true);
-      setPage(nextPage);
+      setPage(urlPage);
       setSearchRequest({
         bloodGroup: values.bloodGroup,
         lat: values.lat,
         lng: values.lng,
-        page: nextPage,
+        page: urlPage,
         limit: pageSize,
       });
 
-      if (isDonorListPage) {
+      saveLastDonorSearch(
+        values,
+        urlPage,
+        isDonorListPage ? 'donor-list' : 'home',
+      );
+
+      if (shouldSyncUrl) {
         skipUrlHydrationRef.current = urlKey;
-        router.replace(buildDonorListUrl(values, nextPage), { scroll: false });
+        const href = isDonorListPage
+          ? buildDonorListUrl(values, urlPage)
+          : buildHomeSearchUrl(values, 1);
+
+        router.replace(href, { scroll: false });
       }
     },
-    [isDonorListPage, pageSize, router],
+    [isDonorListPage, pageSize, router, shouldSyncUrl],
   );
 
   const validateFilters = useCallback(() => {
@@ -147,11 +171,7 @@ export function useDonorSearch({ mode }: UseDonorSearchOptions) {
       runSearchWithValues(filters, clampedPage);
 
       if (isDonorListPage) {
-        const resultsAnchor = document.getElementById('donor-search-results');
-
-        if (resultsAnchor) {
-          resultsAnchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        scrollToSearchResults();
       }
     },
     [
@@ -169,7 +189,11 @@ export function useDonorSearch({ mode }: UseDonorSearchOptions) {
   }, []);
 
   const viewAllHref = useMemo(() => {
-    if (!filters.bloodGroup || filters.lat === undefined || filters.lng === undefined) {
+    if (
+      !filters.bloodGroup ||
+      filters.lat === undefined ||
+      filters.lng === undefined
+    ) {
       return buildDonorListUrl(initialDonorSearchFilters, 1);
     }
 
@@ -177,7 +201,7 @@ export function useDonorSearch({ mode }: UseDonorSearchOptions) {
   }, [filters]);
 
   useEffect(() => {
-    if (!isDonorListPage) {
+    if (!shouldSyncUrl) {
       return;
     }
 
@@ -195,23 +219,28 @@ export function useDonorSearch({ mode }: UseDonorSearchOptions) {
     }
 
     const { page: urlPage, ...formValues } = parsed;
+    const effectivePage = isDonorListPage ? urlPage : 1;
 
     setFilters(formValues);
     setValidationError('');
     setHasSearched(true);
-    setPage(urlPage);
+    setPage(effectivePage);
     setSearchRequest({
       bloodGroup: formValues.bloodGroup,
       lat: formValues.lat,
       lng: formValues.lng,
-      page: urlPage,
+      page: effectivePage,
       limit: pageSize,
     });
-  }, [isDonorListPage, pageSize, searchParams]);
+
+    if (isHomePage) {
+      scrollToSearchResults();
+    }
+  }, [isDonorListPage, isHomePage, pageSize, searchParams, shouldSyncUrl]);
 
   return {
     filters,
-    page,
+    page: searchResult.page || page,
     pageSize,
     hasSearched,
     validationError,
