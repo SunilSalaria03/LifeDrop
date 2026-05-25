@@ -47,11 +47,46 @@ function FieldLabel({
   );
 }
 
+const toDateInputValue = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const toReadableDate = (value: string) => {
+  const [year, month, day] = value.split("-");
+  if (!year || !month || !day) {
+    return value;
+  }
+  return `${day}-${month}-${year}`;
+};
+
 export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
   const router = useRouter();
   const { createDonorProfileMutation } = useDonorProfile();
   const { showToast } = useToast();
   const states = useMemo(() => State.getStatesOfCountry("IN"), []);
+  const maxBirthDate = useMemo(() => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setFullYear(date.getFullYear() - 18);
+    return toDateInputValue(date);
+  }, []);
+  const maxLastDonationDate = useMemo(() => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - 90);
+    return toDateInputValue(date);
+  }, []);
+  const maxBirthDateLabel = useMemo(() => toReadableDate(maxBirthDate), [maxBirthDate]);
+  const maxLastDonationDateLabel = useMemo(
+    () => toReadableDate(maxLastDonationDate),
+    [maxLastDonationDate],
+  );
+  const initialBirthDate = formatDateInputValue(user.birthDate) || maxBirthDate;
+  const initialLastDonationDate =
+    formatDateInputValue(user.lastDonationDate) || maxLastDonationDate;
 
   const formik = useFormik({
     initialValues: {
@@ -60,9 +95,9 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
       phone: toIndianNationalNumber(user.phone),
       bloodGroup: user.bloodGroup ?? "",
       gender: user.gender ?? "",
-      birthDate: formatDateInputValue(user.birthDate),
+      birthDate: initialBirthDate,
       weight: user.weight?.toString() ?? "",
-      lastDonationDate: formatDateInputValue(user.lastDonationDate),
+      lastDonationDate: initialLastDonationDate,
       showMobile: user.showMobile ?? false,
       smsAlert: user.smsAlert ?? false,
       state: user.state ?? "",
@@ -259,11 +294,15 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
             <Input
               className="h-12 rounded-2xl bg-white"
               id="birthDate"
+              max={maxBirthDate}
               name="birthDate"
               onChange={formik.handleChange}
               type="date"
               value={formik.values.birthDate}
             />
+            <p className="text-xs text-neutral-500">
+              Must be on or before {maxBirthDateLabel} (18+ years).
+            </p>
           </div>
           <div className="grid gap-2">
             <FieldLabel htmlFor="lastDonationDate">
@@ -272,11 +311,15 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
             <Input
               className="h-12 rounded-2xl bg-white"
               id="lastDonationDate"
+              max={maxLastDonationDate}
               name="lastDonationDate"
               onChange={formik.handleChange}
               type="date"
               value={formik.values.lastDonationDate}
             />
+            <p className="text-xs text-neutral-500">
+              Must be on or before {maxLastDonationDateLabel} (at least 90 days ago).
+            </p>
           </div>
           <div className="grid gap-2">
             <span className="text-xs font-black uppercase tracking-normal text-neutral-500">
