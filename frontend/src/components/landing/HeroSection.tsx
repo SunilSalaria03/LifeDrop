@@ -32,6 +32,8 @@ export function HeroSection({ breadcrumb }: HeroSectionProps = {}) {
     page,
     pageSize,
     hasSearched,
+    showResultsSection,
+    showDonorSkeletons,
     validationError,
     searchResult,
     isLoading,
@@ -167,7 +169,7 @@ export function HeroSection({ breadcrumb }: HeroSectionProps = {}) {
                 id="landing-donor-search"
               >
                 <SearchBar
-                  isSearching={isLoading}
+                  isSearching={showDonorSkeletons}
                   onChange={updateFilters}
                   onSearch={handleFindDonors}
                   values={filters}
@@ -183,17 +185,17 @@ export function HeroSection({ breadcrumb }: HeroSectionProps = {}) {
         </div>
       </section>
 
-      {isSearchPage && hasSearched ? (
+      {showResultsSection ? (
         <section
-          className="bg-white px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16"
+          className="min-h-[28rem] bg-white px-4 py-10 sm:min-h-[32rem] sm:px-6 sm:py-12 lg:px-8 lg:py-16"
           id="donor-search-results"
         >
           <div className="mx-auto max-w-6xl">
             <DonorList
               donors={searchResult.items}
               errorMessage={errorMessage}
-              hasSearched={hasSearched}
-              isLoading={isLoading}
+              hasSearched
+              isLoading={showDonorSkeletons}
               mode={mode}
               onPageChange={
                 mode === "paginated" ? handlePageChange : undefined

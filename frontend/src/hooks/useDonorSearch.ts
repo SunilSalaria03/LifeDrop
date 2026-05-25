@@ -1,6 +1,14 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { searchDonors } from '@/features/donors/api/donors.api';
@@ -90,6 +98,30 @@ function persistSearchSession(
   });
 }
 
+function subscribeToDonorSearchSession(onStoreChange: () => void) {
+  if (typeof window === 'undefined') {
+    return () => undefined;
+  }
+
+  const notify = () => onStoreChange();
+
+  window.addEventListener('storage', notify);
+  window.addEventListener('lifedrop:donor-search-session', notify);
+
+  return () => {
+    window.removeEventListener('storage', notify);
+    window.removeEventListener('lifedrop:donor-search-session', notify);
+  };
+}
+
+function readHasStoredDonorSearch(enabled: boolean): boolean {
+  if (!enabled) {
+    return false;
+  }
+
+  return Boolean(getDonorSearchSession()?.hasSearched);
+}
+
 export function useDonorSearch({
   mode,
   enabled = true,
@@ -102,6 +134,12 @@ export function useDonorSearch({
   const isSearchPage = isHomePage || isDonorListPage;
   const pageSize = mode === 'paginated' ? 12 : 6;
 
+  const hasStoredSearch = useSyncExternalStore(
+    subscribeToDonorSearchSession,
+    () => readHasStoredDonorSearch(enabled),
+    () => false,
+  );
+
   const [filters, setFilters] = useState<DonorSearchFormValues>(
     initialDonorSearchFilters,
   );
@@ -111,38 +149,86 @@ export function useDonorSearch({
   );
   const [validationError, setValidationError] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
+  const [isRestoringSession, setIsRestoringSession] = useState(false);
+  const [sessionCheckDone, setSessionCheckDone] = useState(false);
   const strippedLegacyQueryRef = useRef(false);
   const restoredFromStorageRef = useRef(false);
 
-  const debouncedSearchRequest = useDebouncedValue(searchRequest, 450);
-
-  const queryKey = useMemo(
-    () => [
-      'donor-search',
-      mode,
-      debouncedSearchRequest?.bloodGroup ?? '',
-      debouncedSearchRequest?.lat ?? '',
-      debouncedSearchRequest?.lng ?? '',
-      debouncedSearchRequest?.page ?? 1,
-      debouncedSearchRequest?.limit ?? pageSize,
-    ],
-    [debouncedSearchRequest, mode, pageSize],
+  const isClient = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false,
   );
 
-  const donorQuery = useQuery({
-    enabled: Boolean(debouncedSearchRequest),
-    queryKey,
-    queryFn: () =>
-      searchDonors(debouncedSearchRequest as DonorSearchFilters),
-    retry: 1,
-    staleTime: 60_000,
-  });
+  const debounceDelay = isRestoringSession ? 0 : 450;
+  const debouncedSearchRequest = useDebouncedValue(
+    searchRequest,
+    debounceDelay,
+  );
 
   const isSearchDebouncing = Boolean(
     searchRequest && searchRequest !== debouncedSearchRequest,
   );
 
+  const effectiveSearchRequest =
+    debouncedSearchRequest ??
+    (isRestoringSession && searchRequest ? searchRequest : null);
+
+  const queryKey = useMemo(
+    () => [
+      'donor-search',
+      mode,
+      effectiveSearchRequest?.bloodGroup ?? '',
+      effectiveSearchRequest?.lat ?? '',
+      effectiveSearchRequest?.lng ?? '',
+      effectiveSearchRequest?.page ?? 1,
+      effectiveSearchRequest?.limit ?? pageSize,
+    ],
+    [effectiveSearchRequest, mode, pageSize],
+  );
+
+  const donorQuery = useQuery({
+    enabled: Boolean(effectiveSearchRequest),
+    queryKey,
+    queryFn: () =>
+      searchDonors(effectiveSearchRequest as DonorSearchFilters),
+    retry: 1,
+    staleTime: 60_000,
+  });
+
   const searchResult = donorQuery.data ?? EMPTY_RESPONSE;
+
+  const isAwaitingFirstResults =
+    Boolean(effectiveSearchRequest) &&
+    !donorQuery.data &&
+    !donorQuery.isError;
+
+  const clientSessionActive =
+    isClient && enabled && readHasStoredDonorSearch(enabled);
+
+  const isLoading =
+    isRestoringSession ||
+    isSearchDebouncing ||
+    donorQuery.isFetching ||
+    donorQuery.isPending ||
+    isAwaitingFirstResults;
+
+  const showDonorResults =
+    hasSearched ||
+    hasStoredSearch ||
+    clientSessionActive ||
+    isLoading ||
+    Boolean(searchRequest);
+
+  const showPendingResultsSkeleton =
+    isClient && !sessionCheckDone && clientSessionActive;
+
+  const showDonorSkeletons =
+    showPendingResultsSkeleton ||
+    isLoading ||
+    (hasSearched && isAwaitingFirstResults);
+
+  const showResultsSection = isSearchPage && showDonorResults;
 
   const runSearchWithValues = useCallback(
     (values: DonorSearchFormValues, nextPage = 1) => {
@@ -244,26 +330,49 @@ export function useDonorSearch({
     }
   }, []);
 
-  /** Restore search from sessionStorage after refresh (same tab) */
-  useEffect(() => {
-    if (!enabled || restoredFromStorageRef.current) {
+  /** Restore search from sessionStorage before paint (refresh / in-app return) */
+  useLayoutEffect(() => {
+    if (!enabled) {
+      setSessionCheckDone(true);
       return;
     }
 
-    restoredFromStorageRef.current = true;
+    if (!restoredFromStorageRef.current) {
+      restoredFromStorageRef.current = true;
 
-    const restored = restoreSearchFromSession(mode, isDonorListPage);
+      const restored = restoreSearchFromSession(mode, isDonorListPage);
 
-    if (!restored) {
-      return;
+      if (restored) {
+        setIsRestoringSession(true);
+        setFilters(restored.filters);
+        setValidationError('');
+        setHasSearched(true);
+        setPage(restored.page);
+        setSearchRequest(restored.searchRequest);
+      }
     }
 
-    setFilters(restored.filters);
-    setValidationError('');
-    setHasSearched(true);
-    setPage(restored.page);
-    setSearchRequest(restored.searchRequest);
+    setSessionCheckDone(true);
   }, [enabled, isDonorListPage, mode]);
+
+  useEffect(() => {
+    if (!isRestoringSession) {
+      return;
+    }
+
+    if (!effectiveSearchRequest) {
+      return;
+    }
+
+    if (donorQuery.isSuccess || donorQuery.isError) {
+      setIsRestoringSession(false);
+    }
+  }, [
+    donorQuery.isError,
+    donorQuery.isSuccess,
+    effectiveSearchRequest,
+    isRestoringSession,
+  ]);
 
   const viewAllHref = DONOR_LIST_PATH;
 
@@ -302,9 +411,12 @@ export function useDonorSearch({
     page: searchResult.page || page,
     pageSize,
     hasSearched,
+    showDonorResults,
+    showResultsSection,
+    showDonorSkeletons,
     validationError,
     searchResult,
-    isLoading: donorQuery.isFetching || isSearchDebouncing,
+    isLoading,
     errorMessage: donorQuery.error?.message,
     updateFilters,
     handleFindDonors,

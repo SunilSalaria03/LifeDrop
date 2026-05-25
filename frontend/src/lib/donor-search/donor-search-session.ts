@@ -68,6 +68,14 @@ export function getDonorSearchSession(): DonorSearchSession | null {
   return stored;
 }
 
+function notifyDonorSearchSessionChange(): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.dispatchEvent(new Event('lifedrop:donor-search-session'));
+}
+
 export function setDonorSearchSession(next: DonorSearchSession): void {
   memoryCache = next;
 
@@ -76,6 +84,7 @@ export function setDonorSearchSession(next: DonorSearchSession): void {
   }
 
   sessionStorage.setItem(DONOR_SEARCH_STORAGE_KEY, JSON.stringify(next));
+  notifyDonorSearchSessionChange();
 }
 
 export function clearDonorSearchSession(): void {
@@ -86,6 +95,7 @@ export function clearDonorSearchSession(): void {
   }
 
   sessionStorage.removeItem(DONOR_SEARCH_STORAGE_KEY);
+  notifyDonorSearchSessionChange();
 }
 
 export function getLastDonorSearchBackHref(): string {

@@ -6,6 +6,11 @@ export function useDebouncedValue<TValue>(value: TValue, delay = 400) {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
+    if (delay <= 0) {
+      setDebouncedValue(value);
+      return;
+    }
+
     const timer = window.setTimeout(() => {
       setDebouncedValue(value);
     }, delay);

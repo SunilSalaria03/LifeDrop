@@ -1,12 +1,17 @@
 import { Suspense } from 'react';
 import { HeroSection } from '@/components/landing/HeroSection';
+import { DonorSearchResultsSkeletonShell } from '@/components/landing/DonorSearchResultsSkeletonShell';
+import { BannerBreadcrumbStrip } from '@/components/layout/BannerBreadcrumbStrip';
 import { breadcrumbDonorList } from '@/components/layout/breadcrumb.presets';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 
 function DonorListHeroFallback() {
   return (
-    <section className="min-h-[700px] animate-pulse bg-slate-900" aria-hidden />
+    <>
+      <section className="min-h-[700px] animate-pulse bg-slate-900" aria-hidden />
+      <DonorSearchResultsSkeletonShell mode="paginated" pageSize={12} />
+    </>
   );
 }
 
@@ -14,11 +19,12 @@ export default function DonorListPage() {
   return (
     <>
       <Header />
-      <main className="bg-slate-900 pt-16 text-neutral-950 sm:pt-18">
+      <div className="bg-slate-900 text-neutral-950">
+        <BannerBreadcrumbStrip items={breadcrumbDonorList} />
         <Suspense fallback={<DonorListHeroFallback />}>
-          <HeroSection breadcrumb={breadcrumbDonorList} />
+          <HeroSection />
         </Suspense>
-      </main>
+      </div>
       <Footer />
     </>
   );

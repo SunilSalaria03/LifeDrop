@@ -15,25 +15,29 @@ import { DonorListProps } from './landing.types';
 
 function DonorSkeletonCard() {
   return (
-    <Card className="overflow-hidden rounded-2xl border-neutral-200 shadow-sm">
-      <CardContent className="grid gap-4 p-5 sm:p-6">
+    <Card
+      aria-hidden
+      className="overflow-hidden rounded-2xl border-neutral-200 shadow-sm"
+    >
+      <CardContent className="flex h-full animate-pulse flex-col p-5 sm:p-6">
         <div className="flex items-start gap-4 border-b border-neutral-200 pb-4">
           <div className="h-14 w-14 shrink-0 rounded-full bg-neutral-200" />
-          <div className="grid flex-1 gap-2">
-            <div className="h-5 w-32 rounded bg-neutral-200" />
-            <div className="h-4 w-40 max-w-full rounded bg-neutral-100" />
-            <div className="h-3 w-24 rounded bg-neutral-100" />
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="h-5 w-32 max-w-full rounded-md bg-neutral-200" />
+            <div className="h-4 w-44 max-w-full rounded-md bg-neutral-100" />
+            <div className="h-3 w-28 max-w-full rounded-md bg-neutral-100" />
           </div>
+          <div className="h-7 w-12 shrink-0 rounded-md bg-neutral-200" />
         </div>
-        <div className="grid gap-0 divide-y divide-neutral-200">
+        <div className="divide-y divide-neutral-200 py-1">
           {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="flex justify-between py-2.5">
-              <div className="h-4 w-20 rounded bg-neutral-100" />
-              <div className="h-4 w-24 rounded bg-neutral-200" />
+            <div key={index} className="flex justify-between gap-4 py-2.5">
+              <div className="h-4 w-20 rounded-md bg-neutral-100" />
+              <div className="h-4 w-24 rounded-md bg-neutral-200" />
             </div>
           ))}
         </div>
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="mt-auto grid gap-2 pt-5 sm:grid-cols-2">
           <div className="h-10 rounded-full border border-neutral-200 bg-neutral-50 sm:h-11" />
           <div className="h-10 rounded-full bg-neutral-200 sm:h-11" />
         </div>
@@ -149,8 +153,10 @@ export function DonorList({
 
       {isLoading ? (
         <div
-          className="grid animate-pulse gap-4 sm:grid-cols-2 xl:grid-cols-3"
+          className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+          aria-busy="true"
           aria-label="Loading donor results"
+          role="status"
         >
           {Array.from({ length: skeletonCount }).map((_, index) => (
             <DonorSkeletonCard key={index} />

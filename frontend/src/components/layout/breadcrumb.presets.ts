@@ -12,7 +12,7 @@ export const breadcrumbBecomeDonor: BreadcrumbItem[] = [
 
 export const breadcrumbDonorList: BreadcrumbItem[] = [
   { label: 'Home', href: '/' },
-  { label: 'Donors in your area' },
+  { label: 'Donor List' },
 ];
 
 export const breadcrumbProfileSetup: BreadcrumbItem[] = [
@@ -29,7 +29,7 @@ export const breadcrumbOnboarding: BreadcrumbItem[] = [
 export function breadcrumbDonorDetail(donorName?: string): BreadcrumbItem[] {
   return [
     { label: 'Home', href: '/' },
-    { label: 'Find donors', href: '/donor-list' },
+    { label: 'Donor List', href: '/donor-list' },
     { label: donorName?.trim() || 'Donor profile' },
   ];
 }
