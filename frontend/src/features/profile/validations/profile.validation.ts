@@ -4,14 +4,48 @@ import {
   isValidIndianNationalNumber,
 } from '@/lib/phone/india-phone';
 
+const parseIsoDate = (value: string): Date | null => {
+  const [year, month, day] = value.split('-').map(Number);
+  if (!year || !month || !day) {
+    return null;
+  }
+
+  const parsed = new Date(year, month - 1, day);
+  if (
+    parsed.getFullYear() !== year ||
+    parsed.getMonth() !== month - 1 ||
+    parsed.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+};
+
+const startOfDay = (date: Date) =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+const getMaxBirthDate = () => {
+  const today = startOfDay(new Date());
+  return new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+};
+
+const getMaxLastDonationDate = () => {
+  const today = startOfDay(new Date());
+  const maxDate = new Date(today);
+  maxDate.setDate(maxDate.getDate() - 90);
+  return maxDate;
+};
+
 export const profileSetupSchema = yup.object({
   name: yup.string().trim().min(2, 'Enter your full name.').required('Name is required.'),
-  profileImage: yup
+  avatarUrl: yup
     .string()
     .trim()
     .url('Enter a valid image URL.')
     .transform((value) => value || undefined)
     .optional(),
+  avatarKey: yup.string().trim().max(200, 'Avatar key is too long.').optional(),
   phone: yup
     .string()
     .trim()
@@ -25,8 +59,8 @@ export const profileSetupSchema = yup.object({
   stateCode: yup.string().trim().required('State is required.'),
   city: yup.string().trim().required('City is required.'),
   district: yup.string().trim().optional(),
+  addressText: yup.string().trim().required('Address line is required.'),
   addressLine: yup.string().trim().optional(),
-  addressText: yup.string().trim().optional(),
   lat: yup.number().optional(),
   lng: yup.number().optional(),
 });
@@ -45,7 +79,24 @@ export const updateProfileFormSchema = yup.object({
     .required('Mobile number is required.'),
   bloodGroup: yup.string().trim().optional(),
   gender: yup.string().trim().oneOf(['male', 'female', 'other', ''], 'Select a valid gender.').optional(),
-  birthDate: yup.string().trim().optional(),
+  birthDate: yup
+    .string()
+    .trim()
+    .test(
+      'birth-date-min-age',
+      'Birth date must be at least 18 years ago.',
+      (value) => {
+        if (!value) {
+          return true;
+        }
+        const parsed = parseIsoDate(value);
+        if (!parsed) {
+          return false;
+        }
+        return parsed <= getMaxBirthDate();
+      },
+    )
+    .optional(),
   weight: yup
     .number()
     .transform((value, originalValue) =>
@@ -54,7 +105,24 @@ export const updateProfileFormSchema = yup.object({
     .typeError('Enter a valid weight.')
     .min(1, 'Enter a valid weight.')
     .optional(),
-  lastDonationDate: yup.string().trim().optional(),
+  lastDonationDate: yup
+    .string()
+    .trim()
+    .test(
+      'last-donation-min-90-days',
+      'Last donation date must be at least 90 days ago.',
+      (value) => {
+        if (!value) {
+          return true;
+        }
+        const parsed = parseIsoDate(value);
+        if (!parsed) {
+          return false;
+        }
+        return parsed <= getMaxLastDonationDate();
+      },
+    )
+    .optional(),
   showMobile: yup.boolean().optional(),
   smsAlert: yup.boolean().optional(),
   pincode: yup
@@ -69,7 +137,7 @@ export const updateProfileFormSchema = yup.object({
   stateCode: yup.string().trim().required('State is required.'),
   district: yup.string().trim().required('District is required.'),
   tehsil: yup.string().trim().optional(),
-  addressLine: yup.string().trim().optional(),
+  addressLine: yup.string().trim().required("Address line is required."),
 });
 
 export const profilePhoneSchema = yup.object({

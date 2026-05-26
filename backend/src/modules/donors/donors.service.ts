@@ -538,8 +538,12 @@ export class DonorsService {
           id: { $toString: "$_id" },
           userId: { $toString: "$userId" },
           name: "$user.name",
-          profileImage: "$user.profileImage",
+          avatarUrl: "$user.avatarUrl",
+          avatarKey: "$user.avatarKey",
           bloodGroup: 1,
+          gender: {
+            $ifNull: ["$gender", "$user.gender"],
+          },
           state: 1,
           city: 1,
           district: 1,
@@ -547,6 +551,12 @@ export class DonorsService {
           distanceKm: 1,
           isAvailable: 1,
           isVerified: 1,
+          birthDate: {
+            $ifNull: ["$birthDate", "$user.birthDate"],
+          },
+          weight: {
+            $ifNull: ["$weight", "$user.weight"],
+          },
           lastDonationDate: 1,
           nextEligibleDate: 1,
           totalDonations: 1,
@@ -554,6 +564,8 @@ export class DonorsService {
           updatedAt: 1,
           phone: 1,
           showMobile: 1,
+          addressLine: 1,
+          addressText: 1,
         },
       },
     ];

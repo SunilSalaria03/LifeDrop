@@ -72,7 +72,7 @@ export class UsersService {
       googleId: input.googleId,
       email: input.email,
       name: input.name,
-      profileImage: input.profileImage,
+      avatarUrl: input.avatarUrl,
       authProvider: AuthProvider.Google,
       phoneVerified: false,
     });
@@ -85,7 +85,7 @@ export class UsersService {
     user.googleId = input.googleId;
     user.email = input.email ?? user.email;
     user.name = user.name ?? input.name;
-    user.profileImage = user.profileImage ?? input.profileImage;
+    user.avatarUrl = user.avatarUrl ?? input.avatarUrl;
     user.authProvider = AuthProvider.Google;
 
     return user.save();
@@ -184,7 +184,8 @@ export class UsersService {
 
     for (const field of [
       'email',
-      'profileImage',
+      'avatarUrl',
+      'avatarKey',
       'pincode',
       'state',
       'city',
@@ -198,14 +199,12 @@ export class UsersService {
 
     this.applyAddressUpdate(update, dto);
 
+    if (dto.gender !== undefined) {
+      update.gender = dto.gender;
+    }
+
     if (isDonor) {
-      for (const field of [
-        'bloodGroup',
-        'gender',
-        'weight',
-        'showMobile',
-        'smsAlert',
-      ] as const) {
+      for (const field of ['bloodGroup', 'weight', 'showMobile', 'smsAlert'] as const) {
         if (dto[field] !== undefined) {
           update[field] = dto[field];
         }
@@ -343,7 +342,8 @@ export class UsersService {
       name: user.name,
       email: user.email,
       phone: user.phone,
-      profileImage: user.profileImage,
+      avatarUrl: user.avatarUrl,
+      avatarKey: user.avatarKey,
       authProvider: user.authProvider,
       role: user.role,
       phoneVerified: user.phoneVerified,
@@ -352,7 +352,7 @@ export class UsersService {
       addressLine: user.addressLine ?? user.addressText,
       addressText: user.addressText ?? user.addressLine,
       bloodGroup: isDonor ? user.bloodGroup : undefined,
-      gender: isDonor ? user.gender : undefined,
+      gender: user.gender,
       birthDate: isDonor ? user.birthDate : undefined,
       weight: isDonor ? user.weight : undefined,
       lastDonationDate: isDonor ? user.lastDonationDate : undefined,

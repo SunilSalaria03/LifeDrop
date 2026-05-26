@@ -6,5 +6,5 @@ export type CreateGoogleUserInput = {
   googleId: string;
   email?: string;
   name?: string;
-  profileImage?: string;
+  avatarUrl?: string;
 };
