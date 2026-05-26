@@ -20,6 +20,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { AuthUser } from "@/features/auth/types/auth.types";
 import { userStorage } from "@/lib/auth/user-storage";
 import { stripNextInternalSearchParams } from "@/lib/navigation/safe-url";
+import manImage from "@/assets/images/man.png";
 import { getDisplayName, getInitials } from "./header.helpers";
 
 export function Header() {
@@ -181,12 +182,10 @@ export function Header() {
                   type="button"
                 >
                   <Avatar className="h-8 w-8 border border-red-100 bg-red-50">
-                    {user.profileImage ? (
-                      <AvatarImage
-                        alt={getDisplayName(user.name, user.phone, user.email)}
-                        src={user.profileImage}
-                      />
-                    ) : null}
+                    <AvatarImage
+                      alt={getDisplayName(user.name, user.phone, user.email)}
+                      src={user.profileImage || manImage.src}
+                    />
                     <AvatarFallback className="bg-red-50 text-xs text-red-700">
                       {getInitials(user.name, user.phone, user.email)}
                     </AvatarFallback>
