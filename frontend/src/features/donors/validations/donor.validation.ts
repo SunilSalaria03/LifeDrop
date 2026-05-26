@@ -98,7 +98,7 @@ export const donorProfileSchema = yup.object({
   stateCode: yup.string().trim().required('State is required.'),
   district: yup.string().trim().required('District is required.'),
   tehsil: yup.string().trim().optional(),
-  addressLine: yup.string().trim().optional(),
+  addressLine: yup.string().trim().required('Address line is required.'),
   pincode: yup
     .string()
     .trim()

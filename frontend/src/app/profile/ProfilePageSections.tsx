@@ -34,14 +34,17 @@ import {
   profileCard,
   profileCardBody,
   profileCardHeader,
-  profileFieldCard,
-  profileInsetPanel,
+  profileFieldCard, 
 } from "./profile-card.styles";
 import { InfoItemProps } from "./profile-page.types";
 
-export function InfoFieldCard({ icon: Icon, label, value }: InfoItemProps) {
+type InfoFieldCardProps = InfoItemProps & {
+  className?: string;
+};
+
+export function InfoFieldCard({ icon: Icon, label, value, className }: InfoFieldCardProps) {
   return (
-    <div className={profileFieldCard}>
+    <div className={cn(profileFieldCard, className)}>
       <div className="flex min-w-0 items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-red-100 bg-red-50 text-red-700">
           <Icon className="h-5 w-5" />
@@ -59,25 +62,6 @@ export function InfoFieldCard({ icon: Icon, label, value }: InfoItemProps) {
   );
 }
 
-function DonorInfoRow({ icon: Icon, label, value }: InfoItemProps) {
-  return (
-    <div className={profileFieldCard}>
-      <div className="flex min-w-0 items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-red-100 bg-red-50 text-red-700">
-          <Icon className="h-5 w-5" />
-        </span>
-        <span className="min-w-0">
-          <span className="block text-xs font-semibold uppercase tracking-wide text-neutral-500">
-            {label}
-          </span>
-          <span className="mt-1 block break-words text-sm font-semibold text-neutral-950">
-            {value || "Not provided"}
-          </span>
-        </span>
-      </div>
-    </div>
-  );
-}
 
 export type ProfileHeaderCardProps = {
   completionPercent: number;
@@ -223,43 +207,73 @@ export function PersonalInformationCard({
   isDonor: boolean;
   user: AuthUser;
 }) {
+  const getAge = (birthDate?: string) => {
+    if (!birthDate) {
+      return undefined;
+    }
+
+    const parsedBirthDate = new Date(birthDate);
+
+    if (Number.isNaN(parsedBirthDate.getTime())) {
+      return undefined;
+    }
+
+    const now = new Date();
+    let age = now.getFullYear() - parsedBirthDate.getFullYear();
+    const hasBirthdayPassedThisYear =
+      now.getMonth() > parsedBirthDate.getMonth() ||
+      (now.getMonth() === parsedBirthDate.getMonth() &&
+        now.getDate() >= parsedBirthDate.getDate());
+
+    if (!hasBirthdayPassedThisYear) {
+      age -= 1;
+    }
+
+    return age >= 0 ? `${age}` : undefined;
+  };
+
+  const bloodGroup = user.bloodGroup ?? donor?.bloodGroup;
+  const birthDate = user.birthDate ?? donor?.birthDate;
+  const weight = user.weight ?? donor?.weight;
+  const gender = user.gender ?? donor?.gender;
+  const address = user.addressLine ?? user.addressText;
+  const location = [user.district ?? user.city, user.state].filter(Boolean).join(", ");
+  const lastDonationDate = user.lastDonationDate ?? donor?.lastDonationDate;
+
+
   const fields: InfoItemProps[] = [
-    { icon: UserRound, label: "Full name", value: user.name },
-    { icon: Mail, label: "Email", value: user.email },
+    { icon: Droplet, label: "Blood group", value: bloodGroup },
+    { icon: UserRound, label: "Name", value: user.name },
     { icon: Phone, label: "Phone number", value: user.phone },
+    { icon: Mail, label: "Email", value: user.email },
+    { icon: UserRound, label: "Gender", value: gender },
+    { icon: CalendarCheck, label: "Age", value: getAge(birthDate) },
     {
-      icon: MapPin,
-      label: "District and state",
-      value: [user.district ?? user.city, user.state].filter(Boolean).join(", "),
-    },
-    { icon: MapPin, label: "Pin code", value: user.pincode },
-    {
-      icon: MapPin,
-      label: "Address line",
-      value: user.addressLine ?? user.addressText,
+      icon: CalendarCheck,
+      label: "Weight",
+      value: typeof weight === "number" ? `${weight} kg` : undefined,
     },
     {
       icon: CalendarCheck,
-      label: "Account created",
-      value: formatDate(user.createdAt),
+      label: "Last donation",
+      value: formatDate(lastDonationDate),
     },
+ 
     {
-      icon: BadgeCheck,
-      label: "Verification status",
-      value: user.phoneVerified ? "Verified" : "Pending verification",
+      icon: MapPin,
+      label: "Location",
+      value: location,
     },
+    { icon: MapPin, label: "Pin code", value: user.pincode },
+    { icon: MapPin, label: "State", value: user.state },
+    { icon: MapPin, label: "City", value: user.city ?? user.district },
+    {
+      icon: MapPin,
+      label: "Address",
+      value: address,
+    },
+ 
   ];
-
-  if (isDonor) {
-    fields.push(
-      { icon: UserRound, label: "Gender", value: user.gender },
-      {
-        icon: Droplet,
-        label: "Blood group",
-        value: user.bloodGroup ?? donor?.bloodGroup,
-      },
-    );
-  }
 
   return (
     <Card className={cn(profileCard, "h-full")}>
@@ -272,95 +286,12 @@ export function PersonalInformationCard({
       </CardHeader>
       <CardContent className={cn(profileCardBody, "grid gap-3 sm:grid-cols-2")}>
         {fields.map((field) => (
-          <InfoFieldCard key={field.label} {...field} />
+          <InfoFieldCard
+            key={field.label}
+            className={field.label === "Address" ? "sm:col-span-2" : undefined}
+            {...field}
+          />
         ))}
-      </CardContent>
-    </Card>
-  );
-}
-
-export function DonorInformationCard({
-  donor,
-  isEditingProfile,
-  onToggleProfileEdit,
-}: {
-  donor: MyDonorProfile | null;
-  isEditingProfile: boolean;
-  onToggleProfileEdit: () => void;
-}) {
-  return (
-    <Card className={cn(profileCard, "h-fit")}>
-      <CardHeader className={profileCardHeader}>
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-bold text-neutral-950">Donor information</h2>
-            <p className="mt-1 text-sm text-neutral-600">
-              {donor
-                ? "Update your blood group, availability, and donation record so patients can find you in search."
-                : "Register as a donor to show up in search and help people near you who need blood."}
-            </p>
-          </div>
-          {donor ? (
-            <Badge
-              className="shrink-0 border border-red-100 bg-red-50 font-medium text-red-700"
-              
-            >
-              Donor
-            </Badge>
-          ) : null}
-        </div>
-      </CardHeader>
-      <CardContent className={cn(profileCardBody, "grid gap-4 pt-0")}>
-        {donor ? (
-          <>
-            <div className="grid gap-3">
-              <DonorInfoRow
-                icon={Droplet}
-                label="Blood group"
-                value={donor.bloodGroup}
-              />
-              <DonorInfoRow
-                icon={CheckCircle2}
-                label="Availability"
-                value={
-                  donor.isAvailable
-                    ? "Available for requests"
-                    : "Not available"
-                }
-              />
-              <DonorInfoRow
-                icon={CalendarCheck}
-                label="Last donation"
-                value={formatDate(donor.lastDonationDate)}
-              />
-            </div>
-            
-          </>
-        ) : (
-          <div className={cn(profileInsetPanel, "grid gap-4")}>
-            <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-red-100 bg-red-700 text-white shadow-sm">
-              <HeartHandshake className="h-5 w-5" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-neutral-950">
-                Become a LifeDrop donor
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-neutral-600">
-                Share your blood group and availability. Your profile stays
-                visible only through LifeDrop&apos;s privacy-safe donor search.
-              </p>
-            </div>
-            <Button
-              asChild
-              className="h-11 w-full"
-            >
-              <Link href="/become-donor">
-                <HeartHandshake className="h-4 w-4" />
-                Join as a Donor
-              </Link>
-            </Button>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

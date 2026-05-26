@@ -1,10 +1,15 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { City, State } from "country-state-city";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
-import { HeartHandshake } from "lucide-react";
+import {
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  HeartHandshake,
+} from "lucide-react";
 import { IndiaPhoneInput } from "@/components/forms/IndiaPhoneInput";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,35 +77,383 @@ const toDateInputValue = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
-const toReadableDate = (value: string) => {
-  const [year, month, day] = value.split("-");
-  if (!year || !month || !day) {
-    return value;
+const parseIsoDate = (value: string): Date | null => {
+  if (!value) {
+    return null;
   }
-  return `${day}-${month}-${year}`;
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) {
+    return null;
+  }
+  const parsed = new Date(year, month - 1, day);
+  if (
+    parsed.getFullYear() !== year ||
+    parsed.getMonth() !== month - 1 ||
+    parsed.getDate() !== day
+  ) {
+    return null;
+  }
+  return parsed;
 };
+
+const startOfDay = (date: Date) =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+const subtractYears = (date: Date, years: number) =>
+  new Date(date.getFullYear() - years, date.getMonth(), date.getDate());
+
+const subtractDays = (date: Date, days: number) => {
+  const result = new Date(date);
+  result.setDate(result.getDate() - days);
+  return startOfDay(result);
+};
+
+const formatManualDateInput = (value: string): string => {
+  const parsed = parseIsoDate(value);
+  if (!parsed) {
+    return "";
+  }
+  const day = `${parsed.getDate()}`.padStart(2, "0");
+  const month = `${parsed.getMonth() + 1}`.padStart(2, "0");
+  const year = parsed.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+const parseManualDateInput = (input: string): Date | null => {
+  const trimmed = input.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const ddMmYyyy = trimmed.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+  if (ddMmYyyy) {
+    const day = Number(ddMmYyyy[1]);
+    const month = Number(ddMmYyyy[2]);
+    const year = Number(ddMmYyyy[3]);
+    const parsed = new Date(year, month - 1, day);
+    if (
+      parsed.getFullYear() === year &&
+      parsed.getMonth() === month - 1 &&
+      parsed.getDate() === day
+    ) {
+      return parsed;
+    }
+    return null;
+  }
+
+  return parseIsoDate(trimmed);
+};
+
+type DatePickerFieldProps = {
+  ariaLabel: string;
+  hasError: boolean;
+  maxDate?: Date;
+  name: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  value: string;
+};
+
+function DatePickerField({
+  ariaLabel,
+  hasError,
+  maxDate,
+  name,
+  onChange,
+  placeholder,
+  value,
+}: DatePickerFieldProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedDate = parseIsoDate(value);
+  const [currentMonth, setCurrentMonth] = useState<Date>(
+    selectedDate ?? new Date(),
+  );
+  const [inputValue, setInputValue] = useState(formatManualDateInput(value));
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const todayIsoValue = toDateInputValue(new Date());
+  const currentYear = new Date().getFullYear();
+  const startYear = currentYear - 100;
+  const endYear = currentYear + 10;
+  const years = Array.from(
+    { length: endYear - startYear + 1 },
+    (_, index) => startYear + index,
+  );
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  useEffect(() => {
+    const parsedSelectedDate = parseIsoDate(value);
+    if (parsedSelectedDate) {
+      setCurrentMonth(
+        new Date(parsedSelectedDate.getFullYear(), parsedSelectedDate.getMonth(), 1),
+      );
+    }
+    setInputValue(formatManualDateInput(value));
+  }, [value]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!wrapperRef.current) {
+        return;
+      }
+      if (!wrapperRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const monthStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+  const monthEnd = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+  const leadingEmptyDays = monthStart.getDay();
+  const daysInMonth = monthEnd.getDate();
+  const days = Array.from({ length: daysInMonth }, (_, index) => index + 1);
+
+  const isDateSelectable = (date: Date) => {
+    const normalized = startOfDay(date);
+    if (maxDate && normalized > startOfDay(maxDate)) {
+      return false;
+    }
+    return true;
+  };
+
+  const changeMonth = (offset: number) => {
+    setCurrentMonth(
+      (prev) => new Date(prev.getFullYear(), prev.getMonth() + offset, 1),
+    );
+  };
+
+  const selectDate = (day: number) => {
+    const pickedDate = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth(),
+      day,
+    );
+    if (!isDateSelectable(pickedDate)) {
+      return;
+    }
+    onChange(toDateInputValue(pickedDate));
+    setIsOpen(false);
+  };
+
+  const clearDate = () => {
+    onChange("");
+    setIsOpen(false);
+  };
+
+  const applyManualDateInput = () => {
+    if (!inputValue.trim()) {
+      onChange("");
+      return;
+    }
+
+    const parsed = parseManualDateInput(inputValue);
+    if (!parsed || !isDateSelectable(parsed)) {
+      setInputValue(formatManualDateInput(value));
+      return;
+    }
+
+    onChange(toDateInputValue(parsed));
+    setCurrentMonth(new Date(parsed.getFullYear(), parsed.getMonth(), 1));
+  };
+
+  return (
+    <div className="relative" ref={wrapperRef}>
+      <div className="relative">
+        <Input
+          aria-label={ariaLabel}
+          className={cn(
+            "h-12 rounded-2xl bg-white pl-4 pr-12 text-left focus-visible:border-red-700 focus-visible:ring-2 focus-visible:ring-red-100",
+            hasError && "border-red-500 focus-visible:border-red-500",
+          )}
+          inputMode="numeric"
+          name={name}
+          onBlur={applyManualDateInput}
+          onChange={(event) => setInputValue(event.target.value)}
+          onFocus={() => setIsOpen(true)}
+          placeholder={placeholder}
+          value={inputValue}
+        />
+        <button
+          aria-expanded={isOpen}
+          aria-haspopup="dialog"
+          aria-label={`${ariaLabel} calendar`}
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-neutral-500 transition-colors hover:bg-neutral-100"
+          onClick={() => setIsOpen((prev) => !prev)}
+          type="button"
+        >
+          <CalendarDays className="h-5 w-5 shrink-0" />
+        </button>
+      </div>
+
+      {isOpen ? (
+        <div className="absolute z-30 mt-2 w-full min-w-[280px] rounded-2xl border border-neutral-200 bg-white p-3 shadow-xl ring-1 ring-black/5">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <button
+              className="rounded-lg p-2 text-neutral-600 transition-colors hover:bg-neutral-100"
+              onClick={() => changeMonth(-1)}
+              type="button"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+
+            <div className="flex flex-1 items-center gap-2">
+              <select
+                aria-label="Select month"
+                className="h-9 w-full rounded-lg border border-neutral-300 bg-white px-2 text-sm text-neutral-900 outline-none focus:border-red-700"
+                onChange={(event) =>
+                  setCurrentMonth(
+                    new Date(
+                      currentMonth.getFullYear(),
+                      Number(event.target.value),
+                      1,
+                    ),
+                  )
+                }
+                value={currentMonth.getMonth()}
+              >
+                {months.map((month, index) => (
+                  <option key={month} value={index}>
+                    {month}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                aria-label="Select year"
+                className="h-9 w-[104px] rounded-lg border border-neutral-300 bg-white px-2 text-sm text-neutral-900 outline-none focus:border-red-700"
+                onChange={(event) =>
+                  setCurrentMonth(
+                    new Date(
+                      Number(event.target.value),
+                      currentMonth.getMonth(),
+                      1,
+                    ),
+                  )
+                }
+                value={currentMonth.getFullYear()}
+              >
+                {years.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              className="rounded-lg p-2 text-neutral-600 transition-colors hover:bg-neutral-100"
+              onClick={() => changeMonth(1)}
+              type="button"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="mb-2 grid grid-cols-7 text-center text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+              <span key={day}>{day}</span>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-7 gap-1">
+            {Array.from({ length: leadingEmptyDays }).map((_, index) => (
+              <span className="h-9 w-9" key={`empty-${index}`} />
+            ))}
+            {days.map((day) => {
+              const dayDate = new Date(
+                currentMonth.getFullYear(),
+                currentMonth.getMonth(),
+                day,
+              );
+              const isoValue = toDateInputValue(dayDate);
+              const isSelected = value === isoValue;
+              const isToday = todayIsoValue === isoValue;
+              const isDisabled = !isDateSelectable(dayDate);
+
+              return (
+                <button
+                  className={cn(
+                    "h-9 w-9 rounded-lg text-sm transition-colors",
+                    !isDisabled && "hover:bg-red-50 hover:text-red-700",
+                    isDisabled && "cursor-not-allowed text-neutral-300",
+                    isToday && "ring-1 ring-red-300",
+                    isSelected && "bg-red-700 text-white hover:bg-red-700 hover:text-white",
+                  )}
+                  disabled={isDisabled}
+                  key={isoValue}
+                  onClick={() => selectDate(day)}
+                  type="button"
+                >
+                  {day}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-3 flex justify-between border-t border-neutral-100 pt-3">
+            <button
+              className="text-xs font-medium text-neutral-500 transition-colors hover:text-neutral-800"
+              onClick={clearDate}
+              type="button"
+            >
+              Clear
+            </button>
+            <button
+              className="text-xs font-medium text-red-700 transition-colors hover:text-red-800"
+              onClick={() => {
+                const targetDate = maxDate ? startOfDay(maxDate) : startOfDay(new Date());
+                if (!isDateSelectable(targetDate)) {
+                  return;
+                }
+                onChange(toDateInputValue(targetDate));
+                setCurrentMonth(
+                  new Date(targetDate.getFullYear(), targetDate.getMonth(), 1),
+                );
+                setIsOpen(false);
+              }}
+              type="button"
+            >
+              {maxDate ? "Latest allowed" : "Today"}
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
   const router = useRouter();
   const { createDonorProfileMutation } = useDonorProfile();
   const { showToast } = useToast();
   const states = useMemo(() => State.getStatesOfCountry("IN"), []);
-  const maxBirthDate = useMemo(() => {
-    const date = new Date();
-    date.setHours(0, 0, 0, 0);
-    date.setFullYear(date.getFullYear() - 18);
-    return toDateInputValue(date);
-  }, []);
-  const maxLastDonationDate = useMemo(() => {
-    const date = new Date();
-    date.setHours(0, 0, 0, 0);
-    date.setDate(date.getDate() - 90);
-    return toDateInputValue(date);
-  }, []);
+  const maxBirthDate = useMemo(() => subtractYears(startOfDay(new Date()), 18), []);
+  const maxLastDonationDate = useMemo(
+    () => subtractDays(startOfDay(new Date()), 90),
+    [],
+  );
  
-  const initialBirthDate = formatDateInputValue(user.birthDate) || maxBirthDate;
+  const initialBirthDate =
+    formatDateInputValue(user.birthDate) || toDateInputValue(maxBirthDate);
   const initialLastDonationDate =
-    formatDateInputValue(user.lastDonationDate) || maxLastDonationDate;
+    formatDateInputValue(user.lastDonationDate) || toDateInputValue(maxLastDonationDate);
 
   const formik = useFormik({
     initialValues: {
@@ -341,16 +694,15 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
           </div>
           <div className="grid gap-2">
             <FieldLabel htmlFor="birthDate">Birth date</FieldLabel>
-            <Input
-              className={cn(
-                "h-12 rounded-2xl bg-white",
-                getFieldError("birthDate") && "border-red-500 focus:border-red-500",
-              )}
-              id="birthDate"
-              max={maxBirthDate}
+            <DatePickerField
+              ariaLabel="Birth date"
+              hasError={Boolean(getFieldError("birthDate"))}
+              maxDate={maxBirthDate}
               name="birthDate"
-              onChange={formik.handleChange}
-              type="date"
+              onChange={(nextValue) =>
+                void formik.setFieldValue("birthDate", nextValue, true)
+              }
+              placeholder="DD/MM/YYYY"
               value={formik.values.birthDate}
             />
             <FieldError active={showValidationFeedback} message={getFieldError("birthDate")} />
@@ -360,16 +712,15 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
             <FieldLabel htmlFor="lastDonationDate">
               Last donation date
             </FieldLabel>
-            <Input
-              className={cn(
-                "h-12 rounded-2xl bg-white",
-                getFieldError("lastDonationDate") && "border-red-500 focus:border-red-500",
-              )}
-              id="lastDonationDate"
-              max={maxLastDonationDate}
+            <DatePickerField
+              ariaLabel="Last donation date"
+              hasError={Boolean(getFieldError("lastDonationDate"))}
+              maxDate={maxLastDonationDate}
               name="lastDonationDate"
-              onChange={formik.handleChange}
-              type="date"
+              onChange={(nextValue) =>
+                void formik.setFieldValue("lastDonationDate", nextValue, true)
+              }
+              placeholder="DD/MM/YYYY"
               value={formik.values.lastDonationDate}
             />
             <FieldError
@@ -460,12 +811,19 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
           <div className="grid gap-2 ">
             <FieldLabel htmlFor="addressLine">Address line</FieldLabel>
             <Input
-              className="h-12 rounded-2xl bg-white"
+              className={cn(
+                "h-12 rounded-2xl bg-white",
+                getFieldError("addressLine") && "border-red-500 focus:border-red-500",
+              )}
               id="addressLine"
               name="addressLine"
               onChange={formik.handleChange}
-              placeholder="House, street, landmark optional"
+              placeholder="House, street, landmark"
               value={formik.values.addressLine}
+            />
+            <FieldError
+              active={showValidationFeedback}
+              message={getFieldError("addressLine")}
             />
           </div>
           <div className="grid gap-2">
