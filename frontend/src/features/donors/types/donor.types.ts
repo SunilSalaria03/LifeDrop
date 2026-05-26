@@ -74,6 +74,8 @@ export type DonorListItem = {
   createdAt?: string;
   updatedAt?: string;
   phone?: string;
+  addressLine?: string;
+  addressText?: string;
 };
 
 export type DonorDetail = DonorListItem;

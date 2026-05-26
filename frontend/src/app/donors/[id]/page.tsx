@@ -11,7 +11,6 @@ import {
   HeartHandshake,
   HeartPulse,
   MapPin,
-  Navigation,
   Phone,
   ShieldCheck,
   Users,
@@ -88,7 +87,9 @@ function DonorProfileHeader({
                 <p className="mt-1 text-sm text-neutral-600 sm:text-base">
                   Blood donor
                   <span className="text-neutral-300"> · </span>
-                  <span className="font-medium text-red-700">{donor.bloodGroup}</span>
+                  <span className="font-medium text-red-700">
+                    {donor.bloodGroup}
+                  </span>
                   <span className="text-neutral-300"> · </span>
                   <span className="font-medium text-red-700">LifeDrop</span>
                 </p>
@@ -116,10 +117,7 @@ function DonorProfileHeader({
             </div>
 
             <div className="mt-4 flex flex-wrap gap-2">
-              <Badge
-                className="rounded-md border border-red-200 bg-red-50 font-medium text-red-800"
-                
-              >
+              <Badge className="rounded-md border border-red-200 bg-red-50 font-medium text-red-800">
                 {donor.bloodGroup}
               </Badge>
               <Badge
@@ -128,25 +126,18 @@ function DonorProfileHeader({
                     ? "gap-1 rounded-md border border-green-200 bg-green-50 font-medium text-green-800"
                     : "rounded-md border border-neutral-200 bg-neutral-50 font-medium text-neutral-600"
                 }
-                
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 {donor.isAvailable ? "Available" : "Not available"}
               </Badge>
               {donor.isVerified ? (
-                <Badge
-                  className="gap-1 rounded-md border border-green-200 bg-green-50 font-medium text-green-800"
-                  
-                >
+                <Badge className="gap-1 rounded-md border border-green-200 bg-green-50 font-medium text-green-800">
                   <ShieldCheck className="h-3.5 w-3.5" />
                   Verified donor
                 </Badge>
               ) : null}
               {donor.distanceKm !== undefined ? (
-                <Badge
-                  className="rounded-md border border-neutral-200 bg-neutral-50 font-medium text-neutral-700"
-                  
-                >
+                <Badge className="rounded-md border border-neutral-200 bg-neutral-50 font-medium text-neutral-700">
                   {donor.distanceKm} km away
                 </Badge>
               ) : null}
@@ -166,7 +157,7 @@ export default function DonorDetailPage() {
   const donor = donorQuery.data;
   const donorName = donor ? getDonorName(donor.name) : undefined;
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
-  const [backToSearchHref, setBackToSearchHref] = useState('/');
+  const [backToSearchHref, setBackToSearchHref] = useState("/");
 
   useEffect(() => {
     setBackToSearchHref(getLastDonorSearchBackHref());
@@ -246,38 +237,14 @@ export default function DonorDetailPage() {
                       value={donor.bloodGroup}
                     />
                     <InfoFieldCard
-                      icon={MapPin}
-                      label="Location"
-                      value={[donor.city, donor.state].filter(Boolean).join(", ")}
+                      icon={CalendarClock}
+                      label="Phone"
+                      value={formatDonorPhone(donor.phone, donor.showMobile)}
                     />
-                    <InfoFieldCard icon={MapPin} label="City" value={donor.city} />
-                    <InfoFieldCard icon={MapPin} label="State" value={donor.state} />
-                    <InfoFieldCard
-                      icon={MapPin}
-                      label="District"
-                      value={donor.district}
-                    />
-                    {donor.distanceKm !== undefined ? (
-                      <InfoFieldCard
-                        icon={Navigation}
-                        label="Distance"
-                        value={`${donor.distanceKm} km away`}
-                      />
-                    ) : null}
                     <InfoFieldCard
                       icon={CalendarCheck}
                       label="Last donation"
                       value={formatDonorDate(donor.lastDonationDate)}
-                    />
-                    <InfoFieldCard
-                      icon={CalendarClock}
-                      label="Next eligible"
-                      value={formatDonorDate(donor.nextEligibleDate)}
-                    />
-                    <InfoFieldCard
-                      icon={HeartPulse}
-                      label="Total donations"
-                      value={`${donor.totalDonations ?? 0}`}
                     />
                     <InfoFieldCard
                       icon={Users}
@@ -285,10 +252,27 @@ export default function DonorDetailPage() {
                       value={formatDonorDate(donor.createdAt)}
                     />
                     <InfoFieldCard
-                      icon={Phone}
-                      label="Contact"
-                      value={formatDonorPhone(donor.phone, donor.showMobile)}
+                      icon={MapPin}
+                      label="Location"
+                      value={[donor.city, donor.state]
+                        .filter(Boolean)
+                        .join(", ")}
                     />
+                    {donor.district ? (
+                      <InfoFieldCard
+                        icon={MapPin}
+                        label="District"
+                        value={donor.district}
+                      />
+                    ) : null}
+
+                    <div className="sm:col-span-2">
+                      <InfoFieldCard
+                        icon={CalendarClock}
+                        label="Address"
+                        value={donor.addressLine ?? donor.addressText}
+                      />
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -303,10 +287,17 @@ export default function DonorDetailPage() {
                     </p>
                   </CardHeader>
                   <CardContent className={`${profileCardBody} grid gap-4 pt-0`}>
-                    <p className={`${profileInsetPanel} text-sm leading-6 text-neutral-700`}>
+                    <p
+                      className={`${profileInsetPanel} text-sm leading-6 text-neutral-700`}
+                    >
                       Your contact details are shared with the donor only after
                       you submit the request and they choose to respond.
                     </p>
+                    <InfoFieldCard
+                      icon={Phone}
+                      label="Contact number"
+                      value={formatDonorPhone(donor.phone, donor.showMobile)}
+                    />
                     {!isOwnDonorProfile ? (
                       <Button
                         className="h-11 w-full"
@@ -318,11 +309,7 @@ export default function DonorDetailPage() {
                         Request blood
                       </Button>
                     ) : null}
-                    <Button
-                      asChild
-                      className="h-11 w-full border-neutral-200"
-                      
-                    >
+                    <Button asChild className="h-11 w-full border-neutral-200">
                       <Link href={backToSearchHref}>
                         <ArrowLeft className="h-4 w-4" />
                         Back to search

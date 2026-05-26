@@ -557,6 +557,8 @@ export class DonorsService {
           updatedAt: 1,
           phone: 1,
           showMobile: 1,
+          addressLine: 1,
+          addressText: 1,
         },
       },
     ];
