@@ -554,6 +554,9 @@ export class DonorsService {
           birthDate: {
             $ifNull: ["$birthDate", "$user.birthDate"],
           },
+          weight: {
+            $ifNull: ["$weight", "$user.weight"],
+          },
           lastDonationDate: 1,
           nextEligibleDate: 1,
           totalDonations: 1,

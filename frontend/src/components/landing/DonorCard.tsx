@@ -99,6 +99,10 @@ export function DonorCard({
       label: "Age",
       value: calculateAgeFromDob(donor.birthDate),
     },
+    {
+      label: "Weight",
+      value: donor.weight !== undefined ? `${donor.weight} kg` : "Not provided",
+    },
   ];
 
   return (

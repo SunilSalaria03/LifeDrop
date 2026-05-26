@@ -34,7 +34,7 @@ import {
   profileCard,
   profileCardBody,
   profileCardHeader,
-  profileFieldCard, 
+  profileFieldCard,
 } from "./profile-card.styles";
 import { InfoItemProps } from "./profile-page.types";
 
@@ -42,7 +42,12 @@ type InfoFieldCardProps = InfoItemProps & {
   className?: string;
 };
 
-export function InfoFieldCard({ icon: Icon, label, value, className }: InfoFieldCardProps) {
+export function InfoFieldCard({
+  icon: Icon,
+  label,
+  value,
+  className,
+}: InfoFieldCardProps) {
   return (
     <div className={cn(profileFieldCard, className)}>
       <div className="flex min-w-0 items-start gap-3">
@@ -62,7 +67,6 @@ export function InfoFieldCard({ icon: Icon, label, value, className }: InfoField
   );
 }
 
-
 export type ProfileHeaderCardProps = {
   completionPercent: number;
   donor: MyDonorProfile | null;
@@ -80,7 +84,10 @@ export function ProfileHeaderCard({
 }: ProfileHeaderCardProps) {
   const displayName = getDisplayName(user);
   const location = getProfileLocation(user);
-  const headline = getProfileHeadline(user, donor?.bloodGroup ?? user.bloodGroup);
+  const headline = getProfileHeadline(
+    user,
+    donor?.bloodGroup ?? user.bloodGroup,
+  );
   const memberYear = getMemberSinceYear(user.createdAt);
   const isDonorAccount = user.role === "donor" || Boolean(donor);
 
@@ -143,53 +150,37 @@ export function ProfileHeaderCard({
             </div>
 
             <div className="mt-4 flex flex-wrap gap-2">
-              <Badge
-                className="rounded-md border border-neutral-200 bg-neutral-50 font-medium text-neutral-700"
-                
-              >
-                {isDonorAccount ? "Donor account" : "User account"}
+            {(donor?.bloodGroup || user.bloodGroup) && (
+              <Badge className="rounded-md border border-red-200 bg-red-50 font-medium text-red-800">
+                {donor?.bloodGroup ?? user.bloodGroup}
               </Badge>
-              <Badge
-                className="rounded-md border border-red-200 bg-red-50 font-medium text-red-800"
-                
-              >
-                Profile {completionPercent}% complete
-              </Badge>
+            )}
               <Badge
                 className={
                   user.phoneVerified
                     ? "gap-1 rounded-md border border-green-200 bg-green-50 font-medium text-green-800"
                     : "gap-1 rounded-md border border-amber-200 bg-amber-50 font-medium text-amber-800"
                 }
-                
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 {user.phoneVerified ? "Phone verified" : "Phone pending"}
               </Badge>
-              {memberYear ? (
-                <Badge
-                  className="rounded-md border border-neutral-200 bg-neutral-50 font-medium text-neutral-700"
-                  
-                >
-                  Member since {memberYear}
-                </Badge>
-              ) : null}
-              {(donor?.bloodGroup || user.bloodGroup) && (
-                <Badge
-                  className="rounded-md border border-red-200 bg-red-50 font-medium text-red-800"
-                  
-                >
-                  {donor?.bloodGroup ?? user.bloodGroup}
-                </Badge>
-              )}
               {isDonorAccount && donor ? (
-                <Badge
-                  className="rounded-md border border-green-200 bg-green-50 font-medium text-green-800"
-                  
-                >
+                <Badge className="rounded-md border border-green-200 bg-green-50 font-medium text-green-800">
                   Active donor
                 </Badge>
               ) : null}
+            <Badge className="rounded-md border border-neutral-200 bg-neutral-50 font-medium text-neutral-700">
+              {isDonorAccount ? "Donor account" : "User account"}
+            </Badge>
+            <Badge className="rounded-md border border-red-200 bg-red-50 font-medium text-red-800">
+              Profile {completionPercent}% complete
+            </Badge>
+            {memberYear ? (
+              <Badge className="rounded-md border border-neutral-200 bg-neutral-50 font-medium text-neutral-700">
+                Member since {memberYear}
+              </Badge>
+            ) : null}
             </div>
           </div>
         </div>
@@ -237,9 +228,10 @@ export function PersonalInformationCard({
   const weight = user.weight ?? donor?.weight;
   const gender = user.gender ?? donor?.gender;
   const address = user.addressLine ?? user.addressText;
-  const location = [user.district ?? user.city, user.state].filter(Boolean).join(", ");
+  const location = [user.district ?? user.city, user.state]
+    .filter(Boolean)
+    .join(", ");
   const lastDonationDate = user.lastDonationDate ?? donor?.lastDonationDate;
-
 
   const fields: InfoItemProps[] = [
     { icon: Droplet, label: "Blood group", value: bloodGroup },
@@ -258,7 +250,7 @@ export function PersonalInformationCard({
       label: "Last donation",
       value: formatDate(lastDonationDate),
     },
- 
+
     {
       icon: MapPin,
       label: "Location",
@@ -272,13 +264,14 @@ export function PersonalInformationCard({
       label: "Address",
       value: address,
     },
- 
   ];
 
   return (
     <Card className={cn(profileCard, "h-full")}>
       <CardHeader className={profileCardHeader}>
-        <h2 className="text-lg font-bold text-neutral-950">Personal information</h2>
+        <h2 className="text-lg font-bold text-neutral-950">
+          Personal information
+        </h2>
         <p className="text-sm text-neutral-600">
           Keep your name, phone, email, and address accurate so coordinators and
           donors can reach you during urgent requests.
