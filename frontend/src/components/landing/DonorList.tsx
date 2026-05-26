@@ -200,7 +200,7 @@ export function DonorList({
                 className="h-11 gap-2 px-6"
               >
                 <Link href={viewAllHref}>
-                  View all
+                  View all Donors
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>

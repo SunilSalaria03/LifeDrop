@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { HeartHandshake, MapPin, ShieldCheck, UserRound } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
-  formatDonorDate,
   formatDonorPhone,
   getDonorName,
   getInitials,
@@ -27,6 +27,50 @@ function DetailItem({
   );
 }
 
+function formatDetailDate(date?: string) {
+  if (!date) {
+    return "Not provided";
+  }
+
+  const parsedDate = new Date(date);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "Not provided";
+  }
+
+  const day = String(parsedDate.getDate()).padStart(2, "0");
+  const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
+  const year = parsedDate.getFullYear();
+
+  return `${day}-${month}-${year}`;
+}
+
+function calculateAgeFromDob(birthDate?: string) {
+  if (!birthDate) {
+    return "Not provided";
+  }
+
+  const dob = new Date(birthDate);
+  if (Number.isNaN(dob.getTime())) {
+    return "Not provided";
+  }
+
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const hasBirthdayPassed =
+    today.getMonth() > dob.getMonth() ||
+    (today.getMonth() === dob.getMonth() && today.getDate() >= dob.getDate());
+
+  if (!hasBirthdayPassed) {
+    age -= 1;
+  }
+
+  if (age < 0) {
+    return "Not provided";
+  }
+
+  return `${age}`;
+}
+
 export function DonorCard({
   donor,
   hideRequestButton = false,
@@ -37,34 +81,25 @@ export function DonorCard({
     .filter(Boolean)
     .join(", ");
 
-  const details: { label: string; value: string }[] = [];
-
-  if (donor.distanceKm !== undefined) {
-    details.push({
-      label: "Distance",
-      value: `${donor.distanceKm} km`,
-    });
-  }
-
-  details.push({
-    label: "Last donation",
-    value: formatDonorDate(donor.lastDonationDate),
-  });
-
-  if (donor.phone) {
-    details.push({
-      label: "Contact",
+  const details: { label: string; value: string }[] = [
+    {
+      label: "Phone",
       value: formatDonorPhone(donor.phone, donor.showMobile),
-    });
-  }
-
-  details.push({
-    label: "Total donations",
-    value:
-      donor.totalDonations !== undefined
-        ? String(donor.totalDonations)
-        : "Not provided",
-  });
+    },
+    {
+      label: "Distance",
+      value:
+        donor.distanceKm !== undefined ? `${donor.distanceKm} km` : "Not provided",
+    },
+    {
+      label: "Last donation",
+      value: formatDetailDate(donor.lastDonationDate),
+    },
+    {
+      label: "Age",
+      value: calculateAgeFromDob(donor.birthDate),
+    },
+  ];
 
   return (
     <Card className="overflow-hidden rounded-2xl border-neutral-200 shadow-sm transition hover:border-neutral-300 hover:shadow-md">
@@ -108,23 +143,23 @@ export function DonorCard({
               </span>
             </div>
 
-            <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium text-neutral-500">
-              <span
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <Badge
                 className={cn(
-                  donor.isAvailable ? "text-green-700" : "text-neutral-500",
+                  "rounded-md px-2.5 py-1 text-xs font-medium",
+                  donor.isAvailable
+                    ? "border border-green-200 bg-green-50 text-green-700"
+                    : "border border-neutral-200 bg-neutral-50 text-neutral-600",
                 )}
               >
                 {donor.isAvailable ? "Available now" : "Not available"}
-              </span>
+              </Badge>
               {donor.isVerified ? (
-                <>
-                  <span aria-hidden className="text-neutral-300">
-                    ·
-                  </span>
-                  <span>Verified</span>
-                </>
+                <Badge className="rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-xs font-medium text-neutral-700">
+                  Verified
+                </Badge>
               ) : null}
-            </p>
+            </div>
           </div>
         </div>
 

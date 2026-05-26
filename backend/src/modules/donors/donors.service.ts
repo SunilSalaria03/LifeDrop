@@ -547,6 +547,9 @@ export class DonorsService {
           distanceKm: 1,
           isAvailable: 1,
           isVerified: 1,
+          birthDate: {
+            $ifNull: ["$birthDate", "$user.birthDate"],
+          },
           lastDonationDate: 1,
           nextEligibleDate: 1,
           totalDonations: 1,
