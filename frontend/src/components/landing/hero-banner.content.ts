@@ -7,6 +7,7 @@ import {
   MapPin,
   Megaphone,
   Phone,
+  Send,
   ShieldCheck,
   UserRound,
   UserSearch,
@@ -29,6 +30,11 @@ export type HeroBannerContent = {
   steps: HeroBannerStep[];
   stepsGroupAriaLabel: string;
   footnote: string;
+  /**
+   * stacked: one segment per line (before / highlight / after).
+   * split: three lines with highlights on lines 1 and 3 (donor-detail style).
+   */
+  titleLayout?: 'stacked' | 'split' | 'inline';
 };
 
 export const HERO_SEARCH_BANNER: HeroBannerContent = {
@@ -87,9 +93,54 @@ export const HERO_CAMPAIGNS_BANNER: HeroBannerContent = {
   badgeAriaLabel: 'Public campaign directory. No login required.',
   badgeText: 'Public directory · no login required',
   BadgeIcon: Megaphone,
-  titleBefore: 'Blood donation ',
+  titleBefore: 'Blood donation',
   titleHighlight: 'campaigns',
-  titleAfter: ' across your city',
+  titleAfter: 'across your city',
+  titleLayout: 'stacked',
+  steps: [],
+  stepsGroupAriaLabel: '',
+  footnote: '',
+};
+
+export const HERO_CREATE_CAMPAIGN_BANNER: HeroBannerContent = {
+  badgeAriaLabel: 'Organize a blood donation drive on LifeDrop.',
+  badgeText: 'Organize a drive',
+  BadgeIcon: Megaphone,
+  titleBefore: 'Create a ',
+  titleHighlight: 'blood donation',
+  titleMiddle: 'campaign for donors in',
+  titleHighlight2: 'your city',
+  titleAfter: '',
+  titleLayout: 'split',
+  steps: [
+    { label: 'Campaign details', Icon: Megaphone },
+    { label: 'Venue & dates', Icon: MapPin },
+    { label: 'Submit listing', Icon: Send },
+  ],
+  stepsGroupAriaLabel:
+    'Listing: add campaign details, venue and dates, then submit for review.',
+  footnote: 'Complete the form below to list your drive for donors near you.',
+};
+
+export const HERO_ONBOARDING_BANNER: HeroBannerContent = {
+  badgeAriaLabel: 'Complete your LifeDrop account setup.',
+  badgeText: 'Account setup',
+  BadgeIcon: UserRound,
+  titleBefore: 'Complete your ',
+  titleHighlight: 'LifeDrop profile',
+  titleAfter: ' to get started',
+  steps: [],
+  stepsGroupAriaLabel: '',
+  footnote: '',
+};
+
+export const HERO_PROFILE_SETUP_BANNER: HeroBannerContent = {
+  badgeAriaLabel: 'Verify your phone and location on LifeDrop.',
+  badgeText: 'Profile setup',
+  BadgeIcon: ShieldCheck,
+  titleBefore: 'Finish your profile and stay ',
+  titleHighlight: 'ready to help',
+  titleAfter: '',
   steps: [],
   stepsGroupAriaLabel: '',
   footnote: '',
@@ -100,7 +151,10 @@ export type HeroBannerVariant =
   | 'becomeDonor'
   | 'profile'
   | 'donorDetail'
-  | 'campaigns';
+  | 'campaigns'
+  | 'createCampaign'
+  | 'onboarding'
+  | 'profileSetup';
 
 
 export function getHeroBannerVariant(pathname: string): HeroBannerVariant {
@@ -108,8 +162,20 @@ export function getHeroBannerVariant(pathname: string): HeroBannerVariant {
     return 'becomeDonor';
   }
 
+  if (pathname === '/campaigns/create') {
+    return 'createCampaign';
+  }
+
   if (pathname === '/campaigns' || pathname.startsWith('/campaigns/')) {
     return 'campaigns';
+  }
+
+  if (pathname === '/onboarding') {
+    return 'onboarding';
+  }
+
+  if (pathname === '/profile/setup') {
+    return 'profileSetup';
   }
 
   if (pathname === '/donor-list') {
@@ -163,6 +229,18 @@ export function getHeroBannerContent(pathname: string): HeroBannerContent {
 
   if (variant === 'campaigns') {
     return HERO_CAMPAIGNS_BANNER;
+  }
+
+  if (variant === 'createCampaign') {
+    return HERO_CREATE_CAMPAIGN_BANNER;
+  }
+
+  if (variant === 'onboarding') {
+    return HERO_ONBOARDING_BANNER;
+  }
+
+  if (variant === 'profileSetup') {
+    return HERO_PROFILE_SETUP_BANNER;
   }
 
   return HERO_SEARCH_BANNER;

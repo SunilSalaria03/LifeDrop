@@ -249,7 +249,7 @@ export function Header() {
             >
               <Link href="/campaigns">
                 <Megaphone className="h-4 w-4" />
-                Campaign
+                Campaigns
               </Link>
             </Button>
             {shouldShowBecomeDonor ? (

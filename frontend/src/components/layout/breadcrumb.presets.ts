@@ -20,6 +20,12 @@ export const breadcrumbCampaigns: BreadcrumbItem[] = [
   { label: 'Campaigns' },
 ];
 
+export const breadcrumbCreateCampaign: BreadcrumbItem[] = [
+  { label: 'Home', href: '/' },
+  { label: 'Campaigns', href: '/campaigns' },
+  { label: 'Create a Campaign' },
+];
+
 export function breadcrumbCampaignDetail(campaignTitle: string): BreadcrumbItem[] {
   return [
     { label: 'Home', href: '/' },

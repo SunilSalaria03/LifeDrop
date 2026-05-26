@@ -79,7 +79,6 @@ export function CampaignsPageContent() {
   return (
     <>
       <CampaignHero
-        campaigns={CAMPAIGNS}
         filters={
           <CampaignFilters
             filters={draftFilters}
