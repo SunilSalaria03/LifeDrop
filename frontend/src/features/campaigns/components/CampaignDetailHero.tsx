@@ -30,10 +30,7 @@ export function CampaignDetailHero({ campaign }: CampaignDetailHeroProps) {
   );
 
   return (
-    <HeroBannerShell
-      contentClassName="flex-col justify-center py-14 sm:py-16 lg:py-20"
-      minHeightClass="min-h-[520px] sm:min-h-[560px]"
-    >
+    <HeroBannerShell contentClassName="flex-col justify-center py-16 pb-20 pt-12 sm:py-20 sm:pb-24 lg:py-24">
       <div className="grid w-full max-w-3xl gap-5 lg:max-w-[58%]">
         <div className="flex flex-wrap items-center gap-2">
           <p
@@ -49,7 +46,7 @@ export function CampaignDetailHero({ campaign }: CampaignDetailHeroProps) {
         </div>
 
         <div className="flex flex-col gap-4 sm:gap-5">
-          <h1 className="m-0 text-balance text-2xl font-bold uppercase leading-tight tracking-[0.06em] text-white sm:text-3xl lg:text-4xl">
+          <h1 className="m-0 text-balance text-2xl font-bold uppercase leading-tight tracking-[0.06em] text-white sm:text-3xl md:text-3xl lg:text-4xl xl:text-5xl">
             {titleMain}
             {titleHighlight ? (
               <>
