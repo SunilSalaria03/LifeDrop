@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { HeartHandshake, MapPin, ShieldCheck, UserRound } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { GenderAvatar } from "@/components/ui/gender-avatar";
 import { cn } from "@/lib/utils";
 import {
   formatDonorPhone,
@@ -105,14 +105,14 @@ export function DonorCard({
     <Card className="overflow-hidden rounded-2xl border-neutral-200 shadow-sm transition hover:border-neutral-300 hover:shadow-md">
       <CardContent className="flex h-full flex-col p-5 sm:p-6">
         <div className="flex items-start gap-4 border-b border-neutral-200 pb-4">
-          <Avatar className="h-14 w-14 shrink-0 border border-neutral-200 bg-neutral-50">
-            {donor.profileImage ? (
-              <AvatarImage alt={donorName} src={donor.profileImage} />
-            ) : null}
-            <AvatarFallback className="bg-neutral-100 text-base font-semibold text-neutral-700">
-              {getInitials(donor.name)}
-            </AvatarFallback>
-          </Avatar>
+          <GenderAvatar
+            alt={donorName}
+            avatarUrl={donor.avatarUrl}
+            className="h-14 w-14 shrink-0 border border-neutral-200 bg-neutral-50"
+            fallback={getInitials(donor.name)}
+            fallbackClassName="bg-neutral-100 text-base font-semibold text-neutral-700"
+            gender={donor.gender}
+          />
 
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-3">

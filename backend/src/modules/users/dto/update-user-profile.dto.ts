@@ -11,6 +11,7 @@ import {
   IsOptional,
   IsPostalCode,
   IsString,
+  IsUrl,
   Max,
   MaxLength,
   Min,
@@ -36,12 +37,21 @@ export class UpdateUserProfileDto {
   phone?: string;
 
   @ApiPropertyOptional({
-    example: 'https://example.com/images/profile.jpg',
+    example: 'https://example.com/images/avatar.jpg',
   })
   @IsOptional()
-  @IsString()
+  @IsUrl(
+    { protocols: ['http', 'https'], require_protocol: true },
+    { message: 'avatarUrl must be a valid http(s) URL.' },
+  )
   @MaxLength(300)
-  profileImage?: string;
+  avatarUrl?: string;
+
+  @ApiPropertyOptional({ example: 'users/u_123/avatar/main' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  avatarKey?: string;
 
   @ApiPropertyOptional({ example: 'Anna Nagar, Chennai' })
   @IsOptional()

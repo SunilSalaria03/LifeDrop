@@ -8,6 +8,8 @@ export type BloodGroup =
   | 'O+'
   | 'O-';
 
+export type Gender = 'male' | 'female' | 'other';
+
 export type DonorSearchFilters = {
   bloodGroup: string;
   state?: string;
@@ -24,7 +26,7 @@ export type DonorProfilePayload = {
   name: string;
   email?: string;
   bloodGroup: string;
-  gender: string;
+  gender: Gender;
   birthDate: string;
   weight: number;
   phone: string;
@@ -48,9 +50,10 @@ export type DonorListItem = {
   id: string;
   userId?: string;
   name?: string;
-  profileImage?: string;
+  avatarUrl?: string;
+  avatarKey?: string;
   bloodGroup: string;
-  gender?: string;
+  gender?: Gender;
   birthDate?: string;
   weight?: number;
   state: string;

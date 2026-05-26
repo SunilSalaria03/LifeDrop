@@ -42,7 +42,10 @@ export class User {
   phone?: string;
 
   @Prop({ trim: true })
-  profileImage?: string;
+  avatarUrl?: string;
+
+  @Prop({ trim: true })
+  avatarKey?: string;
 
   @Prop({ type: String, enum: AuthProvider, required: true })
   authProvider: AuthProvider;

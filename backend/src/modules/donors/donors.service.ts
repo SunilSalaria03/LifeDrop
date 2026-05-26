@@ -538,8 +538,12 @@ export class DonorsService {
           id: { $toString: "$_id" },
           userId: { $toString: "$userId" },
           name: "$user.name",
-          profileImage: "$user.profileImage",
+          avatarUrl: "$user.avatarUrl",
+          avatarKey: "$user.avatarKey",
           bloodGroup: 1,
+          gender: {
+            $ifNull: ["$gender", "$user.gender"],
+          },
           state: 1,
           city: 1,
           district: 1,

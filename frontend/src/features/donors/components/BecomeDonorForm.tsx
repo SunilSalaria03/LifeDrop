@@ -26,6 +26,7 @@ import {
   booleanSelectValue,
   findStateCode,
   formatDateInputValue,
+  toGenderOrUndefined,
 } from "@/features/profile/profile.helpers";
 import { profileInsetPanel } from "@/app/profile/profile-card.styles";
 import { BecomeDonorFormProps, FieldLabelProps } from "../donor-component.types";
@@ -140,7 +141,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
           email: values.email || undefined,
           phone: toIndianE164(values.phone),
           bloodGroup: values.bloodGroup,
-          gender: values.gender,
+          gender: toGenderOrUndefined(values.gender) ?? "other",
           birthDate: values.birthDate,
           weight: Number(values.weight),
           state: values.state,

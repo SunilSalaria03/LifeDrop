@@ -15,10 +15,10 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { GenderAvatar } from "@/components/ui/gender-avatar";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { BannerBreadcrumbStrip } from "@/components/layout/BannerBreadcrumbStrip";
@@ -61,14 +61,14 @@ function DonorProfileHeader({
     <Card className={profileCard}>
       <CardContent className={profileCardBody}>
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
-          <Avatar className="h-20 w-20 shrink-0 border border-neutral-200 bg-red-50 shadow-sm sm:h-24 sm:w-24">
-            {donor.profileImage ? (
-              <AvatarImage alt={donorName} src={donor.profileImage} />
-            ) : null}
-            <AvatarFallback className="text-xl font-bold text-red-700 sm:text-2xl">
-              {getInitials(donor.name)}
-            </AvatarFallback>
-          </Avatar>
+          <GenderAvatar
+            alt={donorName}
+            avatarUrl={donor.avatarUrl}
+            className="h-20 w-20 shrink-0 border border-neutral-200 bg-red-50 shadow-sm sm:h-24 sm:w-24"
+            fallback={getInitials(donor.name)}
+            fallbackClassName="text-xl font-bold text-red-700 sm:text-2xl"
+            gender={donor.gender}
+          />
 
           <div className="min-w-0 flex-1">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

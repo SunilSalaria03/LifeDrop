@@ -12,15 +12,14 @@ import {
   Megaphone,
   Settings,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { GenderAvatar } from "@/components/ui/gender-avatar";
 import { LocationSelector } from "@/components/location/LocationSelector";
 import { AuthModal } from "@/features/auth/components/AuthModal";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { AuthUser } from "@/features/auth/types/auth.types";
 import { userStorage } from "@/lib/auth/user-storage";
 import { stripNextInternalSearchParams } from "@/lib/navigation/safe-url";
-import manImage from "@/assets/images/man.png";
 import { getDisplayName, getInitials } from "./header.helpers";
 
 export function Header() {
@@ -181,15 +180,14 @@ export function Header() {
                   onClick={() => setIsMenuOpen((current) => !current)}
                   type="button"
                 >
-                  <Avatar className="h-8 w-8 border border-red-100 bg-red-50">
-                    <AvatarImage
-                      alt={getDisplayName(user.name, user.phone, user.email)}
-                      src={user.profileImage || manImage.src}
-                    />
-                    <AvatarFallback className="bg-red-50 text-xs text-red-700">
-                      {getInitials(user.name, user.phone, user.email)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <GenderAvatar
+                    alt={getDisplayName(user.name, user.phone, user.email)}
+                    avatarUrl={user.avatarUrl}
+                    className="h-8 w-8 border border-red-100 bg-red-50"
+                    fallback={getInitials(user.name, user.phone, user.email)}
+                    fallbackClassName="bg-red-50 text-xs text-red-700"
+                    gender={user.gender}
+                  />
                   <span className="hidden max-w-28 truncate sm:inline">
                     {getDisplayName(user.name, user.phone, user.email)}
                   </span>

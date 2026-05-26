@@ -35,6 +35,7 @@ import {
   booleanSelectValue,
   findStateCode,
   formatDateInputValue,
+  toGenderOrUndefined,
 } from "@/features/profile/profile.helpers";
 import { HeroSection } from "../../components/landing/HeroSection";
 import {
@@ -138,7 +139,7 @@ function ProfileEditForm({
           ...(isDonor
             ? {
                 bloodGroup: values.bloodGroup || undefined,
-                gender: values.gender || undefined,
+                gender: toGenderOrUndefined(values.gender),
                 birthDate: values.birthDate || undefined,
                 weight: values.weight ? Number(values.weight) : undefined,
                 lastDonationDate: values.lastDonationDate || undefined,

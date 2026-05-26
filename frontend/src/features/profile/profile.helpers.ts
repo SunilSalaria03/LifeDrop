@@ -18,3 +18,13 @@ export function formatDateInputValue(date?: string) {
 export function booleanSelectValue(value?: boolean) {
   return value ? 'true' : 'false';
 }
+
+export function toGenderOrUndefined(
+  value?: string,
+): 'male' | 'female' | 'other' | undefined {
+  if (value === 'male' || value === 'female' || value === 'other') {
+    return value;
+  }
+
+  return undefined;
+}

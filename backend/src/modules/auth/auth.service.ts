@@ -211,7 +211,7 @@ export class AuthService {
       googleId: firebaseToken.uid,
       email: firebaseToken.email,
       name: firebaseToken.name,
-      profileImage: "https://picsum.photos/200",
+      avatarUrl: firebaseToken.picture,
     };
   }
 
@@ -241,7 +241,7 @@ export class AuthService {
       googleId: payload.sub,
       email: payload.email,
       name: payload.name,
-      profileImage: "https://picsum.photos/200",
+      avatarUrl: payload.picture,
     };
   }
 

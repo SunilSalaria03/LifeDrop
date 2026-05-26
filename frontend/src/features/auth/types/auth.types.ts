@@ -14,7 +14,8 @@ export type AuthUser = {
   name?: string;
   email?: string;
   phone?: string;
-  profileImage?: string;
+  avatarUrl?: string;
+  avatarKey?: string;
   authProvider: AuthProvider;
   role: UserRole;
   phoneVerified: boolean;
