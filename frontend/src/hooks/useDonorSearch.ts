@@ -194,8 +194,12 @@ export function useDonorSearch({
   const showPendingResultsSkeleton =
     isClient && !sessionCheckDone && clientSessionActive;
 
+  const showEmptyStateOnDonorList =
+    isDonorListPage && sessionCheckDone && !hasSearched && !showPendingResultsSkeleton;
+
   const showResultsSection =
-    isSearchPage && (hasSearched || showPendingResultsSkeleton);
+    isSearchPage &&
+    (hasSearched || showPendingResultsSkeleton || showEmptyStateOnDonorList);
 
   const showDonorSkeletons =
     showPendingResultsSkeleton ||

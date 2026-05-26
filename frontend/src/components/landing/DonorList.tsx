@@ -87,7 +87,7 @@ export function DonorList({
   const [selectedDonor, setSelectedDonor] = useState<DonorListItem | null>(null);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
 
-  if (!hasSearched) {
+  if (!hasSearched && mode !== 'paginated') {
     return null;
   }
 
@@ -123,7 +123,6 @@ export function DonorList({
       setSelectedDonor(null);
     }
   };
-
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-6 text-left">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
