@@ -106,7 +106,7 @@ export const donorProfileSchema = yup.object({
       excludeEmptyString: true,
       message: 'Enter a 6 digit pincode.',
     })
-    .optional(),
+    .required('Pincode is required.'),
   lat: yup.number().required('District coordinates are required.'),
   lng: yup.number().required('District coordinates are required.'),
   isAvailable: yup.boolean().optional(),

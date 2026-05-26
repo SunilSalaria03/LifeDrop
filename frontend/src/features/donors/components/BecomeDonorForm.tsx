@@ -116,7 +116,6 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
       state: user.state ?? "",
       stateCode: findStateCode(user.state),
       district: user.district ?? user.city ?? "",
-      tehsil: user.tehsil ?? "",
       addressLine: user.addressLine ?? user.addressText ?? "",
       pincode: user.pincode ?? "",
       lat: user.location?.coordinates?.[1],
@@ -147,7 +146,6 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
           state: values.state,
           city: values.district,
           district: values.district,
-          tehsil: values.tehsil || undefined,
           addressLine: values.addressLine || undefined,
           addressText: values.addressLine || undefined,
           pincode: values.pincode || undefined,
@@ -193,7 +191,6 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
       stateCode,
       state: selectedState?.name ?? "",
       district: "",
-      tehsil: "",
       lat: undefined,
       lng: undefined,
     }, true);
@@ -204,7 +201,6 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
     void formik.setValues({
       ...formik.values,
       district: districtName,
-      tehsil: "",
       lat: selectedDistrict?.latitude
         ? Number(selectedDistrict.latitude)
         : undefined,
@@ -259,6 +255,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               placeholder="Enter phone number"
               value={formik.values.phone}
             />
+            <FieldError active={showValidationFeedback} message={getFieldError("phone")} />
           </div>
         </div>
       </section>
@@ -381,18 +378,42 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
              
           </div>
           <div className="grid gap-2">
-            <span className="text-xs font-black uppercase tracking-normal text-neutral-500">
-              Availability
-            </span>
-            <label className="flex h-12 items-center gap-2 rounded-2xl border border-neutral-200 bg-white px-3 text-sm font-semibold text-neutral-700">
+            <FieldLabel htmlFor="isAvailable">Availability</FieldLabel>
+            <label
+              className={cn(
+                "flex h-12 w-full items-center justify-between rounded-2xl border border-neutral-300 bg-white px-3 text-sm text-neutral-700 transition-colors",
+                getFieldError("isAvailable") && "border-red-500",
+              )}
+              htmlFor="isAvailable"
+            >
               <input
                 checked={formik.values.isAvailable}
+                className="peer sr-only"
+                id="isAvailable"
                 name="isAvailable"
                 onChange={formik.handleChange}
                 type="checkbox"
               />
-              Available for requests
+              <span className="font-medium">Available for requests</span>
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors",
+                  formik.values.isAvailable ? "bg-red-700" : "bg-neutral-300",
+                )}
+              >
+                <span
+                  className={cn(
+                    "inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform duration-200",
+                    formik.values.isAvailable ? "translate-x-5" : "translate-x-1",
+                  )}
+                />
+              </span>
             </label>
+            <FieldError
+              active={showValidationFeedback}
+              message={getFieldError("isAvailable")}
+            />
           </div>
         </div>
       </section>
@@ -434,24 +455,8 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid gap-2">
-            <FieldLabel htmlFor="pincode">Pincode</FieldLabel>
-            <Input
-              className={cn(
-                "h-12 rounded-2xl bg-white",
-                getFieldError("pincode") && "border-red-500 focus:border-red-500",
-              )}
-              id="pincode"
-              inputMode="numeric"
-              maxLength={6}
-              name="pincode"
-              onChange={formik.handleChange}
-              placeholder="Enter pincode optional"
-              value={formik.values.pincode}
-            />
-            <FieldError active={showValidationFeedback} message={getFieldError("pincode")} />
-          </div>
-          <div className="grid gap-2 sm:col-span-2 lg:col-span-3">
+ 
+          <div className="grid gap-2 ">
             <FieldLabel htmlFor="addressLine">Address line</FieldLabel>
             <Input
               className="h-12 rounded-2xl bg-white"
@@ -524,28 +529,21 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
             />
           </div>
           <div className="grid gap-2">
-            <FieldLabel>Tehsil</FieldLabel>
-            <Select
-              disabled={!formik.values.district}
-              onValueChange={(tehsil) =>
-                void formik.setFieldValue("tehsil", tehsil, false)
-              }
-              value={formik.values.tehsil}
-            >
-              <SelectTrigger aria-label="Tehsil" className="h-12 rounded-2xl bg-white">
-                <SelectValue placeholder="Select tehsil optional" />
-              </SelectTrigger>
-              <SelectContent>
-                {districts.map((district) => (
-                  <SelectItem
-                    key={`tehsil-${district.name}-${district.latitude}`}
-                    value={district.name}
-                  >
-                    {district.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <FieldLabel htmlFor="pincode">Pincode</FieldLabel>
+            <Input
+              className={cn(
+                "h-12 rounded-2xl bg-white",
+                getFieldError("pincode") && "border-red-500 focus:border-red-500",
+              )}
+              id="pincode"
+              inputMode="numeric"
+              maxLength={6}
+              name="pincode"
+              onChange={formik.handleChange}
+              placeholder="Enter pincode"
+              value={formik.values.pincode}
+            />
+            <FieldError active={showValidationFeedback} message={getFieldError("pincode")} />
           </div>
         </div>
       </section>

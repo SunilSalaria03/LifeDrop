@@ -64,7 +64,7 @@ export const updateProfileFormSchema = yup.object({
       excludeEmptyString: true,
       message: 'Enter a 6 digit pin code.',
     })
-    .optional(),
+    .required("Pin code is required."),
   state: yup.string().trim().required('State is required.'),
   stateCode: yup.string().trim().required('State is required.'),
   district: yup.string().trim().required('District is required.'),

@@ -114,7 +114,6 @@ function ProfileEditForm({
       state: user.state ?? "",
       stateCode: findStateCode(user.state),
       district: user.district ?? user.city ?? "",
-      tehsil: user.tehsil ?? "",
       addressLine: user.addressLine ?? user.addressText ?? "",
       lat: user.location?.coordinates?.[1],
       lng: user.location?.coordinates?.[0],
@@ -132,7 +131,6 @@ function ProfileEditForm({
           state: values.state,
           city: values.district,
           district: values.district,
-          tehsil: values.tehsil || undefined,
           addressLine: values.addressLine || undefined,
           addressText: values.addressLine || undefined,
           lat: values.lat,
@@ -183,7 +181,6 @@ function ProfileEditForm({
       stateCode,
       state: selectedState?.name ?? "",
       district: "",
-      tehsil: "",
       lat: undefined,
       lng: undefined,
     }, true);
@@ -196,7 +193,6 @@ function ProfileEditForm({
     void formik.setValues({
       ...formik.values,
       district: districtName,
-      tehsil: "",
       lat: selectedDistrict?.latitude
         ? Number(selectedDistrict.latitude)
         : undefined,
@@ -451,23 +447,7 @@ function ProfileEditForm({
               </Select>
             </label>
           ) : null}
-          <label className="grid gap-2">
-            <FieldLabel>Pin code</FieldLabel>
-            <Input
-              aria-label="Pin code"
-              className={cn(
-                "h-12 rounded-2xl bg-white",
-                getFieldError("pincode") && "border-red-500 focus:border-red-500",
-              )}
-              inputMode="numeric"
-              maxLength={6}
-              name="pincode"
-              onChange={formik.handleChange}
-              placeholder="Pin code"
-              value={formik.values.pincode}
-            />
-            <FieldError active={showValidationFeedback} message={getFieldError("pincode")} />
-          </label>
+   
           <label className="grid gap-2">
             <FieldLabel>Address line</FieldLabel>
             <Input
@@ -540,31 +520,21 @@ function ProfileEditForm({
             <FieldError active={showValidationFeedback} message={getFieldError("district")} />
           </label>
           <label className="grid gap-2">
-            <FieldLabel>Tehsil</FieldLabel>
-            <Select
-              disabled={!formik.values.district}
-              onValueChange={(tehsil) =>
-                void formik.setFieldValue("tehsil", tehsil, false)
-              }
-              value={formik.values.tehsil}
-            >
-              <SelectTrigger
-                aria-label="Tehsil"
-                className="h-12 rounded-2xl bg-white"
-              >
-                <SelectValue placeholder="Tehsil" />
-              </SelectTrigger>
-              <SelectContent>
-                {districts.map((city) => (
-                  <SelectItem
-                    key={`tehsil-${city.name}-${city.latitude}`}
-                    value={city.name}
-                  >
-                    {city.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <FieldLabel>Pin code</FieldLabel>
+            <Input
+              aria-label="Pin code"
+              className={cn(
+                "h-12 rounded-2xl bg-white",
+                getFieldError("pincode") && "border-red-500 focus:border-red-500",
+              )}
+              inputMode="numeric"
+              maxLength={6}
+              name="pincode"
+              onChange={formik.handleChange}
+              placeholder="Pin code"
+              value={formik.values.pincode}
+            />
+            <FieldError active={showValidationFeedback} message={getFieldError("pincode")} />
           </label>
         </div>
       </section>
