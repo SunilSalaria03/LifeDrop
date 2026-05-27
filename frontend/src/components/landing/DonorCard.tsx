@@ -5,12 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { GenderAvatar } from "@/components/ui/gender-avatar";
 import { cn } from "@/lib/utils";
-import { formatDonorPhone, getDonorName, getInitials } from "./landing.helpers";
+import { formatDonorEmail, formatDonorPhone, getDonorName, getInitials } from "./landing.helpers";
 import { DonorCardProps } from "./landing.types";
 import { calculateAgeFromDob } from "../../features/profile/profile.helpers";
 
 function DetailItem({ label, value }: { label: string; value: string }) {
-  console.log("value", value);
   return (
     <div className="flex items-center justify-between gap-4 py-2.5 text-sm">
     <dt className="text-neutral-500">{label}</dt>
@@ -43,7 +42,7 @@ export function DonorCard({
     },
     {
       label: "Email",
-      value: donor.email ?? "N/A",
+      value: formatDonorEmail(donor.email, donor.showEmail),
     },
     {
       label: "Age",

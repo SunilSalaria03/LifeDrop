@@ -22,6 +22,7 @@ export interface AuthDonorProfile {
   addressLine?: string;
   addressText?: string;
   showMobile?: boolean;
+  showEmail?: boolean;
   smsAlert?: boolean;
   pincode?: string;
   location?: GeoPoint;
@@ -55,6 +56,7 @@ export interface AuthUser {
   weight?: number;
   lastDonationDate?: Date;
   showMobile?: boolean;
+  showEmail?: boolean;
   smsAlert?: boolean;
   pincode?: string;
   state?: string;

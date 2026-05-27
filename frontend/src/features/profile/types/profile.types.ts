@@ -12,6 +12,7 @@ export type UpdateProfilePayload = {
   weight?: number;
   lastDonationDate?: string;
   showMobile?: boolean;
+  showEmail?: boolean;
   smsAlert?: boolean;
   pincode?: string;
   state?: string;

@@ -204,7 +204,7 @@ export class UsersService {
     }
 
     if (isDonor) {
-      for (const field of ['bloodGroup', 'weight', 'showMobile', 'smsAlert'] as const) {
+      for (const field of ['bloodGroup', 'weight', 'showMobile', 'showEmail', 'smsAlert'] as const) {
         if (dto[field] !== undefined) {
           update[field] = dto[field];
         }
@@ -295,6 +295,7 @@ export class UsersService {
       'weight',
       'lastDonationDate',
       'showMobile',
+      'showEmail',
       'smsAlert',
       'pincode',
       'state',
@@ -357,6 +358,7 @@ export class UsersService {
       weight: isDonor ? user.weight : undefined,
       lastDonationDate: isDonor ? user.lastDonationDate : undefined,
       showMobile: isDonor ? user.showMobile : undefined,
+      showEmail: isDonor ? user.showEmail : undefined,
       smsAlert: isDonor ? user.smsAlert : undefined,
       pincode: user.pincode,
       state: user.state,
@@ -386,6 +388,7 @@ export class UsersService {
       addressLine: donorProfile.addressLine ?? donorProfile.addressText,
       addressText: donorProfile.addressText ?? donorProfile.addressLine,
       showMobile: donorProfile.showMobile,
+      showEmail: donorProfile.showEmail,
       smsAlert: donorProfile.smsAlert,
       pincode: donorProfile.pincode,
       location: donorProfile.location,

@@ -95,6 +95,11 @@ export class CreateDonorProfileDto {
   @IsBoolean()
   showMobile: boolean;
 
+  @ApiPropertyOptional({ example: false })
+  @Type(() => Boolean)
+  @IsBoolean()
+  showEmail: boolean;
+
   @ApiPropertyOptional({ example: true })
   @Type(() => Boolean)
   @IsBoolean()

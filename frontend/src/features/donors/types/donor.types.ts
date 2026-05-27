@@ -38,6 +38,7 @@ export type DonorProfilePayload = {
   addressLine?: string;
   addressText?: string;
   showMobile: boolean;
+  showEmail: boolean;
   smsAlert: boolean;
   pincode?: string;
   lat: number;
@@ -63,6 +64,7 @@ export type DonorListItem = {
   tehsil?: string;
   pincode?: string;
   showMobile?: boolean;
+  showEmail?: boolean;
   smsAlert?: boolean;
   distanceKm?: number;
   isAvailable: boolean;

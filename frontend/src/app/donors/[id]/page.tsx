@@ -32,6 +32,7 @@ import { useDonorDetails } from "@/features/donors/hooks/useDonorDetails";
 import { userStorage } from "@/lib/auth/user-storage";
 import { getLastDonorSearchBackHref } from "@/lib/donor-search/donor-search-session";
 import {
+  formatDonorEmail,
   formatDonorDate,
   formatDonorPhone,
   getDonorName,
@@ -248,7 +249,7 @@ export default function DonorDetailPage() {
                     <InfoFieldCard
                       icon={Mail}
                       label="Email"
-                      value={donor.email ?? "N/A"}
+                      value={formatDonorEmail(donor.email, donor.showEmail)}
                     />
                     <InfoFieldCard
                       icon={UserRound}

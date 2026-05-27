@@ -466,6 +466,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
       weight: user.weight?.toString() ?? "",
       lastDonationDate: initialLastDonationDate,
       showMobile: user.showMobile ?? true,
+      showEmail: user.showEmail ?? false,
       smsAlert: user.smsAlert ?? true,
       state: user.state ?? "",
       stateCode: findStateCode(user.state),
@@ -507,6 +508,7 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
           lng: values.lng,
           lastDonationDate: values.lastDonationDate || undefined,
           showMobile: values.showMobile,
+          showEmail: values.showEmail,
           smsAlert: values.smsAlert,
           isAvailable: values.isAvailable,
         });
@@ -787,6 +789,23 @@ export function BecomeDonorForm({ user }: BecomeDonorFormProps) {
               <SelectContent>
                 <SelectItem value="true">Show mobile</SelectItem>
                 <SelectItem value="false">Hide mobile</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <FieldLabel>Show email</FieldLabel>
+            <Select
+              onValueChange={(value) =>
+                void formik.setFieldValue("showEmail", value === "true", false)
+              }
+              value={booleanSelectValue(formik.values.showEmail)}
+            >
+              <SelectTrigger aria-label="Show email" className="h-12 rounded-2xl bg-white">
+                <SelectValue placeholder="Select visibility" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="true">Show email</SelectItem>
+                <SelectItem value="false">Hide email</SelectItem>
               </SelectContent>
             </Select>
           </div>
