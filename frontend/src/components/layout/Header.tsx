@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GenderAvatar } from "@/components/ui/gender-avatar";
-import { LocationSelector } from "@/components/location/LocationSelector";
 import { AuthModal } from "@/features/auth/components/AuthModal";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { AuthUser } from "@/features/auth/types/auth.types";

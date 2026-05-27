@@ -50,6 +50,7 @@ export type DonorListItem = {
   id: string;
   userId?: string;
   name?: string;
+  email?: string;
   avatarUrl?: string;
   avatarKey?: string;
   bloodGroup: string;
