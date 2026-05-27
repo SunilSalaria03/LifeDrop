@@ -28,3 +28,30 @@ export function toGenderOrUndefined(
 
   return undefined;
 }
+
+export function calculateAgeFromDob(birthDate?: string) {
+  if (!birthDate) {
+    return "Not provided";
+  }
+
+  const dob = new Date(birthDate);
+  if (Number.isNaN(dob.getTime())) {
+    return "Not provided";
+  }
+
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const hasBirthdayPassed =
+    today.getMonth() > dob.getMonth() ||
+    (today.getMonth() === dob.getMonth() && today.getDate() >= dob.getDate());
+
+  if (!hasBirthdayPassed) {
+    age -= 1;
+  }
+
+  if (age < 0) {
+    return "Not provided";
+  }
+
+  return `${age}`;
+}

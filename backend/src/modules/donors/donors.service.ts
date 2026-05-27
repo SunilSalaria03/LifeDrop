@@ -539,6 +539,7 @@ export class DonorsService {
           userId: { $toString: "$userId" },
           name: "$user.name",
           avatarUrl: "$user.avatarUrl",
+          email: "$user.email",
           avatarKey: "$user.avatarKey",
           bloodGroup: 1,
           gender: {

@@ -10,10 +10,13 @@ import {
   CheckCircle2,
   HeartHandshake,
   HeartPulse,
+  Mail,
   MapPin,
   Phone,
   ShieldCheck,
+  UserRound,
   Users,
+  Weight,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,6 +46,7 @@ import {
 } from "@/app/profile/profile-card.styles";
 import { DonorProfileHeaderProps } from "./donor-detail-page.types";
 import { HeroSection } from "../../../components/landing/HeroSection";
+import { calculateAgeFromDob } from "../../../features/profile/profile.helpers";
 
 function DonorProfileHeader({
   donor,
@@ -242,15 +246,30 @@ export default function DonorDetailPage() {
                       value={formatDonorPhone(donor.phone, donor.showMobile)}
                     />
                     <InfoFieldCard
-                      icon={CalendarCheck}
-                      label="Last donation"
-                      value={formatDonorDate(donor.lastDonationDate)}
+                      icon={Mail}
+                      label="Email"
+                      value={donor.email ?? "Not provided"}
                     />
                     <InfoFieldCard
-                      icon={Users}
-                      label="Member since"
-                      value={formatDonorDate(donor.createdAt)}
+                      icon={UserRound}
+                      label="Gender"
+                      value={donor.gender ?? "Not provided"}
                     />
+                       <InfoFieldCard
+                      icon={UserRound}
+                      label="Age"
+                      value={calculateAgeFromDob(donor.birthDate)}
+                    />
+                    <InfoFieldCard
+                      icon={Weight}
+                      label="Weight"
+                      value={
+                        donor.weight !== undefined
+                          ? `${donor.weight} kg`
+                          : "Not provided"
+                      }
+                    />
+                  
                     <InfoFieldCard
                       icon={MapPin}
                       label="Location"
@@ -258,10 +277,20 @@ export default function DonorDetailPage() {
                         .filter(Boolean)
                         .join(", ")}
                     />
+                    <InfoFieldCard
+                      icon={MapPin}
+                      label="Pincode"
+                      value={donor.pincode ?? "Not provided"}
+                    />
+                      <InfoFieldCard
+                      icon={MapPin}
+                      label="State"
+                      value={donor.state ?? "Not provided"}
+                    />
                     {donor.district ? (
                       <InfoFieldCard
                         icon={MapPin}
-                        label="District"
+                        label="City"
                         value={donor.district}
                       />
                     ) : null}
@@ -273,6 +302,16 @@ export default function DonorDetailPage() {
                         value={donor.addressLine ?? donor.addressText}
                       />
                     </div>
+                    <InfoFieldCard
+                      icon={CalendarCheck}
+                      label="Last donation"
+                      value={formatDonorDate(donor.lastDonationDate)}
+                    />
+                    <InfoFieldCard
+                      icon={Users}
+                      label="Member since"
+                      value={formatDonorDate(donor.createdAt)}
+                    />
                   </CardContent>
                 </Card>
 

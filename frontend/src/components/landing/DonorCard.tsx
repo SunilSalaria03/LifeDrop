@@ -11,6 +11,7 @@ import {
   getInitials,
 } from "./landing.helpers";
 import { DonorCardProps } from "./landing.types";
+import { calculateAgeFromDob } from "../../features/profile/profile.helpers";
 
 function DetailItem({
   label,
@@ -44,32 +45,7 @@ function formatDetailDate(date?: string) {
   return `${day}-${month}-${year}`;
 }
 
-function calculateAgeFromDob(birthDate?: string) {
-  if (!birthDate) {
-    return "Not provided";
-  }
 
-  const dob = new Date(birthDate);
-  if (Number.isNaN(dob.getTime())) {
-    return "Not provided";
-  }
-
-  const today = new Date();
-  let age = today.getFullYear() - dob.getFullYear();
-  const hasBirthdayPassed =
-    today.getMonth() > dob.getMonth() ||
-    (today.getMonth() === dob.getMonth() && today.getDate() >= dob.getDate());
-
-  if (!hasBirthdayPassed) {
-    age -= 1;
-  }
-
-  if (age < 0) {
-    return "Not provided";
-  }
-
-  return `${age}`;
-}
 
 export function DonorCard({
   donor,
@@ -87,22 +63,24 @@ export function DonorCard({
       value: formatDonorPhone(donor.phone, donor.showMobile),
     },
     {
-      label: "Distance",
-      value:
-        donor.distanceKm !== undefined ? `${donor.distanceKm} km` : "Not provided",
-    },
-    {
-      label: "Last donation",
-      value: formatDetailDate(donor.lastDonationDate),
+      label: "Email",
+      value: donor.email ?? "Not provided",
     },
     {
       label: "Age",
       value: calculateAgeFromDob(donor.birthDate),
     },
     {
-      label: "Weight",
-      value: donor.weight !== undefined ? `${donor.weight} kg` : "Not provided",
+      label: "Gender",
+      value: donor.gender !== undefined ? `${donor.gender}` : "Not provided",
     },
+    {
+      label: "Distance",
+      value:
+        donor.distanceKm !== undefined ? `${donor.distanceKm} km` : "Not provided",
+    },
+
+ 
   ];
 
   return (
