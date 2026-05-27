@@ -318,7 +318,7 @@ function DatePickerField({
       </div>
 
       {isOpen ? (
-        <div className="absolute z-30 mt-2 w-full min-w-[280px] rounded-2xl border border-neutral-200 bg-white p-3 shadow-xl ring-1 ring-black/5">
+        <div className="absolute z-30 mt-2 w-full min-w-[280px] rounded-2xl border border-neutral-200 bg-white p-3">
           <div className="mb-3 flex items-center justify-between gap-2">
             <button
               className="rounded-lg p-2 text-neutral-600 transition-colors hover:bg-neutral-100"

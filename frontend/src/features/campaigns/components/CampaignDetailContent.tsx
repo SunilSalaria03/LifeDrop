@@ -38,7 +38,7 @@ function DetailSection({ title, icon: Icon, children, className }: DetailSection
   return (
     <Card
       className={cn(
-        'overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm',
+        'overflow-hidden rounded-2xl border border-neutral-200 bg-white',
         className,
       )}
     >
@@ -85,7 +85,7 @@ export function CampaignDetailContent({ campaign }: CampaignDetailContentProps) 
     <div className="bg-neutral-50">
       <div className="px-4 pt-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <Card className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+          <Card className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
             <CardContent className="grid gap-0 p-0">
               <div className="grid divide-y divide-neutral-100 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
                 {quickFacts.map((fact) => {
@@ -203,7 +203,7 @@ export function CampaignDetailContent({ campaign }: CampaignDetailContentProps) 
             </div>
           </DetailSection>
 
-          <Card className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+          <Card className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
             <CardContent className="grid gap-4 p-6">
               <h2 className="text-lg font-bold text-neutral-950">Plan your visit</h2>
               <p className="text-sm leading-7 text-neutral-700">

@@ -100,7 +100,7 @@ export function ProfileHeaderCard({
           <GenderAvatar
             alt={displayName}
             avatarUrl={user.avatarUrl}
-            className="h-20 w-20 shrink-0 border border-neutral-200 bg-red-50 shadow-sm sm:h-24 sm:w-24"
+            className="h-20 w-20 shrink-0 border border-neutral-200 bg-red-50 sm:h-24 sm:w-24"
             fallback={getInitials(user.name, user.email, user.phone)}
             fallbackClassName="text-xl font-bold text-red-700 sm:text-2xl"
             gender={user.gender}

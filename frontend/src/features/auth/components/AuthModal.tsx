@@ -215,7 +215,7 @@ export function AuthModal({
         onClick={onClose}
         type="button"
       />
-      <div className="relative grid max-h-[calc(100svh-2rem)] w-full max-w-md overflow-hidden rounded-[1.75rem] border border-white/80 bg-white shadow-[0_28px_90px_rgba(69,10,10,0.35)]">
+      <div className="relative grid max-h-[calc(100svh-2rem)] w-full max-w-md overflow-hidden rounded-[1.75rem] border border-neutral-200 bg-white">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-[radial-gradient(circle_at_18%_0%,rgba(220,38,38,0.16),transparent_42%),linear-gradient(135deg,rgba(254,226,226,0.95),rgba(255,255,255,0.2))]" />
         <div className="relative max-h-[calc(100svh-2rem)] overflow-y-auto">
         <div className="flex items-start justify-between gap-5 border-b border-red-100/80 p-5 sm:p-6">

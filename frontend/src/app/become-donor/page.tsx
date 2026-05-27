@@ -41,7 +41,7 @@ export default function BecomeDonorPage() {
           <Card className={profileCard}>
             <CardContent className={profileCardBody}>
               <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-red-50 shadow-sm sm:h-24 sm:w-24">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-red-50 sm:h-24 sm:w-24">
                   <HeartHandshake className="h-9 w-9 text-red-700 sm:h-10 sm:w-10" />
                 </div>
                 <div className="min-w-0 flex-1">

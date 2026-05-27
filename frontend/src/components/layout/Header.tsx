@@ -193,7 +193,7 @@ export function Header() {
                 </button>
 
                 {isMenuOpen ? (
-                  <div className="absolute right-0 mt-3 grid w-[calc(100vw-2rem)] max-w-56 gap-1 rounded-2xl border border-neutral-200 bg-white p-2 shadow-2xl shadow-red-950/10 sm:w-56">
+                  <div className="absolute right-0 mt-3 grid w-[calc(100vw-2rem)] max-w-56 gap-1 rounded-2xl border border-neutral-200 bg-white p-2 sm:w-56">
                     <div className="border-b border-neutral-100 px-3 py-2">
                       <p className="truncate text-sm font-bold text-neutral-950">
                         {getDisplayName(user.name, user.phone, user.email)}

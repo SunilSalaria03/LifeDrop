@@ -59,7 +59,7 @@ export function DonorCard({
   ];
 
   return (
-    <Card className="overflow-hidden rounded-2xl border-neutral-200 shadow-sm transition hover:border-neutral-300 hover:shadow-md">
+    <Card className="overflow-hidden rounded-2xl border-neutral-200 transition hover:border-neutral-300">
       <CardContent className="flex h-full flex-col p-5 sm:p-6">
         <div className="flex items-start gap-4 border-b border-neutral-200 pb-4">
           <GenderAvatar

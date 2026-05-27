@@ -75,7 +75,7 @@ export function AboutSection() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-stretch lg:gap-8">
-          <div className="overflow-hidden rounded-[1.75rem] border border-red-100 bg-white shadow-[0_24px_60px_rgba(127,29,29,0.08)] ring-1 ring-red-50/80">
+          <div className="overflow-hidden rounded-[1.75rem] border border-red-100 bg-white ring-1 ring-red-50/80">
             <div className="flex items-start gap-4 border-b border-red-100/90 bg-gradient-to-br from-red-50/50 via-white to-white px-6 py-6 sm:gap-5 sm:px-8 sm:py-7">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-700 text-white shadow-lg shadow-red-700/25 ring-4 ring-red-50">
                 <MapPin className="h-6 w-6" aria-hidden />
@@ -128,7 +128,7 @@ export function AboutSection() {
 
               return (
                 <div
-                  className="group flex gap-4 rounded-2xl border border-red-100/80 bg-white/90 p-4 shadow-sm shadow-red-950/5 transition duration-300 hover:border-red-200 hover:shadow-[0_16px_40px_rgba(127,29,29,0.1)] sm:p-5"
+                  className="group flex gap-4 rounded-2xl border border-red-100/80 bg-white/90 p-4 transition duration-300 hover:border-red-200 sm:p-5"
                   key={pillar.title}
                 >
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-700 ring-1 ring-red-100 transition duration-300 group-hover:bg-red-700 group-hover:text-white">
@@ -146,7 +146,7 @@ export function AboutSection() {
           </div>
         </div>
 
-        <p className="mx-auto max-w-3xl rounded-2xl border border-red-100/90 bg-white/80 px-5 py-4 text-center text-sm font-semibold leading-7 text-red-900/85 shadow-sm sm:px-6">
+        <p className="mx-auto max-w-3xl rounded-2xl border border-red-100/90 bg-white/80 px-5 py-4 text-center text-sm font-semibold leading-7 text-red-900/85 sm:px-6">
           LifeDrop is not a replacement for hospital or blood bank protocols—it is a
           coordination layer that helps people find and reach verified donors faster
           when minutes matter.

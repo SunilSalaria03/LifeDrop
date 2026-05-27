@@ -99,7 +99,7 @@ export function RequestBloodModal({
         type="button"
       />
       <form
-        className="relative grid max-h-[calc(100svh-2rem)] w-full max-w-lg gap-0 overflow-hidden rounded-[1.75rem] border border-white/80 bg-white shadow-[0_28px_90px_rgba(69,10,10,0.35)]"
+        className="relative grid max-h-[calc(100svh-2rem)] w-full max-w-lg gap-0 overflow-hidden rounded-[1.75rem] border border-neutral-200 bg-white"
         onSubmit={handleSubmit}
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-[radial-gradient(circle_at_18%_0%,rgba(220,38,38,0.16),transparent_42%),linear-gradient(135deg,rgba(254,226,226,0.95),rgba(255,255,255,0.2))]" />

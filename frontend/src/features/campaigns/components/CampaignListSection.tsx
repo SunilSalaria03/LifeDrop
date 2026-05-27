@@ -83,7 +83,7 @@ export function CampaignListSection({
         </div>
 
         {totalCount === 0 ? (
-          <div className="rounded-3xl border border-neutral-200 bg-white px-6 py-16 text-center shadow-sm">
+          <div className="rounded-3xl border border-neutral-200 bg-white px-6 py-16 text-center">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50 text-red-700">
               <CalendarX2 className="h-8 w-8" aria-hidden />
             </div>

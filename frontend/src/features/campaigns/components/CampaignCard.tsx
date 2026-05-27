@@ -20,7 +20,7 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
   const spotsLeft = Math.max(campaign.capacity - campaign.registrationCount, 0);
 
   return (
-    <Card className="group overflow-hidden rounded-2xl border-neutral-200 shadow-sm transition hover:border-red-200 hover:shadow-lg hover:shadow-red-950/10">
+    <Card className="group overflow-hidden rounded-2xl border-neutral-200 transition hover:border-red-200">
       <CardContent className="flex h-full flex-col p-0">
         <div className="border-b border-neutral-100 bg-[linear-gradient(135deg,#fef2f2_0%,#fff7ed_100%)] px-5 py-4">
           <div className="flex items-start justify-between gap-3">
