@@ -195,21 +195,19 @@ export function getHeroBannerVariant(pathname: string): HeroBannerVariant {
 
 export const HERO_DONOR_DETAIL_BANNER: HeroBannerContent = {
   badgeAriaLabel: 'Find donor details on LifeDrop.',
-  badgeText: 'Find a donor',
+  badgeText: 'Donor profile',
   BadgeIcon: HeartHandshake,
-  titleBefore: 'Donors are ',
-  titleHighlight: 'superheroes',
-  titleMiddle: ' find donor details for those ',
-  titleHighlight2: 'who serve',
-  titleAfter: '',
+  titleBefore: 'Need blood urgently?',
+  titleHighlight: 'View donor details',
+  titleAfter: 'and request support quickly',
+  titleLayout: 'stacked',
   steps: [
     { label: 'Blood group', Icon: Droplet },
     { label: 'Location', Icon: MapPin },
-    { label: 'Request blood', Icon: HeartHandshake },
   ],
   stepsGroupAriaLabel:
-    'Review blood group and location, then send a blood request below.',
-  footnote: 'Then send a request if this donor is available.',
+    'Check blood group and location before sending a request.',
+  footnote: 'Review eligibility and send a request if the donor is available.',
 };
 
 export function getHeroBannerContent(pathname: string): HeroBannerContent {

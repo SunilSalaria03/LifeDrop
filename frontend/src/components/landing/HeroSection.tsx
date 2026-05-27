@@ -22,6 +22,7 @@ export function HeroSection({ breadcrumb }: HeroSectionProps = {}) {
   const isHomeRoute = pathname === "/";
   const isDonorListPage = pathname === "/donor-list";
   const isSearchPage = isHomeRoute || isDonorListPage;
+  const bannerSize = isSearchPage ? "tall" : "compact";
   const searchMode = isHomeRoute ? "preview" : "paginated";
 
   const banner = getHeroBannerContent(pathname);
@@ -60,15 +61,23 @@ export function HeroSection({ breadcrumb }: HeroSectionProps = {}) {
       <HeroBannerShell
         contentClassName={cn(
           "flex-col justify-center",
-          breadcrumb?.length
-            ? "py-16 pb-20 pt-24 sm:py-20 sm:pt-28 lg:py-24"
-            : "py-16 sm:py-20 lg:py-24",
+          bannerSize === "compact"
+            ? "py-8 sm:py-10 lg:py-12"
+            : breadcrumb?.length
+              ? "py-16 pb-20 pt-24 sm:py-20 sm:pt-28 lg:py-24"
+              : "py-16 sm:py-20 lg:py-24",
         )}
         imageAlt="Blood donor hero"
         imagePriority={isHomeRoute}
+        size={bannerSize}
       >
-        <div className="grid w-full gap-7">
-          <HeroBannerHeading banner={banner}>
+        <div
+          className={cn(
+            "grid w-full",
+            bannerSize === "compact" ? "gap-4" : "gap-7",
+          )}
+        >
+          <HeroBannerHeading banner={banner} size={bannerSize}>
               {banner.steps.length > 0 || banner.footnote ? (
                 <div
                   className="w-full max-w-2xl min-w-0 sm:max-w-3xl"
@@ -92,14 +101,31 @@ export function HeroSection({ breadcrumb }: HeroSectionProps = {}) {
                             ) : null}
                             <div
                               role="listitem"
-                              className="inline-flex shrink-0 items-center gap-1.5 rounded-2xl border border-white/20 bg-transparent px-2 py-1 shadow-sm shadow-black/25 sm:gap-2 sm:rounded-[1.1rem] sm:px-2.5 sm:py-1.5"
+                              className={cn(
+                                "inline-flex shrink-0 items-center rounded-2xl border border-white/20 bg-white/[0.03] shadow-sm shadow-black/20 backdrop-blur-sm",
+                                bannerSize === "compact"
+                                  ? "gap-1.5 px-2.5 py-1"
+                                  : "gap-1.5 px-2 py-1 sm:gap-2 sm:px-2.5 sm:py-1.5",
+                              )}
                             >
                               <StepIcon
-                                className="h-3 w-3 shrink-0 text-white/85 sm:h-3.5 sm:w-3.5"
+                                className={cn(
+                                  "shrink-0 text-white/80",
+                                  bannerSize === "compact"
+                                    ? "h-3 w-3"
+                                    : "h-3 w-3 sm:h-3.5 sm:w-3.5",
+                                )}
                                 aria-hidden
                                 strokeWidth={2}
                               />
-                              <span className="whitespace-nowrap text-[0.72rem] font-normal capitalize leading-none tracking-wide text-white/95 sm:text-sm">
+                              <span
+                                className={cn(
+                                  "whitespace-nowrap capitalize leading-none text-white/95",
+                                  bannerSize === "compact"
+                                    ? "text-xs font-medium tracking-normal"
+                                    : "text-[0.72rem] sm:text-sm",
+                                )}
+                              >
                                 {step.label}
                               </span>
                             </div>
@@ -110,10 +136,24 @@ export function HeroSection({ breadcrumb }: HeroSectionProps = {}) {
                   ) : null}
                   {banner.footnote ? (
                     <p
-                      className={`flex items-start gap-2 text-xs font-normal leading-relaxed text-slate-300/95 sm:text-sm${banner.steps.length > 0 ? " mt-3 sm:mt-3.5" : ""}`}
+                      className={cn(
+                        "flex items-start gap-2 leading-relaxed text-slate-300/95",
+                        bannerSize === "compact"
+                          ? "text-xs font-normal sm:text-sm"
+                          : "text-xs sm:text-sm",
+                        banner.steps.length > 0 &&
+                          (bannerSize === "compact"
+                            ? "mt-2 sm:mt-2.5"
+                            : "mt-3 sm:mt-3.5"),
+                      )}
                     >
                       <Sparkles
-                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-300/90 sm:h-4 sm:w-4"
+                        className={cn(
+                          "mt-0.5 shrink-0 text-amber-300/90",
+                          bannerSize === "compact"
+                            ? "h-3 w-3 sm:h-3.5 sm:w-3.5"
+                            : "h-3.5 w-3.5 sm:h-4 sm:w-4",
+                        )}
                         aria-hidden
                       />
                       <span>{banner.footnote}</span>
