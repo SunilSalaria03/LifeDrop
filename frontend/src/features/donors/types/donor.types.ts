@@ -109,6 +109,8 @@ export type DonorSmsAlertPayload = {
   sendWhatsapp?: boolean;
   consentToShareContact: boolean;
   message?: string;
+  requesterName?: string;
+  requesterLocation?: string;
 };
 
 export type DonorSmsAlertResponse = {

@@ -90,19 +90,28 @@ export class BloodRequestService {
         );
       }
 
+      const requesterName =
+        dto.requesterName?.trim() || verifiedRequester.name?.trim() || "Someone";
+      const requesterLocation =
+        dto.requesterLocation?.trim() ||
+        this.buildRequesterLocation(verifiedRequester);
+
       const smsProviderMessageId = await this.sendTwilioSms({
         donorPhone,
         requesterPhone,
+        requesterName,
+        requesterLocation,
         bloodGroup: dto.bloodGroup,
         message: dto.message,
       });
-
       await this.sendWhatsappIfRequested({
         bloodRequest,
         bloodGroup: dto.bloodGroup,
         donorPhone,
         message: dto.message,
         requesterPhone,
+        requesterName,
+        requesterLocation,
         sendWhatsapp: dto.sendWhatsapp ?? false,
       });
 
@@ -113,9 +122,13 @@ export class BloodRequestService {
       bloodRequest.smsError = undefined;
       await bloodRequest.save();
 
+      const whatsappFailed = bloodRequest.whatsappStatus === WhatsappStatus.Failed;
+
       return {
         bloodRequestId: bloodRequest.id,
-        message: "SMS alert sent successfully.",
+        message: whatsappFailed
+          ? "SMS alert sent, but WhatsApp alert could not be sent."
+          : "SMS alert sent successfully.",
         smsStatus: bloodRequest.smsStatus,
         status: bloodRequest.status,
         smsProvider: bloodRequest.smsProvider,
@@ -123,9 +136,7 @@ export class BloodRequestService {
         whatsappStatus: bloodRequest.whatsappStatus,
         whatsappProvider: bloodRequest.whatsappProvider,
         whatsappProviderMessageId: bloodRequest.whatsappProviderMessageId,
-        whatsappError: bloodRequest.whatsappError
-          ? "WhatsApp alert could not be sent."
-          : undefined,
+        whatsappError: bloodRequest.whatsappError,
       };
     } catch (error) {
       const smsError = this.getSmsErrorMessage(error);
@@ -143,9 +154,7 @@ export class BloodRequestService {
         smsError: "SMS alert could not be sent. Please try again later.",
         whatsappStatus: bloodRequest.whatsappStatus,
         whatsappProvider: bloodRequest.whatsappProvider,
-        whatsappError: bloodRequest.whatsappError
-          ? "WhatsApp alert could not be sent."
-          : undefined,
+        whatsappError: bloodRequest.whatsappError,
       };
     }
   }
@@ -250,9 +259,11 @@ export class BloodRequestService {
     bloodGroup,
     donorPhone,
     message,
+    requesterLocation,
+    requesterName,
     requesterPhone,
   }: SmsMessageInput) {
-    const fromPhone = this.toIndianE164(
+    const fromPhone = this.toTwilioSmsFromAddress(
       this.configService.get<string>("TWILIO_PHONE_NUMBER"),
     );
 
@@ -263,7 +274,13 @@ export class BloodRequestService {
     const sms = await this.twilioClient.messages.create({
       to: donorPhone,
       from: fromPhone,
-      body: this.buildSmsBody({ bloodGroup, message, requesterPhone }),
+      body: this.buildSmsBody({
+        bloodGroup,
+        message,
+        requesterPhone,
+        requesterName,
+        requesterLocation,
+      }),
     });
 
     return sms.sid;
@@ -274,6 +291,8 @@ export class BloodRequestService {
     bloodRequest,
     donorPhone,
     message,
+    requesterLocation,
+    requesterName,
     requesterPhone,
     sendWhatsapp,
   }: WhatsappAlertInput) {
@@ -299,7 +318,13 @@ export class BloodRequestService {
       const whatsapp = await this.twilioClient.messages.create({
         to: whatsappTo,
         from: whatsappFrom,
-        body: this.buildSmsBody({ bloodGroup, message, requesterPhone }),
+        body: this.buildSmsBody({
+          bloodGroup,
+          message,
+          requesterPhone,
+          requesterName,
+          requesterLocation,
+        }),
       });
 
       bloodRequest.whatsappStatus = WhatsappStatus.Sent;
@@ -314,10 +339,21 @@ export class BloodRequestService {
   private buildSmsBody({
     bloodGroup,
     message,
+    requesterLocation,
+    requesterName,
     requesterPhone,
-  }: Pick<SmsMessageInput, "bloodGroup" | "message" | "requesterPhone">) {
+  }: Pick<
+    SmsMessageInput,
+    "bloodGroup" | "message" | "requesterPhone" | "requesterName" | "requesterLocation"
+  >) {
+    const trimmedRequesterName = requesterName?.trim() || "Someone";
+    const trimmedRequesterLocation = requesterLocation?.trim();
+    const requesterIntro = trimmedRequesterLocation
+      ? `${trimmedRequesterName} from ${trimmedRequesterLocation}`
+      : trimmedRequesterName;
+
     return [
-      `A patient urgently needs ${bloodGroup} blood donation.`,
+      `${requesterIntro} urgently needs ${bloodGroup} blood donation.`,
       `Your support can help save a life.`,
       `Contact requester: ${requesterPhone}.`,
       message ? `Note: ${message}` : undefined,
@@ -325,6 +361,14 @@ export class BloodRequestService {
     ]
       .filter(Boolean)
       .join(" ");
+  }
+
+  private buildRequesterLocation(requester: UserDocument) {
+    const parts = [requester.city, requester.district, requester.state]
+      .map((value) => value?.trim())
+      .filter((value): value is string => Boolean(value));
+
+    return parts.join(", ") || undefined;
   }
 
   private createTwilioClient() {
@@ -347,17 +391,41 @@ export class BloodRequestService {
   }
 
   private toTwilioWhatsappAddress(phone?: string) {
-    if (phone?.trim().startsWith("whatsapp:")) {
-      return phone.trim();
+    const trimmedPhone = phone?.trim();
+
+    if (!trimmedPhone) {
+      return undefined;
     }
 
-    const e164Phone = this.toIndianE164(phone);
+    if (trimmedPhone.startsWith("whatsapp:")) {
+      return trimmedPhone;
+    }
+
+    if (/^\+\d{8,15}$/.test(trimmedPhone)) {
+      return `whatsapp:${trimmedPhone}`;
+    }
+
+    const e164Phone = this.toIndianE164(trimmedPhone);
 
     if (!e164Phone) {
       return undefined;
     }
 
     return `whatsapp:${e164Phone}`;
+  }
+
+  private toTwilioSmsFromAddress(phone?: string) {
+    const trimmedPhone = phone?.trim();
+
+    if (!trimmedPhone) {
+      return undefined;
+    }
+
+    if (/^\+\d{8,15}$/.test(trimmedPhone)) {
+      return trimmedPhone;
+    }
+
+    return this.toIndianE164(trimmedPhone);
   }
 
   private getSmsErrorMessage(error: unknown) {

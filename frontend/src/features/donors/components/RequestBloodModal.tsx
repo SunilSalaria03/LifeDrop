@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { getDonorName } from '@/components/landing/landing.helpers';
 import { getApiErrorMessage } from '@/lib/api/error-message';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { sendDonorSmsAlert } from '../api/donors.api';
 import { RequestBloodModalProps } from '../donor-component.types';
 
@@ -17,6 +18,7 @@ export function RequestBloodModal({
   open,
 }: RequestBloodModalProps) {
   const { showToast } = useToast();
+  const { user } = useAuth();
   const [sendSms, setSendSms] = useState(false);
   const [sendWhatsapp, setSendWhatsapp] = useState(false);
   const [consentToShareContact, setConsentToShareContact] = useState(false);
@@ -45,6 +47,9 @@ export function RequestBloodModal({
   const donorLocation = donorLocationParts
     .filter((part, index) => part !== donorLocationParts[index - 1])
     .join(', ');
+  const requesterLocation = [user?.city, user?.district, user?.state]
+    .filter(Boolean)
+    .join(', ');
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -63,6 +68,8 @@ export function RequestBloodModal({
         sendWhatsapp,
         consentToShareContact,
         message: message.trim() || undefined,
+        requesterName: user?.name?.trim() || undefined,
+        requesterLocation: requesterLocation || undefined,
       });
 
       showToast({
@@ -182,7 +189,7 @@ export function RequestBloodModal({
               className="min-h-28 resize-none rounded-2xl border border-neutral-300 bg-white px-3 py-3 text-sm font-medium text-neutral-900 outline-none transition focus:border-red-700"
               maxLength={500}
               onChange={(event) => setMessage(event.target.value)}
-              placeholder="Add a short note for the donor"
+              placeholder="Share why blood is needed (e.g., surgery, accident, cancer treatment, childbirth), urgency, hospital name, or any helpful details"
               value={message}
             />
           </label>
