@@ -22,7 +22,7 @@ export function getDisplayName(user?: AuthUser) {
 
 export function formatDate(date?: string) {
   if (!date) {
-    return 'Not provided';
+    return 'N/A';
   }
 
   return new Intl.DateTimeFormat('en-IN', {

@@ -13,7 +13,7 @@ export function getInitials(name?: string) {
 
 export function formatDonorDate(date?: string) {
   if (!date) {
-    return 'Not provided';
+    return 'N/A';
   }
 
   return new Intl.DateTimeFormat('en-IN', {
@@ -25,7 +25,7 @@ export function formatDonorDate(date?: string) {
 
 export function formatDonorPhone(phone?: string, showMobile: boolean = false) {
   if (!phone) {
-    return 'Not provided';
+    return 'N/A';
   }
 
   const cleaned = phone.replace(/\D/g, '');

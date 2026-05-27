@@ -31,12 +31,12 @@ export function toGenderOrUndefined(
 
 export function calculateAgeFromDob(birthDate?: string) {
   if (!birthDate) {
-    return "Not provided";
+    return "N/A";
   }
 
   const dob = new Date(birthDate);
   if (Number.isNaN(dob.getTime())) {
-    return "Not provided";
+    return "N/A";
   }
 
   const today = new Date();
@@ -50,7 +50,7 @@ export function calculateAgeFromDob(birthDate?: string) {
   }
 
   if (age < 0) {
-    return "Not provided";
+    return "N/A";
   }
 
   return `${age}`;

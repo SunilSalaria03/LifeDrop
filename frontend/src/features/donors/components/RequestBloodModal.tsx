@@ -140,7 +140,7 @@ export function RequestBloodModal({
               {donor.bloodGroup}
             </Badge>
             <Badge className="w-fit rounded-full bg-red-50 px-3.5 py-1.5 text-red-700 ring-1 ring-red-100">
-              {donor.city || 'City not provided'}
+              {donor.city || 'City N/A'}
             </Badge>
           </div>
 

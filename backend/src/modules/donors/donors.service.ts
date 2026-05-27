@@ -567,6 +567,7 @@ export class DonorsService {
           showMobile: 1,
           addressLine: 1,
           addressText: 1,
+          pincode: 1,
         },
       },
     ];

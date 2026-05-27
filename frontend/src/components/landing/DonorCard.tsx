@@ -5,47 +5,26 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { GenderAvatar } from "@/components/ui/gender-avatar";
 import { cn } from "@/lib/utils";
-import {
-  formatDonorPhone,
-  getDonorName,
-  getInitials,
-} from "./landing.helpers";
+import { formatDonorPhone, getDonorName, getInitials } from "./landing.helpers";
 import { DonorCardProps } from "./landing.types";
 import { calculateAgeFromDob } from "../../features/profile/profile.helpers";
 
-function DetailItem({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function DetailItem({ label, value }: { label: string; value: string }) {
+  console.log("value", value);
   return (
     <div className="flex items-center justify-between gap-4 py-2.5 text-sm">
-      <dt className="text-neutral-500">{label}</dt>
-      <dd className="truncate text-right font-medium text-neutral-900">{value}</dd>
-    </div>
+    <dt className="text-neutral-500">{label}</dt>
+    <dd
+      className={`truncate text-right font-medium ${
+        value !== "N/A" ? "text-neutral-900" : "text-neutral-500"
+      }`}
+    >
+      {value !== "N/A" ? value : "N/A"}
+    </dd>
+  </div>
   );
 }
-
-function formatDetailDate(date?: string) {
-  if (!date) {
-    return "Not provided";
-  }
-
-  const parsedDate = new Date(date);
-  if (Number.isNaN(parsedDate.getTime())) {
-    return "Not provided";
-  }
-
-  const day = String(parsedDate.getDate()).padStart(2, "0");
-  const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
-  const year = parsedDate.getFullYear();
-
-  return `${day}-${month}-${year}`;
-}
-
-
+ 
 
 export function DonorCard({
   donor,
@@ -64,7 +43,7 @@ export function DonorCard({
     },
     {
       label: "Email",
-      value: donor.email ?? "Not provided",
+      value: donor.email ?? "N/A",
     },
     {
       label: "Age",
@@ -72,15 +51,12 @@ export function DonorCard({
     },
     {
       label: "Gender",
-      value: donor.gender !== undefined ? `${donor.gender}` : "Not provided",
+      value: donor.gender !== undefined ? `${donor.gender}` : "N/A",
     },
     {
       label: "Distance",
-      value:
-        donor.distanceKm !== undefined ? `${donor.distanceKm} km` : "Not provided",
+      value: donor.distanceKm !== undefined ? `${donor.distanceKm} km` : "N/A",
     },
-
- 
   ];
 
   return (
@@ -115,9 +91,7 @@ export function DonorCard({
                     className="h-3.5 w-3.5 shrink-0 text-neutral-400"
                     aria-hidden
                   />
-                  <span className="truncate">
-                    {location || "Location not provided"}
-                  </span>
+                  <span className="truncate">{location || "Location N/A"}</span>
                 </p>
               </div>
               <span className="shrink-0 rounded-md bg-red-700 px-2.5 py-1 text-sm font-semibold tabular-nums text-white">
@@ -147,7 +121,11 @@ export function DonorCard({
 
         <dl className="divide-y divide-neutral-200 py-1">
           {details.map((item) => (
-            <DetailItem key={item.label} label={item.label} value={item.value} />
+            <DetailItem
+              key={item.label}
+              label={item.label}
+              value={item.value}
+            />
           ))}
         </dl>
 

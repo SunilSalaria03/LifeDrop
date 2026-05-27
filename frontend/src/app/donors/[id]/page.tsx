@@ -248,12 +248,12 @@ export default function DonorDetailPage() {
                     <InfoFieldCard
                       icon={Mail}
                       label="Email"
-                      value={donor.email ?? "Not provided"}
+                      value={donor.email ?? "N/A"}
                     />
                     <InfoFieldCard
                       icon={UserRound}
                       label="Gender"
-                      value={donor.gender ?? "Not provided"}
+                      value={donor.gender ?? "N/A"}
                     />
                        <InfoFieldCard
                       icon={UserRound}
@@ -266,7 +266,7 @@ export default function DonorDetailPage() {
                       value={
                         donor.weight !== undefined
                           ? `${donor.weight} kg`
-                          : "Not provided"
+                          : "N/A"
                       }
                     />
                   
@@ -280,12 +280,12 @@ export default function DonorDetailPage() {
                     <InfoFieldCard
                       icon={MapPin}
                       label="Pincode"
-                      value={donor.pincode ?? "Not provided"}
+                      value={donor.pincode ?? "N/A"}
                     />
                       <InfoFieldCard
                       icon={MapPin}
                       label="State"
-                      value={donor.state ?? "Not provided"}
+                      value={donor.state ?? "N/A"}
                     />
                     {donor.district ? (
                       <InfoFieldCard
