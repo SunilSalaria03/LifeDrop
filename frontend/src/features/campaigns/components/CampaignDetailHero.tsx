@@ -1,6 +1,8 @@
 'use client';
 
 import { MapPin, Megaphone } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { titleClassNameCompact } from '@/components/landing/HeroBannerHeading';
 import { HeroBannerShell } from '@/components/landing/HeroBannerShell';
 import { BloodDonationCampaign } from '../types/campaign.types';
 import { CampaignStatusBadge } from './CampaignStatusBadge';
@@ -30,15 +32,18 @@ export function CampaignDetailHero({ campaign }: CampaignDetailHeroProps) {
   );
 
   return (
-    <HeroBannerShell contentClassName="flex-col justify-center py-16 pb-20 pt-12 sm:py-20 sm:pb-24 lg:py-24">
-      <div className="grid w-full max-w-3xl gap-5 lg:max-w-[58%]">
+    <HeroBannerShell
+      contentClassName="flex-col justify-center py-8 sm:py-10 lg:py-12"
+      size="compact"
+    >
+      <div className="grid w-full max-w-3xl gap-3 sm:gap-4 lg:max-w-[58%]">
         <div className="flex flex-wrap items-center gap-2">
           <p
             aria-label="Campaign detail page"
-            className="inline-flex w-fit items-center gap-2 rounded-full border border-red-500/40 bg-red-700/20 px-3 py-2 text-[14px] font-semibold capitalize leading-snug tracking-[0.12em] text-red-300 backdrop-blur-sm sm:px-4 sm:tracking-[0.14em]"
+            className="inline-flex w-fit items-center gap-2 rounded-full border border-red-500/40 bg-red-700/20 px-3 py-1.5 text-xs font-semibold leading-snug tracking-[0.08em] text-red-300 backdrop-blur-sm"
           >
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-lg shadow-red-700/50">
-              <Megaphone className="h-4 w-4" aria-hidden />
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-700 text-white shadow-lg shadow-red-700/50">
+              <Megaphone className="h-3.5 w-3.5" aria-hidden />
             </span>
             Campaign detail
           </p>
@@ -46,7 +51,7 @@ export function CampaignDetailHero({ campaign }: CampaignDetailHeroProps) {
         </div>
 
         <div className="flex flex-col gap-4 sm:gap-5">
-          <h1 className="m-0 text-balance text-2xl font-bold uppercase leading-tight tracking-[0.06em] text-white sm:text-3xl md:text-3xl lg:text-4xl xl:text-5xl">
+          <h1 className={cn(titleClassNameCompact, 'capitalize')}>
             {titleMain}
             {titleHighlight ? (
               <>
@@ -56,7 +61,7 @@ export function CampaignDetailHero({ campaign }: CampaignDetailHeroProps) {
             ) : null}
           </h1>
 
-          <p className="m-0 text-sm leading-6 text-slate-300/95 sm:text-base">
+          <p className="m-0 line-clamp-2 text-sm leading-6 text-slate-300/95">
             {campaign.shortDescription}
           </p>
 

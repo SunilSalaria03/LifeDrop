@@ -12,7 +12,7 @@ export default function CampaignNotFoundPage() {
       <Header />
       <div className="bg-slate-900 text-neutral-950">
         <BannerBreadcrumbStrip items={breadcrumbCampaigns} />
-        <PageHero minHeightClass="min-h-[360px] sm:min-h-[400px]" />
+        <PageHero />
       </div>
       <main className="bg-neutral-50 px-4 py-12 text-center sm:px-6 sm:py-16 lg:px-8">
           <div className="mx-auto max-w-lg rounded-3xl border border-neutral-200 bg-white p-10 shadow-sm">

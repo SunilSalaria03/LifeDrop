@@ -14,7 +14,10 @@ type CampaignHeroProps = {
 
 export function CampaignHero({ filters }: CampaignHeroProps) {
   return (
-    <HeroBannerShell contentClassName="flex-col justify-center py-16 pb-20 pt-12 sm:py-20 sm:pb-24 lg:py-24">
+    <HeroBannerShell
+      contentClassName="flex-col justify-center py-16 pb-20 pt-12 sm:py-20 sm:pb-24 lg:py-24"
+      size="tall"
+    >
       <div className="grid w-full gap-7">
         <HeroBannerHeading banner={HERO_CAMPAIGNS_BANNER}>
           <Button
