@@ -11,10 +11,12 @@ type CampaignListSectionProps = {
   campaigns: BloodDonationCampaign[];
   totalCount: number;
   page: number;
+  totalPages?: number;
   pageSize?: number;
   onPageChange: (page: number) => void;
   hasActiveFilters: boolean;
   onViewAll: () => void;
+  isLoading?: boolean;
 };
 
 function formatCampaignCountLabel(totalCount: number): string {
@@ -44,12 +46,15 @@ export function CampaignListSection({
   campaigns,
   totalCount,
   page,
+  totalPages,
   pageSize = CAMPAIGN_PAGE_SIZE,
   onPageChange,
   hasActiveFilters,
   onViewAll,
+  isLoading = false,
 }: CampaignListSectionProps) {
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const resolvedTotalPages =
+    totalPages ?? Math.max(1, Math.ceil(totalCount / pageSize));
   const rangeLabel = formatRangeLabel(page, pageSize, totalCount);
   const campaignCountLabel = formatCampaignCountLabel(totalCount);
 
@@ -82,7 +87,16 @@ export function CampaignListSection({
           </span>
         </div>
 
-        {totalCount === 0 ? (
+        {isLoading ? (
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div
+                className="h-[330px] animate-pulse rounded-2xl border border-neutral-200 bg-white"
+                key={`campaign-skeleton-${index}`}
+              />
+            ))}
+          </div>
+        ) : totalCount === 0 ? (
           <div className="rounded-3xl border border-neutral-200 bg-white px-6 py-16 text-center">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50 text-red-700">
               <CalendarX2 className="h-8 w-8" aria-hidden />
@@ -118,7 +132,7 @@ export function CampaignListSection({
               className="pt-8"
               onPageChange={onPageChange}
               page={page}
-              totalPages={totalPages}
+              totalPages={resolvedTotalPages}
             />
           </>
         )}

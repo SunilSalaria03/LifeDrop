@@ -18,6 +18,7 @@ type HeroBannerShellProps = {
   size?: HeroBannerSize;
   imageAlt?: string;
   imagePriority?: boolean;
+  imageUrl?: string;
 };
 
 export function HeroBannerShell({
@@ -28,6 +29,7 @@ export function HeroBannerShell({
   size = 'tall',
   imageAlt = 'LifeDrop blood donation',
   imagePriority = false,
+  imageUrl,
 }: HeroBannerShellProps) {
   const heightClass = minHeightClass ?? getHeroBannerHeightClass(size);
   const isCompact = size === 'compact';
@@ -41,18 +43,32 @@ export function HeroBannerShell({
           'absolute inset-y-0 right-0 hidden w-[50%] bg-slate-900 lg:block',
         )}
       >
-        <Image
-          src={bannerImage}
-          alt={imageAlt}
-          fill
-          className={cn(
-            'opacity-85',
-            isCompact
-              ? 'object-cover object-top !h-[calc(100%+75px)] -translate-y-[75px]'
-              : 'object-contain object-bottom',
-          )}
-          priority={imagePriority}
-        />
+        {imageUrl ? (
+          <img
+            alt={imageAlt}
+            className={cn(
+              'h-full w-full opacity-85',
+              isCompact
+                ? 'object-cover object-top'
+                : 'object-contain object-bottom',
+            )}
+            loading={imagePriority ? 'eager' : 'lazy'}
+            src={imageUrl}
+          />
+        ) : (
+          <Image
+            src={bannerImage}
+            alt={imageAlt}
+            fill
+            className={cn(
+              'opacity-85',
+              isCompact
+                ? 'object-cover object-top !h-[calc(100%+75px)] -translate-y-[75px]'
+                : 'object-contain object-bottom',
+            )}
+            priority={imagePriority}
+          />
+        )}
         <div
           className={cn(
             'absolute inset-0 bg-slate-900/35',

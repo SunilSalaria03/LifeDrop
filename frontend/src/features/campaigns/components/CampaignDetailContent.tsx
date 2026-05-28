@@ -8,6 +8,7 @@ import {
   CalendarClock,
   CheckCircle2,
   Droplet,
+  ExternalLink,
   HeartHandshake,
   Mail,
   MapPin,
@@ -20,7 +21,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { formatCampaignDateRange } from '../lib/campaign-filters';
+import {
+  formatCampaignDateRange,
+  formatCampaignDateTimeRange,
+} from '../lib/campaign-filters';
 import { BloodDonationCampaign } from '../types/campaign.types';
 
 type CampaignDetailContentProps = {
@@ -55,28 +59,84 @@ function DetailSection({ title, icon: Icon, children, className }: DetailSection
   );
 }
 
+function DetailRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: ReactNode;
+}) {
+  return (
+    <p className="text-sm leading-7 text-neutral-700">
+      <span className="font-semibold text-neutral-900">{label}: </span>
+      {value}
+    </p>
+  );
+}
+
 export function CampaignDetailContent({ campaign }: CampaignDetailContentProps) {
-  const spotsLeft = Math.max(campaign.capacity - campaign.registrationCount, 0);
+  const capacity = campaign.capacity;
+  const registrationCount = campaign.registrationCount ?? 0;
+  const hasCapacity = campaign.hasCapacity ?? typeof capacity === 'number';
+  const safeCapacity = typeof capacity === 'number' ? capacity : 0;
+  const spotsLeft = hasCapacity ? Math.max(safeCapacity - registrationCount, 0) : null;
+  const aboutText = campaign.description || campaign.shortDescription || 'Not available';
+  const expectItems = campaign.highlights.filter((item) => item.trim() !== '');
+  const instructionText = campaign.instructions?.trim() ?? '';
+  const eligibilityText = campaign.eligibilityNotes?.trim() ?? '';
+  const scheduleText = campaign.scheduleNotes?.trim() ?? '';
+
+  const toDisplayDateTime = (value?: string) => {
+    if (!value) {
+      return null;
+    }
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return null;
+    }
+    return parsed.toLocaleString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
 
   const quickFacts = [
     {
       label: 'Campaign dates',
-      value: formatCampaignDateRange(campaign.startDate, campaign.endDate),
+      value: formatCampaignDateTimeRange(
+        campaign.startDate,
+        campaign.endDate,
+        campaign.startTime,
+        campaign.endTime,
+      ),
       icon: CalendarClock,
     },
     {
       label: 'Location',
-      value: `${campaign.city}, ${campaign.state}`,
+      value:
+        `${campaign.venue}, ${campaign.city}, ${campaign.state}`.replace(/^,\s*/, '') ||
+        campaign.address ||
+        'Not available',
       icon: MapPin,
     },
     {
       label: 'Registrations',
-      value: `${campaign.registrationCount} of ${campaign.capacity}`,
+      value: hasCapacity
+        ? `${registrationCount} of ${safeCapacity}`
+        : `${registrationCount}`,
       icon: Users,
     },
     {
       label: 'Availability',
-      value: spotsLeft > 0 ? `${spotsLeft} spots open` : 'At capacity',
+      value: hasCapacity
+        ? spotsLeft && spotsLeft > 0
+          ? `${spotsLeft} spots open`
+          : 'At capacity'
+        : 'Open for registration',
       icon: UserPlus,
     },
   ];
@@ -119,38 +179,93 @@ export function CampaignDetailContent({ campaign }: CampaignDetailContentProps) 
         <div className="grid gap-6">
           <DetailSection icon={Sparkles} title="About this campaign">
             <p className="text-sm leading-7 text-neutral-700 sm:text-base">
-              {campaign.description}
+              {aboutText}
             </p>
           </DetailSection>
 
           <DetailSection icon={CheckCircle2} title="What to expect">
-            <ul className="grid gap-3 sm:grid-cols-2">
-              {campaign.highlights.map((item) => (
-                <li
-                  className="flex items-start gap-3 rounded-xl border border-neutral-100 bg-neutral-50/80 p-4"
-                  key={item}
-                >
-                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-700">
-                    <Droplet className="h-4 w-4" aria-hidden />
-                  </span>
-                  <span className="text-sm font-medium leading-6 text-neutral-800">
-                    {item}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {expectItems.length > 0 ? (
+              <ul className="grid gap-3 sm:grid-cols-2">
+                {expectItems.map((item) => (
+                  <li
+                    className="flex items-start gap-3 rounded-xl border border-neutral-100 bg-neutral-50/80 p-4"
+                    key={item}
+                  >
+                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-700">
+                      <Droplet className="h-4 w-4" aria-hidden />
+                    </span>
+                    <span className="text-sm font-medium leading-6 text-neutral-800">
+                      {item}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : instructionText ? (
+              <p className="rounded-xl border border-neutral-100 bg-neutral-50/80 p-4 text-sm leading-7 text-neutral-700">
+                {instructionText}
+              </p>
+            ) : (
+              <p className="text-sm leading-7 text-neutral-700">
+                Detailed expectations are not available for this campaign yet.
+              </p>
+            )}
           </DetailSection>
 
           <div className="grid gap-6 sm:grid-cols-2">
             <DetailSection icon={CalendarClock} title="Schedule">
-              <p className="text-sm leading-7 text-neutral-700">
-                {campaign.scheduleNotes}
-              </p>
+              <div className="grid gap-2 rounded-xl border border-neutral-100 bg-neutral-50/70 p-4">
+                <DetailRow
+                  label="Dates"
+                  value={formatCampaignDateRange(campaign.startDate, campaign.endDate)}
+                />
+                {campaign.startTime || campaign.endTime ? (
+                  <DetailRow
+                    label="Time"
+                    value={
+                      <>
+                        {campaign.startTime || 'N/A'}{' '}
+                        {campaign.endTime ? `– ${campaign.endTime}` : ''}
+                      </>
+                    }
+                  />
+                ) : null}
+                {campaign.registrationDeadline ? (
+                  <DetailRow
+                    label="Registration deadline"
+                    value={
+                      toDisplayDateTime(campaign.registrationDeadline) ?? 'Not available'
+                    }
+                  />
+                ) : null}
+                <DetailRow
+                  label="Registration"
+                  value={campaign.registrationRequired ? 'Required' : 'Not required'}
+                />
+                <DetailRow
+                  label="Walk-ins"
+                  value={campaign.allowWalkIn ? 'Allowed' : 'Not allowed'}
+                />
+                {scheduleText ? <p className="pt-1 text-sm leading-7 text-neutral-700">{scheduleText}</p> : null}
+              </div>
             </DetailSection>
             <DetailSection icon={ShieldCheck} title="Eligibility">
-              <p className="text-sm leading-7 text-neutral-700">
-                {campaign.eligibilityNotes}
-              </p>
+              <div className="grid gap-2 rounded-xl border border-neutral-100 bg-neutral-50/70 p-4 text-sm leading-7 text-neutral-700">
+                <p>{eligibilityText || 'Eligibility details are not available yet.'}</p>
+                {campaign.bloodGroupsNeeded.length > 0 ? (
+                  <DetailRow
+                    label="Blood groups"
+                    value={campaign.bloodGroupsNeeded.join(', ')}
+                  />
+                ) : null}
+                {campaign.donationTypes && campaign.donationTypes.length > 0 ? (
+                  <DetailRow
+                    label="Donation types"
+                    value={campaign.donationTypes
+                      .map((type) => type.replace(/_/g, ' '))
+                      .join(', ')}
+                  />
+                ) : null}
+              </div>
             </DetailSection>
           </div>
         </div>
@@ -164,7 +279,14 @@ export function CampaignDetailContent({ campaign }: CampaignDetailContentProps) 
                   <span className="block font-semibold text-neutral-950">
                     {campaign.venue}
                   </span>
-                  <span className="mt-1 block leading-6">{campaign.address}</span>
+                  {campaign.address ? (
+                    <span className="mt-1 block leading-6">{campaign.address}</span>
+                  ) : null}
+                  {campaign.landmark ? (
+                    <span className="mt-1 block leading-6 text-neutral-600">
+                      Landmark: {campaign.landmark}
+                    </span>
+                  ) : null}
                 </span>
               </p>
               <p className="flex items-start gap-3">
@@ -181,6 +303,11 @@ export function CampaignDetailContent({ campaign }: CampaignDetailContentProps) 
             <p className="text-base font-semibold text-neutral-900">
               {campaign.organizer}
             </p>
+            {campaign.organizerType ? (
+              <p className="text-sm text-neutral-600 capitalize">
+                {campaign.organizerType.replace(/_/g, ' ')}
+              </p>
+            ) : null}
             <div className="grid gap-2 pt-1">
               {campaign.organizerPhone ? (
                 <a
@@ -200,17 +327,59 @@ export function CampaignDetailContent({ campaign }: CampaignDetailContentProps) 
                   {campaign.organizerEmail}
                 </a>
               ) : null}
+              {campaign.organizerWebsite ? (
+                <a
+                  className="inline-flex items-center gap-2 rounded-xl border border-neutral-100 bg-neutral-50/90 px-4 py-3 text-sm font-semibold text-red-700 transition hover:border-red-100 hover:bg-red-50"
+                  href={campaign.organizerWebsite}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />
+                  {campaign.organizerWebsite}
+                </a>
+              ) : null}
             </div>
           </DetailSection>
 
           <Card className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
             <CardContent className="grid gap-4 p-6">
               <h2 className="text-lg font-bold text-neutral-950">Plan your visit</h2>
-              <p className="text-sm leading-7 text-neutral-700">
-                Arrive with a valid photo ID, stay hydrated, and follow on-site medical
-                guidance. For urgent blood requirements, search registered donors on
-                LifeDrop.
-              </p>
+              {campaign.instructions ? (
+                <p className="text-sm leading-7 text-neutral-700">{campaign.instructions}</p>
+              ) : (
+                <p className="text-sm leading-7 text-neutral-700">
+                  Arrive with a valid photo ID and follow on-site medical guidance.
+                </p>
+              )}
+              {(campaign.contactPerson?.name ||
+                campaign.contactPerson?.phone ||
+                campaign.contactPerson?.email) ? (
+                <div className="grid gap-2 rounded-xl border border-neutral-100 bg-neutral-50 p-3 text-sm">
+                  {campaign.contactPerson?.name ? (
+                    <p className="font-semibold text-neutral-900">
+                      {campaign.contactPerson.name}
+                    </p>
+                  ) : null}
+                  {campaign.contactPerson?.phone ? (
+                    <a
+                      className="inline-flex items-center gap-2 text-red-700"
+                      href={`tel:${campaign.contactPerson.phone}`}
+                    >
+                      <Phone className="h-4 w-4 shrink-0" aria-hidden />
+                      {campaign.contactPerson.phone}
+                    </a>
+                  ) : null}
+                  {campaign.contactPerson?.email ? (
+                    <a
+                      className="inline-flex items-center gap-2 text-red-700"
+                      href={`mailto:${campaign.contactPerson.email}`}
+                    >
+                      <Mail className="h-4 w-4 shrink-0" aria-hidden />
+                      {campaign.contactPerson.email}
+                    </a>
+                  ) : null}
+                </div>
+              ) : null}
               <Button
                 asChild
                 className="h-11 w-full gap-2 rounded-full bg-red-700 shadow-sm shadow-red-700/20 hover:bg-red-800"

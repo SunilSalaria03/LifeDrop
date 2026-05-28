@@ -30,10 +30,14 @@ export function CampaignDetailHero({ campaign }: CampaignDetailHeroProps) {
   const { main: titleMain, highlight: titleHighlight } = splitCampaignTitle(
     campaign.title,
   );
+  const campaignTypeLabel = campaign.type
+    ? campaign.type.replace(/_/g, ' ')
+    : 'campaign';
 
   return (
     <HeroBannerShell
       contentClassName="flex-col justify-center py-8 sm:py-10 lg:py-12"
+      imageUrl={campaign.images?.bannerUrl || campaign.images?.thumbnailUrl}
       size="compact"
     >
       <div className="grid w-full max-w-3xl gap-3 sm:gap-4 lg:max-w-[58%]">
@@ -48,6 +52,19 @@ export function CampaignDetailHero({ campaign }: CampaignDetailHeroProps) {
             Campaign detail
           </p>
           <CampaignStatusBadge status={campaign.status} variant="onDark" />
+          {campaign.isVerified ? (
+            <span className="inline-flex rounded-full border border-emerald-300/40 bg-emerald-400/20 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-emerald-100 ring-1 ring-inset ring-emerald-300/40">
+              Verified
+            </span>
+          ) : null}
+          {campaign.isFeatured ? (
+            <span className="inline-flex rounded-full border border-amber-300/40 bg-amber-400/20 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-amber-100 ring-1 ring-inset ring-amber-300/40">
+              Featured
+            </span>
+          ) : null}
+          <span className="inline-flex rounded-full border border-white/25 bg-white/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-slate-100 ring-1 ring-inset ring-white/20">
+            {campaignTypeLabel}
+          </span>
         </div>
 
         <div className="flex flex-col gap-4 sm:gap-5">

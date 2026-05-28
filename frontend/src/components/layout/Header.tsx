@@ -181,11 +181,11 @@ export function Header() {
                 >
                   <GenderAvatar
                     alt={getDisplayName(user.name, user.phone, user.email)}
-                    avatarUrl={user.avatarUrl}
+                    avatarUrl={user?.avatarUrl ?? null}
                     className="h-8 w-8 border border-red-100 bg-red-50"
                     fallback={getInitials(user.name, user.phone, user.email)}
                     fallbackClassName="bg-red-50 text-xs text-red-700"
-                    gender={user.gender}
+                    gender={user?.gender ?? null}
                   />
                   <span className="hidden max-w-28 truncate sm:inline">
                     {getDisplayName(user.name, user.phone, user.email)}

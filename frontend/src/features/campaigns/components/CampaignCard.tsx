@@ -17,7 +17,9 @@ type CampaignCardProps = {
 };
 
 export function CampaignCard({ campaign }: CampaignCardProps) {
-  const spotsLeft = Math.max(campaign.capacity - campaign.registrationCount, 0);
+  const registrationCount = campaign.registrationCount ?? 0;
+  const capacity = campaign.capacity ?? 0;
+  const spotsLeft = Math.max(capacity - registrationCount, 0);
 
   return (
     <Card className="group overflow-hidden rounded-2xl border-neutral-200 transition hover:border-red-200">
@@ -56,7 +58,7 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
             <li className="flex items-center gap-2">
               <Users className="h-4 w-4 shrink-0 text-red-600" aria-hidden />
               <span>
-                {campaign.registrationCount} registered
+                {registrationCount} registered
                 {spotsLeft > 0 ? ` · ${spotsLeft} spots left` : ' · nearly full'}
               </span>
             </li>
