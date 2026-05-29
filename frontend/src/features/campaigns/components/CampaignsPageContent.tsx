@@ -32,7 +32,10 @@ export function CampaignsPageContent() {
           appliedFilters.type !== 'all'
             ? (appliedFilters.type as 'blood_donation' | 'awareness' | 'health_checkup')
             : undefined,
-        city: appliedFilters.city.trim() || undefined,
+        city:
+          appliedFilters.state !== 'all'
+            ? appliedFilters.city.trim() || undefined
+            : undefined,
         state: appliedFilters.state !== 'all' ? appliedFilters.state : undefined,
         status:
           appliedFilters.status !== 'all'

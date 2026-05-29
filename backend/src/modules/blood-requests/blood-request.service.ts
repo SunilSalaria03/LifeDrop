@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectModel } from "@nestjs/mongoose";
@@ -145,17 +146,9 @@ export class BloodRequestService {
       bloodRequest.smsError = smsError;
       await bloodRequest.save();
 
-      return {
-        bloodRequestId: bloodRequest.id,
-        message: "SMS alert could not be sent.",
-        smsStatus: bloodRequest.smsStatus,
-        status: bloodRequest.status,
-        smsProvider: bloodRequest.smsProvider,
-        smsError: "SMS alert could not be sent. Please try again later.",
-        whatsappStatus: bloodRequest.whatsappStatus,
-        whatsappProvider: bloodRequest.whatsappProvider,
-        whatsappError: bloodRequest.whatsappError,
-      };
+      throw new ServiceUnavailableException(
+        "SMS alert could not be sent. Please try again later.",
+      );
     }
   }
 
@@ -204,6 +197,10 @@ export class BloodRequestService {
 
     if (!donorProfile.isAvailable) {
       throw new ForbiddenException("Donor is not available.");
+    }
+
+    if (!donorProfile.smsAlert) {
+      throw new ForbiddenException("Donor has disabled SMS alerts.");
     }
 
     const donorUser = await this.userModel.findById(donorProfile.userId).exec();

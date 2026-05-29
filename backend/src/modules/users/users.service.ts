@@ -223,8 +223,16 @@ export class UsersService {
       update.name = nextName;
     }
 
+    const isPhoneChanged =
+      nextPhone !== undefined && nextPhone !== (user.phone ?? undefined);
+
     if (nextPhone !== undefined) {
       update.phone = nextPhone;
+    }
+
+    if (isPhoneChanged) {
+      update.phoneVerified = false;
+      update.otpFailedAttempts = 0;
     }
 
     if (dto.lat !== undefined && dto.lng !== undefined) {
@@ -234,10 +242,12 @@ export class UsersService {
       };
     }
 
+    const effectivePhoneVerified = isPhoneChanged ? false : user.phoneVerified;
+
     update.isProfileCompleted = Boolean(
       (nextName ?? user.name) &&
       (nextPhone ?? user.phone) &&
-      user.phoneVerified,
+      effectivePhoneVerified,
     );
 
     const updatedUser = await this.userModel

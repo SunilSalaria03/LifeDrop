@@ -14,7 +14,7 @@ import { JwtService } from '@nestjs/jwt';
 import { cert, getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { OAuth2Client } from 'google-auth-library';
-import { createHash } from 'node:crypto';
+import { createHash, randomInt } from 'node:crypto';
 import { Twilio } from 'twilio';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { PhoneOtpSendDto } from './dto/phone-otp-send.dto';
@@ -73,11 +73,10 @@ export class AuthService {
 
     this.assertCanLogin(user);
     this.assertCanResendOtp(user);
-    const developmentOtp = await this.sendOtpSms(user.id, normalizedPhone);
+    await this.sendOtpSms(user.id, normalizedPhone);
 
     return {
       message: 'OTP sent successfully',
-      ...(developmentOtp ? { otp: developmentOtp } : {}),
     };
   }
 
@@ -507,7 +506,7 @@ export class AuthService {
   }
 
   private generateOtp(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    return randomInt(100000, 1000000).toString();
   }
 
   private getOtpValidUntil(): Date {

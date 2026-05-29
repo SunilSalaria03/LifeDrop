@@ -60,7 +60,22 @@ export const createCampaignSchema = yup.object({
   venue: yup.string().trim().required('Venue is required.'),
   address: yup.string().trim().required('Address is required.'),
   startDate: yup.string().trim().required('Start date is required.'),
-  endDate: yup.string().trim().required('End date is required.'),
+  endDate: yup
+    .string()
+    .trim()
+    .required('End date is required.')
+    .test(
+      'end-after-start',
+      'End date cannot be before start date.',
+      (value, context) => {
+        const startDate = context.parent.startDate as string | undefined;
+        if (!startDate || !value) {
+          return true;
+        }
+
+        return new Date(value).getTime() >= new Date(startDate).getTime();
+      },
+    ),
   startTime: yup.string().trim().optional(),
   endTime: yup.string().trim().optional(),
   capacity: yup

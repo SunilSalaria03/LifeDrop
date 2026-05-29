@@ -102,6 +102,22 @@ export function CampaignFilters({
         </SelectContent>
       </Select>
 
+      <Select
+        onValueChange={(value) => onChange({ ...filters, month: value })}
+        value={filters.month}
+      >
+        <SelectTrigger aria-label="Month" className={selectTriggerClassName}>
+          <SelectValue placeholder="Month" />
+        </SelectTrigger>
+        <SelectContent>
+          {monthOptions.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
 
       <Button
         className="h-14 w-full px-6 text-base shadow-lg shadow-red-500/20 hover:bg-red-800 md:w-auto"

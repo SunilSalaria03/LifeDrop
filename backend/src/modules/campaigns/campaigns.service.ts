@@ -22,6 +22,12 @@ import { CampaignDocument } from './schemas/campaign.schema.types';
 
 type CampaignSortBy = 'startDate' | 'endDate' | 'createdAt' | 'updatedAt' | 'title';
 type CampaignSortOrder = 'asc' | 'desc';
+const PUBLIC_VISIBLE_CAMPAIGN_STATUSES: CampaignStatus[] = [
+  CampaignStatus.Approved,
+  CampaignStatus.Upcoming,
+  CampaignStatus.Ongoing,
+  CampaignStatus.Completed,
+];
 
 @Injectable()
 export class CampaignsService {
@@ -59,7 +65,11 @@ export class CampaignsService {
 
   async getPublicCampaignBySlug(slug: string): Promise<Campaign> {
     const campaign = await this.campaignModel
-      .findOne({ slug, isPublic: true })
+      .findOne({
+        slug,
+        isPublic: true,
+        status: { $in: PUBLIC_VISIBLE_CAMPAIGN_STATUSES },
+      })
       .exec();
 
     if (!campaign) {
@@ -76,22 +86,21 @@ export class CampaignsService {
     this.assertDateConsistency(dto);
 
     const slug = await this.generateUniqueSlug(dto.title);
+    const createPayload = this.sanitizeCampaignWriteFields(dto);
     const campaign = await this.campaignModel.create({
-      ...dto,
+      ...createPayload,
       slug,
-      startDate: new Date(dto.startDate),
-      endDate: new Date(dto.endDate),
-      registrationDeadline: dto.registrationDeadline
-        ? new Date(dto.registrationDeadline)
+      startDate: new Date(createPayload.startDate as string),
+      endDate: new Date(createPayload.endDate as string),
+      registrationDeadline: createPayload.registrationDeadline
+        ? new Date(createPayload.registrationDeadline as string)
         : undefined,
       createdBy: {
         userId: user._id,
         name: user.name,
         role: user.role,
-        phone: user.phone,
-        email: user.email,
       },
-      status: dto.status ?? CampaignStatus.Draft,
+      status: CampaignStatus.Draft,
     });
 
     return campaign;
@@ -106,8 +115,6 @@ export class CampaignsService {
       throw new BadRequestException('Invalid campaign id.');
     }
 
-    this.assertDateConsistency(dto);
-
     const campaign = await this.campaignModel.findById(id).exec();
     if (!campaign) {
       throw new NotFoundException('Campaign not found.');
@@ -117,19 +124,29 @@ export class CampaignsService {
       throw new ForbiddenException('You can only update your own campaigns.');
     }
 
-    const updateData: Record<string, unknown> = { ...dto };
+    const updatePayload = this.sanitizeCampaignWriteFields(dto);
+    this.assertDateConsistency({
+      startDate: (updatePayload.startDate as string | undefined) ?? campaign.startDate?.toISOString(),
+      endDate: (updatePayload.endDate as string | undefined) ?? campaign.endDate?.toISOString(),
+      registrationDeadline:
+        updatePayload.registrationDeadline === undefined
+          ? campaign.registrationDeadline?.toISOString()
+          : (updatePayload.registrationDeadline as string),
+    });
+
+    const updateData: Record<string, unknown> = { ...updatePayload };
     if (dto.title && dto.title !== campaign.title) {
       updateData.slug = await this.generateUniqueSlug(dto.title, campaign._id);
     }
-    if (dto.startDate) {
-      updateData.startDate = new Date(dto.startDate);
+    if (updatePayload.startDate) {
+      updateData.startDate = new Date(updatePayload.startDate as string);
     }
-    if (dto.endDate) {
-      updateData.endDate = new Date(dto.endDate);
+    if (updatePayload.endDate) {
+      updateData.endDate = new Date(updatePayload.endDate as string);
     }
-    if (dto.registrationDeadline !== undefined) {
-      updateData.registrationDeadline = dto.registrationDeadline
-        ? new Date(dto.registrationDeadline)
+    if (updatePayload.registrationDeadline !== undefined) {
+      updateData.registrationDeadline = updatePayload.registrationDeadline
+        ? new Date(updatePayload.registrationDeadline as string)
         : null;
     }
 
@@ -303,9 +320,17 @@ export class CampaignsService {
   private buildPublicCampaignFilter(
     query: CampaignQueryDto,
   ): FilterQuery<CampaignDocument> {
-    const filter: FilterQuery<CampaignDocument> = { isPublic: true };
+    const filter: FilterQuery<CampaignDocument> = {
+      isPublic: true,
+      status: { $in: PUBLIC_VISIBLE_CAMPAIGN_STATUSES },
+    };
 
     if (query.status) {
+      if (!PUBLIC_VISIBLE_CAMPAIGN_STATUSES.includes(query.status)) {
+        throw new BadRequestException(
+          'Only public campaign statuses can be used in this filter.',
+        );
+      }
       filter.status = query.status;
     }
     if (query.type) {
@@ -385,5 +410,46 @@ export class CampaignsService {
 
   private escapeRegex(value: string): string {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  private sanitizeCampaignWriteFields(
+    dto: Partial<CreateCampaignDto>,
+  ): Partial<CreateCampaignDto> {
+    const sanitized: Partial<CreateCampaignDto> = {};
+
+    for (const field of [
+      'title',
+      'shortDescription',
+      'description',
+      'type',
+      'organizer',
+      'location',
+      'startDate',
+      'endDate',
+      'startTime',
+      'endTime',
+      'timezone',
+      'bloodGroupsNeeded',
+      'donationTypes',
+      'capacity',
+      'allowWalkIn',
+      'registrationRequired',
+      'registrationDeadline',
+      'contactPerson',
+      'eligibilityNotes',
+      'scheduleNotes',
+      'instructions',
+      'highlights',
+      'images',
+      'documents',
+      'isFree',
+      'seo',
+    ] as const) {
+      if (dto[field] !== undefined) {
+        (sanitized as Record<string, unknown>)[field] = dto[field];
+      }
+    }
+
+    return sanitized;
   }
 }

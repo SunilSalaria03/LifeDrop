@@ -109,3 +109,4 @@ BloodRequestSchema.index({ status: 1 });
 BloodRequestSchema.index({ smsStatus: 1 });
 BloodRequestSchema.index({ whatsappStatus: 1 });
 BloodRequestSchema.index({ createdAt: -1 });
+BloodRequestSchema.index({ requesterId: 1, donorId: 1, createdAt: -1 });

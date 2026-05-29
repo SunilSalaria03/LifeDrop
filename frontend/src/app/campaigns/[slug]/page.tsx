@@ -3,7 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { CampaignDetailPage as CampaignDetailPageContent } from '@/features/campaigns/CampaignDetailPage';
-import { getCampaignBySlug } from '@/features/campaigns/api/campaigns.api';
+import { ApiRequestError, getCampaignBySlug } from '@/features/campaigns/api/campaigns.api';
 import { mapCampaignToUiModel } from '@/features/campaigns/lib/campaign-mappers';
 import { BannerBreadcrumbStrip } from '@/components/layout/BannerBreadcrumbStrip';
 import { breadcrumbCampaignDetail } from '@/components/layout/breadcrumb.presets';
@@ -24,9 +24,10 @@ export default function CampaignSlugPage() {
   const campaign = campaignQuery.data ? mapCampaignToUiModel(campaignQuery.data) : null;
 
   if (campaignQuery.isError) {
-    const message =
-      campaignQuery.error instanceof Error ? campaignQuery.error.message : '';
-    if (message.toLowerCase().includes('not found')) {
+    if (
+      campaignQuery.error instanceof ApiRequestError &&
+      campaignQuery.error.status === 404
+    ) {
       return <CampaignNotFoundPage />;
     }
   }
