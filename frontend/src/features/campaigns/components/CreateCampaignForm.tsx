@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { Megaphone, Send } from 'lucide-react';
 import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -32,7 +32,10 @@ import { createCampaignSchema } from '../validations/campaign.validation';
 import {
   profileCard,
   profileCardBody,
+  profileCardHeader,
+  profileInsetPanel,
 } from '@/app/profile/profile-card.styles';
+import { cn } from '@/lib/utils';
 
 const defaultInitialValues = {
   title: '',
@@ -62,6 +65,23 @@ const defaultInitialValues = {
 };
 
 const BLOOD_GROUP_OPTIONS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+
+function FieldLabel({
+  children,
+  htmlFor,
+}: {
+  children: string;
+  htmlFor?: string;
+}) {
+  return (
+    <label
+      className="text-xs font-black uppercase tracking-normal text-neutral-500"
+      htmlFor={htmlFor}
+    >
+      {children}
+    </label>
+  );
+}
 
 type CreateCampaignFormProps = {
   mode?: 'create' | 'edit';
@@ -328,13 +348,21 @@ export function CreateCampaignForm({
 
   return (
     <Card className={profileCard}>
+      <CardHeader className={profileCardHeader}>
+        <h2 className="text-lg font-bold text-neutral-950">
+          {isEditMode ? 'Edit campaign details' : 'Create your campaign'}
+        </h2>
+        <p className="text-sm text-neutral-600">
+          Add accurate campaign, location, and contact details so donors can find your drive quickly.
+        </p>
+      </CardHeader>
       <CardContent className={profileCardBody}>
         <form className="grid gap-6" onSubmit={formik.handleSubmit}>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <section className={cn(profileInsetPanel, 'grid gap-4 sm:p-5')}>
+            <h3 className="text-base font-bold text-neutral-950">Campaign basics</h3>
+            <div className="grid gap-3 sm:grid-cols-2">
             <div className="grid gap-1.5 sm:col-span-2">
-              <label className="text-sm font-semibold text-neutral-800" htmlFor="campaign-title">
-                Campaign title
-              </label>
+              <FieldLabel htmlFor="campaign-title">Campaign title</FieldLabel>
               <Input
                 className="h-11 rounded-xl"
                 id="campaign-title"
@@ -348,12 +376,7 @@ export function CreateCampaignForm({
               ) : null}
             </div>
             <div className="grid gap-1.5 sm:col-span-2">
-              <label
-                className="text-sm font-semibold text-neutral-800"
-                htmlFor="campaign-summary"
-              >
-                Short summary
-              </label>
+              <FieldLabel htmlFor="campaign-summary">Short summary</FieldLabel>
               <textarea
                 className="min-h-[88px] w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-sm shadow-sm outline-none ring-offset-background placeholder:text-neutral-400 focus-visible:border-red-400 focus-visible:ring-2 focus-visible:ring-red-500/20"
                 id="campaign-summary"
@@ -369,12 +392,7 @@ export function CreateCampaignForm({
               ) : null}
             </div>
             <div className="grid gap-1.5 sm:col-span-2">
-              <label
-                className="text-sm font-semibold text-neutral-800"
-                htmlFor="campaign-description"
-              >
-                Description
-              </label>
+              <FieldLabel htmlFor="campaign-description">Description</FieldLabel>
               <textarea
                 className="min-h-[110px] w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-sm shadow-sm outline-none ring-offset-background placeholder:text-neutral-400 focus-visible:border-red-400 focus-visible:ring-2 focus-visible:ring-red-500/20"
                 id="campaign-description"
@@ -439,6 +457,11 @@ export function CreateCampaignForm({
                 </p>
               ) : null}
             </div>
+            </div>
+          </section>
+          <section className={cn(profileInsetPanel, 'grid gap-4 sm:p-5')}>
+            <h3 className="text-base font-bold text-neutral-950">Location & schedule</h3>
+            <div className="grid gap-3 sm:grid-cols-2">
             <div className="grid gap-1.5">
               <label className="text-sm font-semibold text-neutral-800">
                 State
@@ -615,6 +638,11 @@ export function CreateCampaignForm({
                 <p className="text-xs font-medium text-red-700">{getFieldError('capacity')}</p>
               ) : null}
             </div>
+            </div>
+          </section>
+          <section className={cn(profileInsetPanel, 'grid gap-4 sm:p-5')}>
+            <h3 className="text-base font-bold text-neutral-950">Organizer & contact</h3>
+            <div className="grid gap-3 sm:grid-cols-2">
             <div className="grid gap-1.5">
               <label className="text-sm font-semibold text-neutral-800" htmlFor="campaign-organizer">
                 Organizer name
@@ -747,11 +775,12 @@ export function CreateCampaignForm({
                 ) : null}
               </div>
             ) : null}
-          </div>
+            </div>
+          </section>
 
-          <div className="flex justify-center border-t border-neutral-100 pt-6">
+          <div className="flex justify-center">
             <Button
-              className="h-11 gap-2 rounded-full bg-red-700 px-8 hover:bg-red-800"
+              className="h-12 w-full gap-2 rounded-full bg-red-700 px-8 text-white hover:bg-red-800 sm:w-auto"
               disabled={
                 createCampaignMutation.isPending || updateCampaignMutation.isPending
               }
