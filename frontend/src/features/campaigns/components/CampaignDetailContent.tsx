@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import type { LucideIcon } from 'lucide-react';
 import {
   ArrowLeft,
@@ -9,19 +11,24 @@ import {
   CheckCircle2,
   Clock3,
   Droplet,
+  Loader2,
   ExternalLink,
   HeartHandshake,
   Mail,
   Megaphone,
   MapPin,
+  PencilLine,
   Phone,
   ShieldCheck,
+  Trash2,
   UserPlus,
   Users,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { useToast } from '@/components/ui/toast';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import {
   profileCard,
   profileCardBody,
@@ -30,6 +37,7 @@ import {
   profileInsetPanel,
 } from '@/app/profile/profile-card.styles';
 import { cn } from '@/lib/utils';
+import { deleteCampaign, getMyCampaignById } from '../api/campaigns.api';
 import { formatCampaignDateRange } from '../lib/campaign-filters';
 import { BloodDonationCampaign } from '../types/campaign.types';
 import { CampaignStatusBadge } from './CampaignStatusBadge';
@@ -71,6 +79,9 @@ function CampaignInfoField({
 }
 
 export function CampaignDetailContent({ campaign }: CampaignDetailContentProps) {
+  const router = useRouter();
+  const { showToast } = useToast();
+  const { user } = useAuth();
   const capacity = campaign.capacity;
   const registrationCount = campaign.registrationCount ?? 0;
   const hasCapacity = campaign.hasCapacity ?? typeof capacity === 'number';
@@ -102,6 +113,65 @@ export function CampaignDetailContent({ campaign }: CampaignDetailContentProps) 
       hour12: true,
     });
   };
+  const ownerAccessQuery = useQuery({
+    enabled: Boolean(user && campaign.id),
+    queryKey: ['campaign-owner-access', campaign.id],
+    queryFn: () => getMyCampaignById(campaign.id),
+    retry: false,
+  });
+  const isOwner = ownerAccessQuery.isSuccess;
+  const deleteMutation = useMutation({
+    mutationFn: deleteCampaign,
+    onSuccess: () => {
+      showToast({
+        title: 'Campaign deleted',
+        message: 'Your campaign has been removed.',
+        variant: 'success',
+      });
+      router.push('/campaigns/my');
+    },
+    onError: (error: Error) => {
+      showToast({
+        title: 'Delete failed',
+        message: error.message,
+        variant: 'error',
+      });
+    },
+  });
+
+  function handleEditCampaign() {
+    showToast({
+      title: 'Opening editor',
+      message: `Editing "${campaign.title}".`,
+      variant: 'success',
+    });
+    router.push(`/campaigns/my/${campaign.id}/edit`);
+  }
+
+  async function handleDeleteCampaign() {
+    showToast({
+      title: 'Delete confirmation',
+      message: `Please confirm delete for "${campaign.title}".`,
+      variant: 'success',
+    });
+    const shouldDelete = window.confirm(
+      `Delete "${campaign.title}"? This action cannot be undone.`,
+    );
+    if (!shouldDelete) {
+      showToast({
+        title: 'Delete cancelled',
+        message: 'Campaign was not deleted.',
+        variant: 'success',
+      });
+      return;
+    }
+    showToast({
+      title: 'Deleting campaign',
+      message: `"${campaign.title}" is being deleted.`,
+      variant: 'success',
+    });
+    await deleteMutation.mutateAsync(campaign.id);
+  }
 
   return (
     <div className="bg-neutral-50">
@@ -138,6 +208,32 @@ export function CampaignDetailContent({ campaign }: CampaignDetailContentProps) 
                   </div>
 
                   <div className="flex shrink-0 flex-wrap gap-2">
+                    {isOwner ? (
+                      <>
+                        <Button
+                          className="h-10 gap-2 px-4"
+                          onClick={handleEditCampaign}
+                          type="button"
+                          variant="outline"
+                        >
+                          <PencilLine className="h-4 w-4" />
+                          Edit campaign
+                        </Button>
+                        <Button
+                          className="h-10 gap-2 bg-red-700 px-4 text-white hover:bg-red-800"
+                          disabled={deleteMutation.isPending}
+                          onClick={handleDeleteCampaign}
+                          type="button"
+                        >
+                          {deleteMutation.isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                          {deleteMutation.isPending ? 'Deleting...' : 'Delete campaign'}
+                        </Button>
+                      </>
+                    ) : null}
                     <Button asChild className="h-10 px-4">
                       <Link href="/donor-list">
                         <HeartHandshake className="h-4 w-4" />

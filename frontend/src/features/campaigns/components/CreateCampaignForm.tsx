@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { City, State } from 'country-state-city';
 import { useFormik } from 'formik';
+import { useRouter } from 'next/navigation';
 import { Megaphone, Send } from 'lucide-react';
 import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
@@ -19,16 +20,21 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { toIndianE164 } from '@/lib/phone/india-phone';
-import { createCampaign } from '../api/campaigns.api';
-import { CampaignType, OrganizerType } from '../types/campaign.types';
+import { toIndianE164, toIndianNationalNumber } from '@/lib/phone/india-phone';
+import { createCampaign, updateCampaign } from '../api/campaigns.api';
+import {
+  BloodDonationCampaign,
+  CampaignType,
+  DonationType,
+  OrganizerType,
+} from '../types/campaign.types';
 import { createCampaignSchema } from '../validations/campaign.validation';
 import {
   profileCard,
   profileCardBody,
 } from '@/app/profile/profile-card.styles';
 
-const initialValues = {
+const defaultInitialValues = {
   title: '',
   shortDescription: '',
   description: '',
@@ -57,11 +63,71 @@ const initialValues = {
 
 const BLOOD_GROUP_OPTIONS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
-export function CreateCampaignForm() {
+type CreateCampaignFormProps = {
+  mode?: 'create' | 'edit';
+  campaign?: BloodDonationCampaign;
+  campaignId?: string;
+};
+
+function toDateInputValue(value?: string): string {
+  if (!value) {
+    return '';
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return '';
+  }
+  return parsed.toISOString().slice(0, 10);
+}
+
+export function CreateCampaignForm({
+  mode = 'create',
+  campaign,
+  campaignId,
+}: CreateCampaignFormProps) {
+  const isEditMode = mode === 'edit';
+  const router = useRouter();
   const { user } = useAuth();
   const { showToast } = useToast();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const states = useMemo(() => State.getStatesOfCountry('IN'), []);
+  const initialValues = useMemo(() => {
+    if (!campaign) {
+      return { ...defaultInitialValues };
+    }
+
+    const matchedState = states.find(
+      (state) => state.name.toLowerCase() === campaign.state.toLowerCase(),
+    );
+
+    return {
+      title: campaign.title ?? '',
+      shortDescription: campaign.shortDescription ?? '',
+      description: campaign.description ?? '',
+      type: campaign.type ?? ('blood_donation' as CampaignType),
+      stateCode: matchedState?.isoCode ?? '',
+      city: campaign.city ?? '',
+      district: campaign.district ?? '',
+      state: campaign.state ?? '',
+      address: campaign.address ?? '',
+      pincode: campaign.pincode ?? '',
+      venue: campaign.venue ?? '',
+      startDate: toDateInputValue(campaign.startDate),
+      endDate: toDateInputValue(campaign.endDate),
+      startTime: campaign.startTime ?? '',
+      endTime: campaign.endTime ?? '',
+      capacity:
+        typeof campaign.capacity === 'number' ? `${campaign.capacity}` : '',
+      organizer: campaign.organizer ?? '',
+      organizerType: campaign.organizerType ?? ('individual' as OrganizerType),
+      organizerPhone: toIndianNationalNumber(campaign.organizerPhone) ?? '',
+      organizerEmail: campaign.organizerEmail ?? '',
+      contactName: campaign.contactPerson?.name ?? '',
+      contactPhone: toIndianNationalNumber(campaign.contactPerson?.phone) ?? '',
+      contactEmail: campaign.contactPerson?.email ?? '',
+      bloodGroupsNeeded: campaign.bloodGroupsNeeded ?? [],
+    };
+  }, [campaign, states]);
 
   const createCampaignMutation = useMutation({
     mutationFn: createCampaign,
@@ -71,6 +137,25 @@ export function CreateCampaignForm() {
     onError: (error: Error) => {
       showToast({
         title: 'Campaign submit failed',
+        message: error.message,
+        variant: 'error',
+      });
+    },
+  });
+  const updateCampaignMutation = useMutation({
+    mutationFn: (payload: Parameters<typeof updateCampaign>[1]) => {
+      if (!campaignId) {
+        throw new Error('Campaign id is missing for update.');
+      }
+      return updateCampaign(campaignId, payload);
+    },
+    onSuccess: () => {
+      setIsSubmitted(true);
+      router.push('/campaigns/my');
+    },
+    onError: (error: Error) => {
+      showToast({
+        title: 'Campaign update failed',
         message: error.message,
         variant: 'error',
       });
@@ -91,20 +176,26 @@ export function CreateCampaignForm() {
 
   const formik = useFormik({
     initialValues,
+    enableReinitialize: true,
     validationSchema: createCampaignSchema,
     validateOnChange: false,
     onSubmit: async (values) => {
       if (!user) {
         window.dispatchEvent(
           new CustomEvent('lifedrop:open-auth-modal', {
-            detail: { redirect: '/campaigns/create' },
+            detail: {
+              redirect:
+                isEditMode && campaignId
+                  ? `/campaigns/my/${campaignId}/edit`
+                  : '/campaigns/create',
+            },
           }),
         );
         return;
       }
 
       try {
-        await createCampaignMutation.mutateAsync({
+        const payload = {
           title: values.title.trim(),
           shortDescription: values.shortDescription.trim(),
           description: values.description.trim(),
@@ -133,16 +224,30 @@ export function CreateCampaignForm() {
           bloodGroupsNeeded:
             values.type === 'blood_donation' ? values.bloodGroupsNeeded : undefined,
           donationTypes:
-            values.type === 'blood_donation' ? ['whole_blood'] : undefined,
+            values.type === 'blood_donation'
+              ? (['whole_blood'] as DonationType[])
+              : undefined,
           contactPerson: {
             name: values.contactName.trim() || undefined,
             phone: toIndianE164(values.contactPhone) || undefined,
             email: values.contactEmail.trim() || undefined,
           },
-        });
+        };
+
+        if (isEditMode) {
+          await updateCampaignMutation.mutateAsync(payload);
+          showToast({
+            title: 'Campaign updated',
+            message: 'Your campaign changes were saved.',
+            variant: 'success',
+          });
+          return;
+        }
+
+        await createCampaignMutation.mutateAsync(payload);
       } catch (error) {
         showToast({
-          title: 'Campaign submit failed',
+          title: isEditMode ? 'Campaign update failed' : 'Campaign submit failed',
           message: error instanceof Error ? error.message : 'Submit failed.',
           variant: 'error',
         });
@@ -201,17 +306,20 @@ export function CreateCampaignForm() {
             <Megaphone className="h-8 w-8" aria-hidden />
           </div>
           <h2 className="text-xl font-bold text-neutral-950">
-            Campaign details received
+            {isEditMode ? 'Campaign updated successfully' : 'Campaign details received'}
           </h2>
           <p className="mx-auto max-w-md text-sm leading-6 text-neutral-600">
-            Campaign submitted successfully. It will be visible after admin
-            approval.
+            {isEditMode
+              ? 'Your campaign changes are saved.'
+              : 'Campaign submitted successfully. It will be visible after admin approval.'}
           </p>
           <Button
             asChild
             className="mx-auto mt-2 h-11 w-fit rounded-full bg-red-700 px-6 hover:bg-red-800"
           >
-            <Link href="/campaigns">Back to campaigns</Link>
+            <Link href={isEditMode ? '/campaigns/my' : '/campaigns'}>
+              {isEditMode ? 'Back to my campaigns' : 'Back to campaigns'}
+            </Link>
           </Button>
         </CardContent>
       </Card>
@@ -644,13 +752,19 @@ export function CreateCampaignForm() {
           <div className="flex justify-center border-t border-neutral-100 pt-6">
             <Button
               className="h-11 gap-2 rounded-full bg-red-700 px-8 hover:bg-red-800"
-              disabled={createCampaignMutation.isPending}
+              disabled={
+                createCampaignMutation.isPending || updateCampaignMutation.isPending
+              }
               type="submit"
             >
               <Send className="h-4 w-4 shrink-0" aria-hidden />
-              {createCampaignMutation.isPending
-                ? 'Submitting...'
-                : 'Create Campaign'}
+              {createCampaignMutation.isPending || updateCampaignMutation.isPending
+                ? isEditMode
+                  ? 'Saving...'
+                  : 'Submitting...'
+                : isEditMode
+                  ? 'Update Campaign'
+                  : 'Create Campaign'}
             </Button>
           </div>
         </form>

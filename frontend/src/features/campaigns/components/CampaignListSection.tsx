@@ -17,6 +17,10 @@ type CampaignListSectionProps = {
   hasActiveFilters: boolean;
   onViewAll: () => void;
   isLoading?: boolean;
+  showOwnerActions?: boolean;
+  deletingCampaignId?: string | null;
+  onDeleteCampaign?: (campaign: BloodDonationCampaign) => void;
+  onEditCampaign?: (campaign: BloodDonationCampaign) => void;
 };
 
 function formatCampaignCountLabel(totalCount: number): string {
@@ -52,6 +56,10 @@ export function CampaignListSection({
   hasActiveFilters,
   onViewAll,
   isLoading = false,
+  showOwnerActions = false,
+  deletingCampaignId = null,
+  onDeleteCampaign,
+  onEditCampaign,
 }: CampaignListSectionProps) {
   const resolvedTotalPages =
     totalPages ?? Math.max(1, Math.ceil(totalCount / pageSize));
@@ -123,7 +131,14 @@ export function CampaignListSection({
           <>
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {campaigns.map((campaign) => (
-                <CampaignCard campaign={campaign} key={campaign.id} />
+                <CampaignCard
+                  campaign={campaign}
+                  isDeleting={deletingCampaignId === campaign.id}
+                  key={campaign.id}
+                  onDelete={onDeleteCampaign}
+                  onEdit={onEditCampaign}
+                  showOwnerActions={showOwnerActions}
+                />
               ))}
             </div>
 

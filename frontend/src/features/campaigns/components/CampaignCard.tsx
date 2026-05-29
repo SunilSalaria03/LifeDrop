@@ -4,8 +4,11 @@ import {
   ArrowRight,
   CalendarDays,
   Droplet,
+  Loader2,
   MapPin,
+  PencilLine,
   ShieldCheck,
+  Trash2,
   UserRound,
   Users,
 } from 'lucide-react';
@@ -18,6 +21,10 @@ import { CampaignStatusBadge } from './CampaignStatusBadge';
 
 type CampaignCardProps = {
   campaign: BloodDonationCampaign;
+  showOwnerActions?: boolean;
+  isDeleting?: boolean;
+  onDelete?: (campaign: BloodDonationCampaign) => void;
+  onEdit?: (campaign: BloodDonationCampaign) => void;
 };
 
 type CampaignDetailItemProps = {
@@ -44,7 +51,13 @@ function CampaignDetailItem({
   );
 }
 
-export function CampaignCard({ campaign }: CampaignCardProps) {
+export function CampaignCard({
+  campaign,
+  showOwnerActions = false,
+  isDeleting = false,
+  onDelete,
+  onEdit,
+}: CampaignCardProps) {
   const registrationCount = campaign.registrationCount ?? 0;
   const capacity = campaign.capacity ?? 0;
   const spotsLeft = Math.max(capacity - registrationCount, 0);
@@ -123,6 +136,32 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
               View campaign details
             </Link>
           </Button>
+          {showOwnerActions ? (
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <Button
+                className="h-10 gap-2 border-neutral-200"
+                onClick={() => onEdit?.(campaign)}
+                type="button"
+                variant="outline"
+              >
+                <PencilLine className="h-4 w-4" />
+                Edit
+              </Button>
+              <Button
+                className="h-10 gap-2 bg-red-700 text-white hover:bg-red-800"
+                disabled={isDeleting}
+                onClick={() => onDelete?.(campaign)}
+                type="button"
+              >
+                {isDeleting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </Button>
+            </div>
+          ) : null}
         </div>
       </CardContent>
     </Card>

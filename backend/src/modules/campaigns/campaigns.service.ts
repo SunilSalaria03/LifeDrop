@@ -191,6 +191,45 @@ export class CampaignsService {
     };
   }
 
+  async getOwnCampaignById(user: UserDocument, id: string): Promise<Campaign> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid campaign id.');
+    }
+
+    const campaign = await this.campaignModel.findById(id).exec();
+    if (!campaign) {
+      throw new NotFoundException('Campaign not found.');
+    }
+
+    if (campaign.createdBy.userId.toString() !== user._id.toString()) {
+      throw new ForbiddenException('You can only view your own campaigns.');
+    }
+
+    return campaign;
+  }
+
+  async deleteOwnCampaign(
+    user: UserDocument,
+    id: string,
+  ): Promise<{ id: string; deleted: true }> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid campaign id.');
+    }
+
+    const campaign = await this.campaignModel.findById(id).exec();
+    if (!campaign) {
+      throw new NotFoundException('Campaign not found.');
+    }
+
+    if (campaign.createdBy.userId.toString() !== user._id.toString()) {
+      throw new ForbiddenException('You can only delete your own campaigns.');
+    }
+
+    await this.campaignModel.deleteOne({ _id: campaign._id }).exec();
+
+    return { id, deleted: true };
+  }
+
   private assertDateConsistency(
     dto: {
       startDate?: string;

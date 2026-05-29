@@ -133,3 +133,29 @@ export async function updateCampaign(id: string, payload: UpdateCampaignPayload)
     );
   }
 }
+
+export async function getMyCampaignById(id: string) {
+  try {
+    const response = await axiosClient.get<ApiResponse<BackendCampaign>>(
+      `/campaigns/me/${id}`,
+    );
+    return requireData(response.data, 'Campaign response was empty.');
+  } catch (error) {
+    throw new Error(
+      getApiErrorMessage(error, 'Could not load this campaign. Please try again.'),
+    );
+  }
+}
+
+export async function deleteCampaign(id: string) {
+  try {
+    const response = await axiosClient.delete<ApiResponse<{ id: string; deleted: true }>>(
+      `/campaigns/${id}`,
+    );
+    return requireData(response.data, 'Campaign delete response was empty.');
+  } catch (error) {
+    throw new Error(
+      getApiErrorMessage(error, 'Campaign delete failed. Please try again.'),
+    );
+  }
+}

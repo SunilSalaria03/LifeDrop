@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -61,6 +62,26 @@ export class CampaignsController {
     @Query() myCampaignQueryDto: MyCampaignQueryDto,
   ) {
     return this.campaignsService.listMyCampaigns(request.user, myCampaignQueryDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiCookieAuth('access_token')
+  @Get('me/:id')
+  getOwnCampaignById(
+    @Req() request: AuthenticatedRequest,
+    @Param('id') id: string,
+  ) {
+    return this.campaignsService.getOwnCampaignById(request.user, id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiCookieAuth('access_token')
+  @Delete(':id')
+  deleteOwnCampaign(
+    @Req() request: AuthenticatedRequest,
+    @Param('id') id: string,
+  ) {
+    return this.campaignsService.deleteOwnCampaign(request.user, id);
   }
 
   @Get(':slug')
