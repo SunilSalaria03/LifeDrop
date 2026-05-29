@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -14,12 +15,19 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GenderAvatar } from "@/components/ui/gender-avatar";
-import { AuthModal } from "@/features/auth/components/AuthModal";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { AuthUser } from "@/features/auth/types/auth.types";
 import { userStorage } from "@/lib/auth/user-storage";
 import { stripNextInternalSearchParams } from "@/lib/navigation/safe-url";
 import { getDisplayName, getInitials } from "./header.helpers";
+
+const AuthModal = dynamic(
+  () =>
+    import("@/features/auth/components/AuthModal").then(
+      (module) => module.AuthModal,
+    ),
+  { ssr: false },
+);
 
 export function Header() {
   const router = useRouter();
@@ -39,6 +47,26 @@ export function Header() {
   useEffect(() => {
     setHasHydrated(true);
   }, []);
+
+  useEffect(() => {
+    const prefetchRoutes = () => {
+      router.prefetch("/campaigns");
+      router.prefetch("/become-donor");
+      router.prefetch("/profile");
+    };
+    const idleWindow = window as Window & {
+      requestIdleCallback?: (callback: IdleRequestCallback) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+
+    if (idleWindow.requestIdleCallback) {
+      const idleId = idleWindow.requestIdleCallback(prefetchRoutes);
+      return () => idleWindow.cancelIdleCallback?.(idleId);
+    }
+
+    const timeoutId = setTimeout(prefetchRoutes, 0);
+    return () => clearTimeout(timeoutId);
+  }, [router]);
 
   useEffect(() => {
     setStoredUser(userStorage.getUser());
@@ -248,7 +276,7 @@ export function Header() {
               asChild
               className="h-11 flex-1 rounded-full bg-red-700 px-5 text-white shadow-sm shadow-red-700/20 hover:bg-red-800 sm:flex-none"
             >
-              <Link href="/campaigns">
+              <Link href="/campaigns" prefetch>
                 <Megaphone className="h-4 w-4" />
                 Campaigns
               </Link>
@@ -259,7 +287,7 @@ export function Header() {
                   asChild
                   className="h-11 flex-1 rounded-full bg-red-700 px-5 text-white shadow-sm shadow-red-700/20 hover:bg-red-800 sm:flex-none"
                 >
-                  <Link href="/become-donor">
+                  <Link href="/become-donor" prefetch>
                     <HeartHandshake className="h-4 w-4" />
                     Join as a Donor
                   </Link>
