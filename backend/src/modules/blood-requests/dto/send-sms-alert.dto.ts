@@ -49,4 +49,16 @@ export class SendSmsAlertDto {
   @IsString()
   @MaxLength(500)
   message?: string;
+
+  @ApiPropertyOptional({ example: 'Rahul Verma' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  requesterName?: string;
+
+  @ApiPropertyOptional({ example: 'Indore, Madhya Pradesh' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(160)
+  requesterLocation?: string;
 }

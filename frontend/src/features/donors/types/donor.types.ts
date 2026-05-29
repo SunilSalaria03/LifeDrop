@@ -38,6 +38,7 @@ export type DonorProfilePayload = {
   addressLine?: string;
   addressText?: string;
   showMobile: boolean;
+  showEmail: boolean;
   smsAlert: boolean;
   pincode?: string;
   lat: number;
@@ -50,6 +51,7 @@ export type DonorListItem = {
   id: string;
   userId?: string;
   name?: string;
+  email?: string;
   avatarUrl?: string;
   avatarKey?: string;
   bloodGroup: string;
@@ -62,6 +64,7 @@ export type DonorListItem = {
   tehsil?: string;
   pincode?: string;
   showMobile?: boolean;
+  showEmail?: boolean;
   smsAlert?: boolean;
   distanceKm?: number;
   isAvailable: boolean;
@@ -106,6 +109,8 @@ export type DonorSmsAlertPayload = {
   sendWhatsapp?: boolean;
   consentToShareContact: boolean;
   message?: string;
+  requesterName?: string;
+  requesterLocation?: string;
 };
 
 export type DonorSmsAlertResponse = {

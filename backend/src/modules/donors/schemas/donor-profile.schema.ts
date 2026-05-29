@@ -88,6 +88,9 @@ export class DonorProfile {
   showMobile?: boolean;
 
   @Prop({ default: false })
+  showEmail?: boolean;
+
+  @Prop({ default: false })
   smsAlert?: boolean;
 
   @Prop({ trim: true })

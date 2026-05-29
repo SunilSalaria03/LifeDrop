@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GenderAvatar } from "@/components/ui/gender-avatar";
-import { LocationSelector } from "@/components/location/LocationSelector";
 import { AuthModal } from "@/features/auth/components/AuthModal";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { AuthUser } from "@/features/auth/types/auth.types";
@@ -182,11 +181,11 @@ export function Header() {
                 >
                   <GenderAvatar
                     alt={getDisplayName(user.name, user.phone, user.email)}
-                    avatarUrl={user.avatarUrl}
+                    avatarUrl={user?.avatarUrl ?? null}
                     className="h-8 w-8 border border-red-100 bg-red-50"
                     fallback={getInitials(user.name, user.phone, user.email)}
                     fallbackClassName="bg-red-50 text-xs text-red-700"
-                    gender={user.gender}
+                    gender={user?.gender ?? null}
                   />
                   <span className="hidden max-w-28 truncate sm:inline">
                     {getDisplayName(user.name, user.phone, user.email)}
@@ -194,7 +193,7 @@ export function Header() {
                 </button>
 
                 {isMenuOpen ? (
-                  <div className="absolute right-0 mt-3 grid w-[calc(100vw-2rem)] max-w-56 gap-1 rounded-2xl border border-neutral-200 bg-white p-2 shadow-2xl shadow-red-950/10 sm:w-56">
+                  <div className="absolute right-0 mt-3 grid w-[calc(100vw-2rem)] max-w-56 gap-1 rounded-2xl border border-neutral-200 bg-white p-2 sm:w-56">
                     <div className="border-b border-neutral-100 px-3 py-2">
                       <p className="truncate text-sm font-bold text-neutral-950">
                         {getDisplayName(user.name, user.phone, user.email)}

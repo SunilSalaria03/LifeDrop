@@ -58,8 +58,10 @@ export function InfoFieldCard({
           <span className="block text-xs font-semibold uppercase tracking-wide text-neutral-500">
             {label}
           </span>
-          <span className="mt-1 block break-words text-sm font-semibold text-neutral-950">
-            {value || "Not provided"}
+          <span
+            className={`mt-1 block break-words text-sm font-semibold ${value !== "N/A" ? "text-neutral-900" : "text-neutral-500"}`}
+          >
+            {value ?? "N/A"}
           </span>
         </span>
       </div>
@@ -98,7 +100,7 @@ export function ProfileHeaderCard({
           <GenderAvatar
             alt={displayName}
             avatarUrl={user.avatarUrl}
-            className="h-20 w-20 shrink-0 border border-neutral-200 bg-red-50 shadow-sm sm:h-24 sm:w-24"
+            className="h-20 w-20 shrink-0 border border-neutral-200 bg-red-50 sm:h-24 sm:w-24"
             fallback={getInitials(user.name, user.email, user.phone)}
             fallbackClassName="text-xl font-bold text-red-700 sm:text-2xl"
             gender={user.gender}
@@ -150,11 +152,11 @@ export function ProfileHeaderCard({
             </div>
 
             <div className="mt-4 flex flex-wrap gap-2">
-            {(donor?.bloodGroup || user.bloodGroup) && (
-              <Badge className="rounded-md border border-red-200 bg-red-50 font-medium text-red-800">
-                {donor?.bloodGroup ?? user.bloodGroup}
-              </Badge>
-            )}
+              {(donor?.bloodGroup || user.bloodGroup) && (
+                <Badge className="rounded-md border border-red-200 bg-red-50 font-medium text-red-800">
+                  {donor?.bloodGroup ?? user.bloodGroup}
+                </Badge>
+              )}
               <Badge
                 className={
                   user.phoneVerified
@@ -170,17 +172,17 @@ export function ProfileHeaderCard({
                   Active donor
                 </Badge>
               ) : null}
-            <Badge className="rounded-md border border-neutral-200 bg-neutral-50 font-medium text-neutral-700">
-              {isDonorAccount ? "Donor account" : "User account"}
-            </Badge>
-            <Badge className="rounded-md border border-red-200 bg-red-50 font-medium text-red-800">
-              Profile {completionPercent}% complete
-            </Badge>
-            {memberYear ? (
               <Badge className="rounded-md border border-neutral-200 bg-neutral-50 font-medium text-neutral-700">
-                Member since {memberYear}
+                {isDonorAccount ? "Donor account" : "User account"}
               </Badge>
-            ) : null}
+              <Badge className="rounded-md border border-red-200 bg-red-50 font-medium text-red-800">
+                Profile {completionPercent}% complete
+              </Badge>
+              {memberYear ? (
+                <Badge className="rounded-md border border-neutral-200 bg-neutral-50 font-medium text-neutral-700">
+                  Member since {memberYear}
+                </Badge>
+              ) : null}
             </div>
           </div>
         </div>

@@ -13,7 +13,7 @@ export function getInitials(name?: string) {
 
 export function formatDonorDate(date?: string) {
   if (!date) {
-    return 'Not provided';
+    return 'N/A';
   }
 
   return new Intl.DateTimeFormat('en-IN', {
@@ -25,7 +25,7 @@ export function formatDonorDate(date?: string) {
 
 export function formatDonorPhone(phone?: string, showMobile: boolean = false) {
   if (!phone) {
-    return 'Not provided';
+    return 'N/A';
   }
 
   const cleaned = phone.replace(/\D/g, '');
@@ -44,4 +44,30 @@ export function formatDonorPhone(phone?: string, showMobile: boolean = false) {
   }
 
   return `+91 XXXXX ${mobile.slice(5)}`;
+}
+
+export function formatDonorEmail(
+  email?: string,
+  showEmail: boolean = false,
+) {
+  if (!email) {
+    return "N/A";
+  }
+
+  if (showEmail) {
+    return email;
+  }
+
+  const [localPart, domainPart] = email.split("@");
+
+  if (!localPart || !domainPart) {
+    return email;
+  }
+
+  const visiblePrefixLength = Math.min(2, localPart.length);
+  const visiblePrefix = localPart.slice(0, visiblePrefixLength);
+  const maskedSuffixLength = Math.max(localPart.length - visiblePrefixLength, 0);
+  const maskedSuffix = "*".repeat(Math.max(maskedSuffixLength, 4));
+
+  return `${visiblePrefix}${maskedSuffix}@${domainPart}`;
 }

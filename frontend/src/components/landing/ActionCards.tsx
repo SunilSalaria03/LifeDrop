@@ -46,7 +46,7 @@ export function ActionCards() {
 
           return (
             <article
-              className="grid gap-6 rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-lg shadow-neutral-950/5 transition hover:-translate-y-1 hover:border-red-100 hover:shadow-xl hover:shadow-neutral-950/10 lg:p-8"
+              className="grid gap-6 rounded-2xl border border-neutral-200 bg-white p-6 transition hover:border-red-100 lg:p-8"
               key={action.title}
             >
               <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-neutral-50 ring-1 ring-neutral-100 ${action.accent}`}>

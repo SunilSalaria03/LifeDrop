@@ -1,65 +1,65 @@
-import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+ 'use client';
+
+import { useParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { CampaignDetailPage as CampaignDetailPageContent } from '@/features/campaigns/CampaignDetailPage';
-import {
-  getAllCampaignSlugs,
-  getCampaignBySlug,
-} from '@/features/campaigns/data/campaigns.data';
+import { getCampaignBySlug } from '@/features/campaigns/api/campaigns.api';
+import { mapCampaignToUiModel } from '@/features/campaigns/lib/campaign-mappers';
 import { BannerBreadcrumbStrip } from '@/components/layout/BannerBreadcrumbStrip';
 import { breadcrumbCampaignDetail } from '@/components/layout/breadcrumb.presets';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
+import CampaignNotFoundPage from './not-found';
 
-type CampaignDetailPageProps = {
-  params: Promise<{ slug: string }>;
-};
+export default function CampaignSlugPage() {
+  const params = useParams<{ slug: string }>();
+  const slug = params.slug;
+  const campaignQuery = useQuery({
+    enabled: Boolean(slug),
+    queryKey: ['campaign-detail', slug],
+    queryFn: () => getCampaignBySlug(slug),
+    retry: 1,
+  });
 
-export function generateStaticParams() {
-  return getAllCampaignSlugs().map((slug) => ({ slug }));
-}
+  const campaign = campaignQuery.data ? mapCampaignToUiModel(campaignQuery.data) : null;
 
-export async function generateMetadata({
-  params,
-}: CampaignDetailPageProps): Promise<Metadata> {
-  const resolvedParams = await params;
-  const slug = resolvedParams?.slug;
-
-  if (!slug) {
-    return { title: 'Campaign not found | LifeDrop' };
-  }
-
-  const campaign = getCampaignBySlug(slug);
-
-  if (!campaign) {
-    return { title: 'Campaign not found | LifeDrop' };
-  }
-
-  return {
-    title: `${campaign.title} | Campaign detail · LifeDrop`,
-    description: campaign.shortDescription,
-  };
-}
-
-export default async function CampaignSlugPage({ params }: CampaignDetailPageProps) {
-  const resolvedParams = await params;
-  const slug = resolvedParams?.slug;
-
-  if (!slug) {
-    notFound();
-  }
-
-  const campaign = getCampaignBySlug(slug);
-
-  if (!campaign) {
-    notFound();
+  if (campaignQuery.isError) {
+    const message =
+      campaignQuery.error instanceof Error ? campaignQuery.error.message : '';
+    if (message.toLowerCase().includes('not found')) {
+      return <CampaignNotFoundPage />;
+    }
   }
 
   return (
     <>
       <Header />
       <div className="bg-slate-900 text-neutral-950">
-        <BannerBreadcrumbStrip items={breadcrumbCampaignDetail(campaign.title)} />
-        <CampaignDetailPageContent campaign={campaign} />
+        <BannerBreadcrumbStrip
+          items={breadcrumbCampaignDetail(campaign?.title ?? 'Campaign detail')}
+        />
+        {campaignQuery.isLoading || campaignQuery.isFetching ? (
+          <div className="bg-neutral-50 px-4 py-12 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl">
+              <div className="h-64 animate-pulse rounded-2xl border border-neutral-200 bg-white" />
+            </div>
+          </div>
+        ) : campaignQuery.isError || !campaign ? (
+          <div className="bg-neutral-50 px-4 py-12 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-3xl rounded-3xl border border-neutral-200 bg-white px-6 py-12 text-center">
+              <h2 className="text-2xl font-bold text-neutral-950">
+                Campaign details unavailable
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-neutral-600">
+                {campaignQuery.error instanceof Error
+                  ? campaignQuery.error.message
+                  : 'Unable to load this campaign right now.'}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <CampaignDetailPageContent campaign={campaign} />
+        )}
       </div>
       <Footer />
     </>

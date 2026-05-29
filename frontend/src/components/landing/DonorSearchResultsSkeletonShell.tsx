@@ -8,7 +8,7 @@ function DonorSkeletonCard() {
   return (
     <Card
       aria-hidden
-      className="overflow-hidden rounded-2xl border-neutral-200 shadow-sm"
+      className="overflow-hidden rounded-2xl border border-neutral-200"
     >
       <CardContent className="flex h-full animate-pulse flex-col p-5 sm:p-6">
         <div className="flex items-start gap-4 border-b border-neutral-200 pb-4">

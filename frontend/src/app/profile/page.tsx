@@ -318,7 +318,7 @@ function DatePickerField({
       </div>
 
       {isOpen ? (
-        <div className="absolute z-30 mt-2 w-full min-w-[280px] rounded-2xl border border-neutral-200 bg-white p-3 shadow-xl ring-1 ring-black/5">
+        <div className="absolute z-30 mt-2 w-full min-w-[280px] rounded-2xl border border-neutral-200 bg-white p-3">
           <div className="mb-3 flex items-center justify-between gap-2">
             <button
               className="rounded-lg p-2 text-neutral-600 transition-colors hover:bg-neutral-100"
@@ -489,6 +489,7 @@ function ProfileEditForm({
       weight: user.weight?.toString() ?? "",
       lastDonationDate: formatDateInputValue(user.lastDonationDate),
       showMobile: user.showMobile ?? false,
+      showEmail: user.showEmail ?? false,
       smsAlert: user.smsAlert ?? false,
       pincode: user.pincode ?? "",
       state: user.state ?? "",
@@ -523,6 +524,7 @@ function ProfileEditForm({
                 weight: values.weight ? Number(values.weight) : undefined,
                 lastDonationDate: values.lastDonationDate || undefined,
                 showMobile: values.showMobile,
+                showEmail: values.showEmail,
                 smsAlert: values.smsAlert,
               }
             : {}),
@@ -778,7 +780,7 @@ function ProfileEditForm({
         <h3 className="text-base font-bold text-neutral-950">
           Contact Information
         </h3>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {isDonor ? (
             <label className="grid gap-2">
               <FieldLabel>Mobile visibility</FieldLabel>
@@ -799,8 +801,34 @@ function ProfileEditForm({
                   <SelectValue placeholder="Show mobile" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="true">Hide mobile</SelectItem>
+                  <SelectItem value="true">Show mobile</SelectItem>
                   <SelectItem value="false">Hide mobile</SelectItem>
+                </SelectContent>
+              </Select>
+            </label>
+          ) : null}
+          {isDonor ? (
+            <label className="grid gap-2">
+              <FieldLabel>Email visibility</FieldLabel>
+              <Select
+                onValueChange={(value) =>
+                  void formik.setFieldValue(
+                    "showEmail",
+                    value === "true",
+                    false,
+                  )
+                }
+                value={booleanSelectValue(formik.values.showEmail)}
+              >
+                <SelectTrigger
+                  aria-label="Email visibility"
+                  className="h-12 rounded-2xl bg-white"
+                >
+                  <SelectValue placeholder="Hide email" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="true">Show email</SelectItem>
+                  <SelectItem value="false">Hide email</SelectItem>
                 </SelectContent>
               </Select>
             </label>
@@ -828,7 +856,7 @@ function ProfileEditForm({
             </label>
           ) : null}
    
-          <label className="grid gap-2 sm:col-span-2">
+          <label className="grid gap-2 sm:col-span-2 lg:col-span-3">
             <FieldLabel>Address line</FieldLabel>
             <Input
               aria-label="Address line"

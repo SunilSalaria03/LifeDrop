@@ -106,6 +106,12 @@ export class UpdateDonorProfileDto implements Partial<CreateDonorProfileDto> {
   @IsBoolean()
   showMobile?: boolean;
 
+  @ApiPropertyOptional({ example: false })
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  showEmail?: boolean;
+
   @ApiPropertyOptional({ example: true })
   @IsOptional()
   @Type(() => Boolean)

@@ -124,6 +124,7 @@ export const updateProfileFormSchema = yup.object({
     )
     .optional(),
   showMobile: yup.boolean().optional(),
+  showEmail: yup.boolean().optional(),
   smsAlert: yup.boolean().optional(),
   pincode: yup
     .string()

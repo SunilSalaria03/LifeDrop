@@ -10,10 +10,13 @@ import {
   CheckCircle2,
   HeartHandshake,
   HeartPulse,
+  Mail,
   MapPin,
   Phone,
   ShieldCheck,
+  UserRound,
   Users,
+  Weight,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,6 +32,7 @@ import { useDonorDetails } from "@/features/donors/hooks/useDonorDetails";
 import { userStorage } from "@/lib/auth/user-storage";
 import { getLastDonorSearchBackHref } from "@/lib/donor-search/donor-search-session";
 import {
+  formatDonorEmail,
   formatDonorDate,
   formatDonorPhone,
   getDonorName,
@@ -43,6 +47,7 @@ import {
 } from "@/app/profile/profile-card.styles";
 import { DonorProfileHeaderProps } from "./donor-detail-page.types";
 import { HeroSection } from "../../../components/landing/HeroSection";
+import { calculateAgeFromDob } from "../../../features/profile/profile.helpers";
 
 function DonorProfileHeader({
   donor,
@@ -64,7 +69,7 @@ function DonorProfileHeader({
           <GenderAvatar
             alt={donorName}
             avatarUrl={donor.avatarUrl}
-            className="h-20 w-20 shrink-0 border border-neutral-200 bg-red-50 shadow-sm sm:h-24 sm:w-24"
+            className="h-20 w-20 shrink-0 border border-neutral-200 bg-red-50 sm:h-24 sm:w-24"
             fallback={getInitials(donor.name)}
             fallbackClassName="text-xl font-bold text-red-700 sm:text-2xl"
             gender={donor.gender}
@@ -242,15 +247,30 @@ export default function DonorDetailPage() {
                       value={formatDonorPhone(donor.phone, donor.showMobile)}
                     />
                     <InfoFieldCard
-                      icon={CalendarCheck}
-                      label="Last donation"
-                      value={formatDonorDate(donor.lastDonationDate)}
+                      icon={Mail}
+                      label="Email"
+                      value={formatDonorEmail(donor.email, donor.showEmail)}
                     />
                     <InfoFieldCard
-                      icon={Users}
-                      label="Member since"
-                      value={formatDonorDate(donor.createdAt)}
+                      icon={UserRound}
+                      label="Gender"
+                      value={donor.gender ?? "N/A"}
                     />
+                       <InfoFieldCard
+                      icon={UserRound}
+                      label="Age"
+                      value={calculateAgeFromDob(donor.birthDate)}
+                    />
+                    <InfoFieldCard
+                      icon={Weight}
+                      label="Weight"
+                      value={
+                        donor.weight !== undefined
+                          ? `${donor.weight} kg`
+                          : "N/A"
+                      }
+                    />
+                  
                     <InfoFieldCard
                       icon={MapPin}
                       label="Location"
@@ -258,10 +278,20 @@ export default function DonorDetailPage() {
                         .filter(Boolean)
                         .join(", ")}
                     />
+                    <InfoFieldCard
+                      icon={MapPin}
+                      label="Pincode"
+                      value={donor.pincode ?? "N/A"}
+                    />
+                      <InfoFieldCard
+                      icon={MapPin}
+                      label="State"
+                      value={donor.state ?? "N/A"}
+                    />
                     {donor.district ? (
                       <InfoFieldCard
                         icon={MapPin}
-                        label="District"
+                        label="City"
                         value={donor.district}
                       />
                     ) : null}
@@ -273,6 +303,16 @@ export default function DonorDetailPage() {
                         value={donor.addressLine ?? donor.addressText}
                       />
                     </div>
+                    <InfoFieldCard
+                      icon={CalendarCheck}
+                      label="Last donation"
+                      value={formatDonorDate(donor.lastDonationDate)}
+                    />
+                    <InfoFieldCard
+                      icon={Users}
+                      label="Member since"
+                      value={formatDonorDate(donor.createdAt)}
+                    />
                   </CardContent>
                 </Card>
 

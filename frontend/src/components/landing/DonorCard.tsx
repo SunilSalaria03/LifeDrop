@@ -5,71 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { GenderAvatar } from "@/components/ui/gender-avatar";
 import { cn } from "@/lib/utils";
-import {
-  formatDonorPhone,
-  getDonorName,
-  getInitials,
-} from "./landing.helpers";
+import { formatDonorEmail, formatDonorPhone, getDonorName, getInitials } from "./landing.helpers";
 import { DonorCardProps } from "./landing.types";
+import { calculateAgeFromDob } from "../../features/profile/profile.helpers";
 
-function DetailItem({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function DetailItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-4 py-2.5 text-sm">
-      <dt className="text-neutral-500">{label}</dt>
-      <dd className="truncate text-right font-medium text-neutral-900">{value}</dd>
-    </div>
+    <dt className="text-neutral-500">{label}</dt>
+    <dd
+      className={`truncate text-right font-medium ${
+        value !== "N/A" ? "text-neutral-900" : "text-neutral-500"
+      }`}
+    >
+      {value !== "N/A" ? value : "N/A"}
+    </dd>
+  </div>
   );
 }
-
-function formatDetailDate(date?: string) {
-  if (!date) {
-    return "Not provided";
-  }
-
-  const parsedDate = new Date(date);
-  if (Number.isNaN(parsedDate.getTime())) {
-    return "Not provided";
-  }
-
-  const day = String(parsedDate.getDate()).padStart(2, "0");
-  const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
-  const year = parsedDate.getFullYear();
-
-  return `${day}-${month}-${year}`;
-}
-
-function calculateAgeFromDob(birthDate?: string) {
-  if (!birthDate) {
-    return "Not provided";
-  }
-
-  const dob = new Date(birthDate);
-  if (Number.isNaN(dob.getTime())) {
-    return "Not provided";
-  }
-
-  const today = new Date();
-  let age = today.getFullYear() - dob.getFullYear();
-  const hasBirthdayPassed =
-    today.getMonth() > dob.getMonth() ||
-    (today.getMonth() === dob.getMonth() && today.getDate() >= dob.getDate());
-
-  if (!hasBirthdayPassed) {
-    age -= 1;
-  }
-
-  if (age < 0) {
-    return "Not provided";
-  }
-
-  return `${age}`;
-}
+ 
 
 export function DonorCard({
   donor,
@@ -87,26 +41,25 @@ export function DonorCard({
       value: formatDonorPhone(donor.phone, donor.showMobile),
     },
     {
-      label: "Distance",
-      value:
-        donor.distanceKm !== undefined ? `${donor.distanceKm} km` : "Not provided",
-    },
-    {
-      label: "Last donation",
-      value: formatDetailDate(donor.lastDonationDate),
+      label: "Email",
+      value: formatDonorEmail(donor.email, donor.showEmail),
     },
     {
       label: "Age",
       value: calculateAgeFromDob(donor.birthDate),
     },
     {
-      label: "Weight",
-      value: donor.weight !== undefined ? `${donor.weight} kg` : "Not provided",
+      label: "Gender",
+      value: donor.gender !== undefined ? `${donor.gender}` : "N/A",
+    },
+    {
+      label: "Distance",
+      value: donor.distanceKm !== undefined ? `${donor.distanceKm} km` : "N/A",
     },
   ];
 
   return (
-    <Card className="overflow-hidden rounded-2xl border-neutral-200 shadow-sm transition hover:border-neutral-300 hover:shadow-md">
+    <Card className="overflow-hidden rounded-2xl border-neutral-200 transition hover:border-neutral-300">
       <CardContent className="flex h-full flex-col p-5 sm:p-6">
         <div className="flex items-start gap-4 border-b border-neutral-200 pb-4">
           <GenderAvatar
@@ -137,9 +90,7 @@ export function DonorCard({
                     className="h-3.5 w-3.5 shrink-0 text-neutral-400"
                     aria-hidden
                   />
-                  <span className="truncate">
-                    {location || "Location not provided"}
-                  </span>
+                  <span className="truncate">{location || "Location N/A"}</span>
                 </p>
               </div>
               <span className="shrink-0 rounded-md bg-red-700 px-2.5 py-1 text-sm font-semibold tabular-nums text-white">
@@ -169,7 +120,11 @@ export function DonorCard({
 
         <dl className="divide-y divide-neutral-200 py-1">
           {details.map((item) => (
-            <DetailItem key={item.label} label={item.label} value={item.value} />
+            <DetailItem
+              key={item.label}
+              label={item.label}
+              value={item.value}
+            />
           ))}
         </dl>
 

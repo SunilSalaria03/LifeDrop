@@ -1,12 +1,15 @@
-import { CAMPAIGNS } from '../data/campaigns.data';
-
-export const CAMPAIGN_PAGE_SIZE = 9;
+import {
+  CAMPAIGN_PAGE_SIZE,
+  EMPTY_CAMPAIGN_FILTERS,
+} from '../constants/campaign.constants';
 import {
   BloodDonationCampaign,
   CAMPAIGN_MONTH_ALL,
   CampaignFilterValues,
   CampaignStatus,
 } from '../types/campaign.types';
+
+export { CAMPAIGN_PAGE_SIZE, EMPTY_CAMPAIGN_FILTERS };
 
 export function getCampaignMonthKey(campaign: BloodDonationCampaign) {
   const date = new Date(campaign.startDate);
@@ -26,8 +29,8 @@ export function formatCampaignMonthLabel(monthKey: string) {
   });
 }
 
-export function getCampaignMonthOptions() {
-  const keys = new Set(CAMPAIGNS.map(getCampaignMonthKey));
+export function getCampaignMonthOptions(campaigns: BloodDonationCampaign[]) {
+  const keys = new Set(campaigns.map(getCampaignMonthKey));
 
   return [
     { value: CAMPAIGN_MONTH_ALL, label: 'All months' },
@@ -40,8 +43,8 @@ export function getCampaignMonthOptions() {
   ];
 }
 
-export function getCampaignStateOptions() {
-  const states = new Set(CAMPAIGNS.map((campaign) => campaign.state));
+export function getCampaignStateOptions(campaigns: BloodDonationCampaign[]) {
+  const states = new Set(campaigns.map((campaign) => campaign.state));
 
   return [
     { value: 'all', label: 'All states' },
@@ -101,7 +104,7 @@ export function getCampaignStats(campaigns: BloodDonationCampaign[]) {
       .length,
     cities: cities.size,
     registrations: campaigns.reduce(
-      (total, campaign) => total + campaign.registrationCount,
+      (total, campaign) => total + (campaign.registrationCount ?? 0),
       0,
     ),
   };
@@ -128,9 +131,46 @@ export function formatCampaignDateRange(
   return `${dateFormatter.format(start)} – ${dateFormatter.format(end)}`;
 }
 
-export const EMPTY_CAMPAIGN_FILTERS: CampaignFilterValues = {
-  city: '',
-  state: 'all',
-  status: 'all',
-  month: CAMPAIGN_MONTH_ALL,
-};
+export function formatCampaignDateTimeRange(
+  startDate: string,
+  endDate: string,
+  startTime?: string,
+  endTime?: string,
+) {
+  const range = formatCampaignDateRange(startDate, endDate);
+
+  const toDisplayTime = (timeValue?: string) => {
+    if (!timeValue) {
+      return '';
+    }
+
+    const normalized = timeValue.includes(':') ? timeValue : `${timeValue}:00`;
+    const date = new Date(`2000-01-01T${normalized}`);
+    if (Number.isNaN(date.getTime())) {
+      return timeValue;
+    }
+    return date.toLocaleTimeString('en-IN', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
+
+  const start = toDisplayTime(startTime);
+  const end = toDisplayTime(endTime);
+
+  if (start && end) {
+    return `${range} · ${start} – ${end}`;
+  }
+
+  if (start) {
+    return `${range} · Starts ${start}`;
+  }
+
+  if (end) {
+    return `${range} · Until ${end}`;
+  }
+
+  return range;
+}
+

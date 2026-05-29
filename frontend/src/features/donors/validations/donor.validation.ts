@@ -93,6 +93,7 @@ export const donorProfileSchema = yup.object({
       },
     ),
   showMobile: yup.boolean().required(),
+  showEmail: yup.boolean().required(),
   smsAlert: yup.boolean().required(),
   state: yup.string().trim().required('State is required.'),
   stateCode: yup.string().trim().required('State is required.'),

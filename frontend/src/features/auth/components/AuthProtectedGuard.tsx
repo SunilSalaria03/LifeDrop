@@ -24,7 +24,7 @@ export function AuthProtectedGuard({ children }: AuthGuardProps) {
   if (isAuthLoading) {
     return (
       <main className="min-h-screen bg-neutral-50 px-6 py-10 text-neutral-950">
-        <section className="mx-auto max-w-md rounded-lg border border-neutral-200 bg-white p-6 text-sm text-neutral-600 shadow-sm">
+        <section className="mx-auto max-w-md rounded-lg border border-neutral-200 bg-white p-6 text-sm text-neutral-600">
           Checking session...
         </section>
       </main>

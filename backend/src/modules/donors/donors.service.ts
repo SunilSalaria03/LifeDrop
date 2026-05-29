@@ -282,6 +282,7 @@ export class DonorsService {
       "weight",
       "lastDonationDate",
       "showMobile",
+      "showEmail",
       "smsAlert",
       "pincode",
       "state",
@@ -539,6 +540,7 @@ export class DonorsService {
           userId: { $toString: "$userId" },
           name: "$user.name",
           avatarUrl: "$user.avatarUrl",
+          email: "$user.email",
           avatarKey: "$user.avatarKey",
           bloodGroup: 1,
           gender: {
@@ -564,8 +566,10 @@ export class DonorsService {
           updatedAt: 1,
           phone: 1,
           showMobile: 1,
+          showEmail: 1,
           addressLine: 1,
           addressText: 1,
+          pincode: 1,
         },
       },
     ];

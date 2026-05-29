@@ -23,7 +23,7 @@ export default function ProfileSetupPage() {
         <PageHero />
       </div>
       <main className="min-h-screen bg-neutral-50 px-4 pb-12 pt-8 sm:px-6 sm:pt-10 lg:px-8">
-        <Card className="mx-auto w-full max-w-2xl rounded-2xl border-white/80 bg-white/95 shadow-2xl shadow-red-950/10">
+        <Card className="mx-auto w-full max-w-2xl rounded-2xl border border-neutral-200 bg-white">
           <CardContent className="grid gap-6 p-5 sm:gap-7 sm:p-8">
             <div className="grid gap-4 text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-600 text-white shadow-lg shadow-red-600/20">

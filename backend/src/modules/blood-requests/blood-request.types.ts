@@ -24,6 +24,8 @@ export type SmsMessageInput = {
   bloodGroup: string;
   donorPhone: string;
   message?: string;
+  requesterLocation?: string;
+  requesterName?: string;
   requesterPhone: string;
 };
 

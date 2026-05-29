@@ -66,7 +66,7 @@ export function SuccessStories() {
                 key={story.name}
                 className="basis-full pl-4 sm:basis-1/2 lg:basis-1/3"
               >
-                <Card className="group h-full overflow-hidden rounded-[1.35rem] border border-red-100/80 bg-white shadow-[0_18px_45px_rgba(127,29,29,0.08)] transition duration-300 hover:-translate-y-1 hover:border-red-200 hover:shadow-[0_24px_60px_rgba(127,29,29,0.14)]">
+                <Card className="group h-full overflow-hidden rounded-[1.35rem] border border-red-100/80 bg-white transition duration-300 hover:border-red-200">
                   <CardContent className="relative grid h-full gap-5 p-5 sm:p-6">
                     <div className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,#dc2626,#fb923c,#dc2626)] opacity-80" />
                     <div className="pointer-events-none absolute right-5 top-5 text-red-50 transition duration-300 group-hover:text-red-100">
@@ -75,7 +75,7 @@ export function SuccessStories() {
 
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
-                        <Avatar className="h-14 w-14 border border-red-100 bg-red-50 shadow-md shadow-red-950/10 ring-4 ring-red-50">
+                        <Avatar className="h-14 w-14 border border-red-100 bg-red-50 ring-4 ring-red-50">
                           {story.avatar ? (
                             <AvatarImage alt={story.name} src={story.avatar} />
                           ) : null}

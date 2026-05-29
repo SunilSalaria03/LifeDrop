@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { getDonorName } from '@/components/landing/landing.helpers';
 import { getApiErrorMessage } from '@/lib/api/error-message';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { sendDonorSmsAlert } from '../api/donors.api';
 import { RequestBloodModalProps } from '../donor-component.types';
 
@@ -17,6 +18,7 @@ export function RequestBloodModal({
   open,
 }: RequestBloodModalProps) {
   const { showToast } = useToast();
+  const { user } = useAuth();
   const [sendSms, setSendSms] = useState(false);
   const [sendWhatsapp, setSendWhatsapp] = useState(false);
   const [consentToShareContact, setConsentToShareContact] = useState(false);
@@ -45,6 +47,9 @@ export function RequestBloodModal({
   const donorLocation = donorLocationParts
     .filter((part, index) => part !== donorLocationParts[index - 1])
     .join(', ');
+  const requesterLocation = [user?.city, user?.district, user?.state]
+    .filter(Boolean)
+    .join(', ');
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -63,6 +68,8 @@ export function RequestBloodModal({
         sendWhatsapp,
         consentToShareContact,
         message: message.trim() || undefined,
+        requesterName: user?.name?.trim() || undefined,
+        requesterLocation: requesterLocation || undefined,
       });
 
       showToast({
@@ -99,7 +106,7 @@ export function RequestBloodModal({
         type="button"
       />
       <form
-        className="relative grid max-h-[calc(100svh-2rem)] w-full max-w-lg gap-0 overflow-hidden rounded-[1.75rem] border border-white/80 bg-white shadow-[0_28px_90px_rgba(69,10,10,0.35)]"
+        className="relative grid max-h-[calc(100svh-2rem)] w-full max-w-lg gap-0 overflow-hidden rounded-[1.75rem] border border-neutral-200 bg-white"
         onSubmit={handleSubmit}
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-[radial-gradient(circle_at_18%_0%,rgba(220,38,38,0.16),transparent_42%),linear-gradient(135deg,rgba(254,226,226,0.95),rgba(255,255,255,0.2))]" />
@@ -140,7 +147,7 @@ export function RequestBloodModal({
               {donor.bloodGroup}
             </Badge>
             <Badge className="w-fit rounded-full bg-red-50 px-3.5 py-1.5 text-red-700 ring-1 ring-red-100">
-              {donor.city || 'City not provided'}
+              {donor.city || 'City N/A'}
             </Badge>
           </div>
 
@@ -182,7 +189,7 @@ export function RequestBloodModal({
               className="min-h-28 resize-none rounded-2xl border border-neutral-300 bg-white px-3 py-3 text-sm font-medium text-neutral-900 outline-none transition focus:border-red-700"
               maxLength={500}
               onChange={(event) => setMessage(event.target.value)}
-              placeholder="Add a short note for the donor"
+              placeholder="Share why blood is needed (e.g., surgery, accident, cancer treatment, childbirth), urgency, hospital name, or any helpful details"
               value={message}
             />
           </label>

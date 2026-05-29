@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './modules/auth/auth.module';
 import { BloodRequestsModule } from './modules/blood-requests/blood-requests.module';
+import { CampaignsModule } from './modules/campaigns/campaigns.module';
 import { DonorsModule } from './modules/donors/donors.module';
 import { LocationsModule } from './modules/locations/locations.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -22,6 +23,7 @@ import { getMongoUri } from './app.helpers';
     }),
     UsersModule,
     AuthModule,
+    CampaignsModule,
     DonorsModule,
     LocationsModule,
     BloodRequestsModule,
