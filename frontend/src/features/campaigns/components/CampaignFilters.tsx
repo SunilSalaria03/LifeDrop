@@ -19,7 +19,6 @@ const selectTriggerClassName =
 type CampaignFiltersProps = {
   filters: CampaignFilterValues;
   stateOptions: { value: string; label: string }[];
-  monthOptions: { value: string; label: string }[];
   onChange: (filters: CampaignFilterValues) => void;
   onSearch: () => void;
 };
@@ -27,7 +26,6 @@ type CampaignFiltersProps = {
 export function CampaignFilters({
   filters,
   stateOptions,
-  monthOptions,
   onChange,
   onSearch,
 }: CampaignFiltersProps) {
@@ -95,22 +93,6 @@ export function CampaignFilters({
         </SelectTrigger>
         <SelectContent>
           {CAMPAIGN_STATUS_OPTIONS.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <Select
-        onValueChange={(value) => onChange({ ...filters, month: value })}
-        value={filters.month}
-      >
-        <SelectTrigger aria-label="Month" className={selectTriggerClassName}>
-          <SelectValue placeholder="Month" />
-        </SelectTrigger>
-        <SelectContent>
-          {monthOptions.map((option) => (
             <SelectItem key={option.value} value={option.value}>
               {option.label}
             </SelectItem>

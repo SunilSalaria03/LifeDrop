@@ -22,12 +22,6 @@ import { CampaignDocument } from './schemas/campaign.schema.types';
 
 type CampaignSortBy = 'startDate' | 'endDate' | 'createdAt' | 'updatedAt' | 'title';
 type CampaignSortOrder = 'asc' | 'desc';
-const PUBLIC_VISIBLE_CAMPAIGN_STATUSES: CampaignStatus[] = [
-  CampaignStatus.Approved,
-  CampaignStatus.Upcoming,
-  CampaignStatus.Ongoing,
-  CampaignStatus.Completed,
-];
 
 @Injectable()
 export class CampaignsService {
@@ -68,7 +62,6 @@ export class CampaignsService {
       .findOne({
         slug,
         isPublic: true,
-        status: { $in: PUBLIC_VISIBLE_CAMPAIGN_STATUSES },
       })
       .exec();
 
@@ -322,15 +315,9 @@ export class CampaignsService {
   ): FilterQuery<CampaignDocument> {
     const filter: FilterQuery<CampaignDocument> = {
       isPublic: true,
-      status: { $in: PUBLIC_VISIBLE_CAMPAIGN_STATUSES },
     };
 
     if (query.status) {
-      if (!PUBLIC_VISIBLE_CAMPAIGN_STATUSES.includes(query.status)) {
-        throw new BadRequestException(
-          'Only public campaign statuses can be used in this filter.',
-        );
-      }
       filter.status = query.status;
     }
     if (query.type) {

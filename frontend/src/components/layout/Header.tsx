@@ -31,9 +31,14 @@ export function Header() {
     string | undefined
   >();
   const [storedUser, setStoredUser] = useState<AuthUser | null>(null);
+  const [hasHydrated, setHasHydrated] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const user = meQuery.data ?? storedUser;
+  const user = hasHydrated ? meQuery.data ?? storedUser : null;
   const shouldShowBecomeDonor = !user || user.role !== "donor";
+
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
 
   useEffect(() => {
     setStoredUser(userStorage.getUser());

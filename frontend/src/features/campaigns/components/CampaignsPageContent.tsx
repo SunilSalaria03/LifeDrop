@@ -9,7 +9,6 @@ import { mapCampaignToUiModel } from '../lib/campaign-mappers';
 import {
   CAMPAIGN_PAGE_SIZE,
   EMPTY_CAMPAIGN_FILTERS,
-  getCampaignMonthOptions,
 } from '../lib/campaign-filters';
 import { CampaignFilterValues } from '../types/campaign.types';
 import { CampaignFilters } from './CampaignFilters';
@@ -71,8 +70,6 @@ export function CampaignsPageContent() {
     ],
     [],
   );
-  const monthOptions = useMemo(() => getCampaignMonthOptions(campaigns), [campaigns]);
-
   const totalCount = campaignQuery.data?.count ?? 0;
   const totalPages = Math.max(1, campaignQuery.data?.totalPages ?? 1);
 
@@ -123,7 +120,6 @@ export function CampaignsPageContent() {
         filters={
           <CampaignFilters
             filters={draftFilters}
-            monthOptions={monthOptions}
             onChange={setDraftFilters}
             onSearch={handleSearch}
             stateOptions={stateOptions}
