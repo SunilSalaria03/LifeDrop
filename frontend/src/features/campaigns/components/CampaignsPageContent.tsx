@@ -50,8 +50,6 @@ export function CampaignsPageContent() {
         month: appliedFilters.month !== 'all' ? appliedFilters.month : undefined,
         page,
         limit: CAMPAIGN_PAGE_SIZE,
-        sortBy: 'startDate',
-        sortOrder: 'desc',
       }),
   });
 
