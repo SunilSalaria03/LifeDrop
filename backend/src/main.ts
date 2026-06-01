@@ -14,7 +14,15 @@ async function bootstrap() {
     configService.get<string>('FRONTEND_ORIGIN') ?? 'http://localhost:3000';
 
   app.setGlobalPrefix('api/v1');
-  app.enableCors();
+  app.enableCors({
+    origin: [
+      'https://lifedrop.lnpinfotech.com',
+      'http://localhost:3000',
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
