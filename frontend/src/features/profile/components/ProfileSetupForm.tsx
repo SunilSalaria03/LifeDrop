@@ -8,6 +8,8 @@ import { Save } from 'lucide-react';
 import { IndiaPhoneInput } from '@/components/forms/IndiaPhoneInput';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/toast';
+import { getApiErrorMessage } from '@/lib/api/error-message';
 import {
   Select,
   SelectContent,
@@ -28,6 +30,7 @@ import { profileSetupSchema } from '../validations/profile.validation';
 export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
   const router = useRouter();
   const { updateProfileMutation } = useProfile();
+  const { showToast } = useToast();
   const states = useMemo(() => State.getStatesOfCountry('IN'), []);
 
   const formik = useFormik({
@@ -46,24 +49,35 @@ export function ProfileSetupForm({ user }: ProfileSetupFormProps) {
     enableReinitialize: true,
     validateOnChange: false,
     onSubmit: async (values) => {
-      const updatedUser = await updateProfileMutation.mutateAsync({
-        name: values.name,
-        phone: values.phone ? toIndianE164(values.phone) : undefined,
-        state: values.state,
-        city: values.city,
-        district: values.district,
-        addressLine: values.addressLine,
-        addressText: values.addressLine,
-        lat: values.lat,
-        lng: values.lng,
-      });
+      try {
+        const updatedUser = await updateProfileMutation.mutateAsync({
+          name: values.name,
+          phone: values.phone ? toIndianE164(values.phone) : undefined,
+          state: values.state,
+          city: values.city,
+          district: values.district,
+          addressLine: values.addressLine,
+          addressText: values.addressLine,
+          lat: values.lat,
+          lng: values.lng,
+        });
 
-      if (!updatedUser.isProfileCompleted) {
-        return;
+        if (!updatedUser.isProfileCompleted) {
+          return;
+        }
+
+        const redirect = getSearchParam('redirect');
+        router.push(getSafeInternalPath(redirect));
+      } catch (error) {
+        showToast({
+          message: getApiErrorMessage(
+            error,
+            'Profile could not be saved. Please check details and try again.',
+          ),
+          title: 'Profile save failed',
+          variant: 'error',
+        });
       }
-
-      const redirect = getSearchParam('redirect');
-      router.push(getSafeInternalPath(redirect));
     },
   });
 

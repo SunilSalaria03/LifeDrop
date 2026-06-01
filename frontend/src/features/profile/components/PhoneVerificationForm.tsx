@@ -69,12 +69,23 @@ export function PhoneVerificationForm({ user }: PhoneVerificationFormProps) {
       return;
     }
 
-    await updateProfileMutation.mutateAsync({
-      phone: toIndianE164(formik.values.phone),
-    });
-    await sendProfileOtpMutation.mutateAsync({
-      phone: toIndianE164(formik.values.phone),
-    });
+    try {
+      await updateProfileMutation.mutateAsync({
+        phone: toIndianE164(formik.values.phone),
+      });
+      await sendProfileOtpMutation.mutateAsync({
+        phone: toIndianE164(formik.values.phone),
+      });
+    } catch (error) {
+      showToast({
+        message: getApiErrorMessage(
+          error,
+          'Phone verification failed. Check the phone number and try again.',
+        ),
+        title: 'Send OTP failed',
+        variant: 'error',
+      });
+    }
   };
 
   return (

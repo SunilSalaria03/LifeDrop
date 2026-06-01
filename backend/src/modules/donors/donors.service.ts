@@ -97,7 +97,13 @@ export class DonorsService {
   }
 
   async getMyProfile(user: UserDocument) {
-    return this.donorProfileModel.findOne({ userId: user._id }).exec();
+    const profile = await this.donorProfileModel.findOne({ userId: user._id }).exec();
+
+    if (!profile) {
+      throw new NotFoundException("Donor profile does not exist for this user.");
+    }
+
+    return profile;
   }
 
   async updateAvailability(
@@ -263,6 +269,10 @@ export class DonorsService {
       update.email = dto.email;
     }
 
+    const isPhoneChanged = Boolean(
+      nextPhone && nextPhone !== (user.phone ?? undefined),
+    );
+
     if (nextPhone) {
       const existingPhoneUser = await this.userModel
         .findOne({ phone: nextPhone, _id: { $ne: user._id } })
@@ -301,8 +311,13 @@ export class DonorsService {
       update.location = profile.location;
     }
 
+    if (isPhoneChanged) {
+      update.phoneVerified = false;
+      update.otpFailedAttempts = 0;
+    }
+
     update.isProfileCompleted = Boolean(
-      nextName && nextPhone && user.phoneVerified,
+      nextName && nextPhone && (isPhoneChanged ? false : user.phoneVerified),
     );
     update.role = UserRole.Donor;
 
@@ -431,10 +446,13 @@ export class DonorsService {
   }
 
   private buildEligibleFilter(query: DonorSearchQueryDto) {
+    const now = new Date();
     const filter: Record<string, unknown> = {
       bloodGroup: query.bloodGroup,
       isActive: true,
       isAvailable: true,
+      smsAlert: true,
+      $or: [{ nextEligibleDate: { $exists: false } }, { nextEligibleDate: { $lte: now } }],
     };
 
     if (query.state) {
@@ -540,7 +558,9 @@ export class DonorsService {
           userId: { $toString: "$userId" },
           name: "$user.name",
           avatarUrl: "$user.avatarUrl",
-          email: "$user.email",
+          email: {
+            $cond: [{ $eq: ["$showEmail", true] }, "$user.email", null],
+          },
           avatarKey: "$user.avatarKey",
           bloodGroup: 1,
           gender: {
@@ -564,12 +584,14 @@ export class DonorsService {
           totalDonations: 1,
           createdAt: 1,
           updatedAt: 1,
-          phone: 1,
+          phone: {
+            $cond: [{ $eq: ["$showMobile", true] }, "$phone", null],
+          },
           showMobile: 1,
           showEmail: 1,
-          addressLine: 1,
-          addressText: 1,
-          pincode: 1,
+          addressLine: null,
+          addressText: null,
+          pincode: null,
         },
       },
     ];

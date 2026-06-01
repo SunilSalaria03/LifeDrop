@@ -7,7 +7,6 @@ import {
   useMemo,
   useRef,
   useState,
-  useSyncExternalStore,
 } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
@@ -132,11 +131,11 @@ export function useDonorSearch({
   const strippedLegacyQueryRef = useRef(false);
   const restoredFromStorageRef = useRef(false);
 
-  const isClient = useSyncExternalStore(
-    () => () => undefined,
-    () => true,
-    () => false,
-  );
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const debounceDelay = isRestoringSession ? 0 : 450;
   const debouncedSearchRequest = useDebouncedValue(
@@ -182,7 +181,7 @@ export function useDonorSearch({
     !donorQuery.isError;
 
   const clientSessionActive =
-    isClient && enabled && readHasStoredDonorSearch(enabled);
+    hasMounted && enabled && readHasStoredDonorSearch(enabled);
 
   const isLoading =
     isRestoringSession ||
@@ -192,7 +191,7 @@ export function useDonorSearch({
     isAwaitingFirstResults;
 
   const showPendingResultsSkeleton =
-    isClient && !sessionCheckDone && clientSessionActive;
+    hasMounted && !sessionCheckDone && clientSessionActive;
 
   const showEmptyStateOnDonorList =
     isDonorListPage && sessionCheckDone && !hasSearched && !showPendingResultsSkeleton;

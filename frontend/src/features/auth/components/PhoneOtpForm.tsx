@@ -74,14 +74,25 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
     enableReinitialize: true,
     validateOnChange: false,
     onSubmit: async (values) => {
-      await sendOtpMutation.mutateAsync({
-        phone: toIndianE164(values.phone)
-      });
-      router.push(
-        `/?auth=login&phone=${encodeURIComponent(toIndianE164(values.phone))}${
-          redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''
-        }`,
-      );
+      try {
+        await sendOtpMutation.mutateAsync({
+          phone: toIndianE164(values.phone)
+        });
+        router.push(
+          `/?auth=login&phone=${encodeURIComponent(toIndianE164(values.phone))}${
+            redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''
+          }`,
+        );
+      } catch (error) {
+        showToast({
+          message: getApiErrorMessage(
+            error,
+            'Could not send OTP. Check the number and try again.',
+          ),
+          title: 'Send OTP failed',
+          variant: 'error',
+        });
+      }
     }
   });
 
@@ -120,10 +131,21 @@ export function PhoneOtpForm({ mode }: PhoneOtpFormProps) {
       return;
     }
 
-    await sendOtpMutation.mutateAsync({
-      phone: toIndianE164(phoneFromQuery)
-    });
-    setResendSeconds(60);
+    try {
+      await sendOtpMutation.mutateAsync({
+        phone: toIndianE164(phoneFromQuery)
+      });
+      setResendSeconds(60);
+    } catch (error) {
+      showToast({
+        message: getApiErrorMessage(
+          error,
+          'Could not resend OTP yet. Please wait and try again.',
+        ),
+        title: 'Resend OTP failed',
+        variant: 'error',
+      });
+    }
   }
 
   if (mode === 'verify') {

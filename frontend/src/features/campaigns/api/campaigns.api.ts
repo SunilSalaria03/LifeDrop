@@ -11,6 +11,10 @@ import {
   UpdateCampaignPayload,
 } from '../types/campaign.types';
 
+export class ApiRequestError extends Error {
+  status?: number;
+}
+
 function requireData<T>(response: ApiResponse<T> | T, fallbackMessage: string): T {
   const maybeApi = response as ApiResponse<T>;
   const hasEnvelope =
@@ -84,9 +88,11 @@ export async function getCampaignBySlug(slug: string) {
       throw error;
     }
 
-    throw new Error(
+    const nextError = new ApiRequestError(
       getApiErrorMessage(error, 'Campaign detail API failed. Please try again.'),
     );
+    nextError.status = error instanceof AxiosError ? error.response?.status : undefined;
+    throw nextError;
   }
 }
 

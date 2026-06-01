@@ -19,7 +19,6 @@ const selectTriggerClassName =
 type CampaignFiltersProps = {
   filters: CampaignFilterValues;
   stateOptions: { value: string; label: string }[];
-  monthOptions: { value: string; label: string }[];
   onChange: (filters: CampaignFilterValues) => void;
   onSearch: () => void;
 };
@@ -27,7 +26,6 @@ type CampaignFiltersProps = {
 export function CampaignFilters({
   filters,
   stateOptions,
-  monthOptions,
   onChange,
   onSearch,
 }: CampaignFiltersProps) {

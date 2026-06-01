@@ -2,8 +2,14 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { TokenRefreshResponse } from './api.types';
 import { userStorage } from '@/lib/auth/user-storage';
 
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+if (!apiBaseUrl) {
+  throw new Error('Missing NEXT_PUBLIC_API_BASE_URL environment variable.');
+}
+
 export const axiosClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  baseURL: apiBaseUrl,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json'

@@ -56,8 +56,12 @@ export function GoogleLoginButton({
             return;
           }
 
-          const authResponse = await mutateAsync(response.credential);
-          onAuthenticated?.(authResponse.user);
+          try {
+            const authResponse = await mutateAsync(response.credential);
+            onAuthenticated?.(authResponse.user);
+          } catch {
+            // Error is surfaced through mutation state and inline UI message.
+          }
         },
       });
       window.google.accounts.id.renderButton(buttonRef.current, {

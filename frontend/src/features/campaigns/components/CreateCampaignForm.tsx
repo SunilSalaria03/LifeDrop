@@ -93,11 +93,20 @@ function toDateInputValue(value?: string): string {
   if (!value) {
     return '';
   }
+
+  const rawDateMatch = /^(\d{4}-\d{2}-\d{2})/.exec(value.trim());
+  if (rawDateMatch) {
+    return rawDateMatch[1];
+  }
+
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) {
     return '';
   }
-  return parsed.toISOString().slice(0, 10);
+  const year = parsed.getUTCFullYear();
+  const month = String(parsed.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(parsed.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 export function CreateCampaignForm({
@@ -188,10 +197,10 @@ export function CreateCampaignForm({
     }
 
     if (!time) {
-      return new Date(`${date}T00:00:00`).toISOString();
+      return `${date}T00:00:00.000Z`;
     }
 
-    return new Date(`${date}T${time}:00`).toISOString();
+    return `${date}T${time}:00.000Z`;
   }
 
   const formik = useFormik({
@@ -256,11 +265,6 @@ export function CreateCampaignForm({
 
         if (isEditMode) {
           await updateCampaignMutation.mutateAsync(payload);
-          showToast({
-            title: 'Campaign updated',
-            message: 'Your campaign changes were saved.',
-            variant: 'success',
-          });
           return;
         }
 

@@ -88,18 +88,29 @@ export function AuthModal({
     enableReinitialize: true,
     validateOnChange: false,
     onSubmit: async (values) => {
-      if (otpFlow === 'profile') {
-        await updateProfileMutation.mutateAsync({
+      try {
+        if (otpFlow === 'profile') {
+          await updateProfileMutation.mutateAsync({
+            phone: toIndianE164(values.phone),
+          });
+        }
+
+        await sendOtpMutation.mutateAsync({
           phone: toIndianE164(values.phone),
         });
+        setPhoneForOtp(values.phone);
+        setStep('otp');
+        setResendSeconds(60);
+      } catch (error) {
+        showToast({
+          message: getApiErrorMessage(
+            error,
+            'Could not send OTP. Check the number and try again.',
+          ),
+          title: 'Send OTP failed',
+          variant: 'error',
+        });
       }
-
-      await sendOtpMutation.mutateAsync({
-        phone: toIndianE164(values.phone),
-      });
-      setPhoneForOtp(values.phone);
-      setStep('otp');
-      setResendSeconds(60);
     },
   });
 
@@ -157,10 +168,21 @@ export function AuthModal({
       return;
     }
 
-    await sendOtpMutation.mutateAsync({
-      phone: toIndianE164(phoneForOtp),
-    });
-    setResendSeconds(60);
+    try {
+      await sendOtpMutation.mutateAsync({
+        phone: toIndianE164(phoneForOtp),
+      });
+      setResendSeconds(60);
+    } catch (error) {
+      showToast({
+        message: getApiErrorMessage(
+          error,
+          'Could not resend OTP yet. Please wait and try again.',
+        ),
+        title: 'Resend OTP failed',
+        variant: 'error',
+      });
+    }
   }
 
   function handleBackToLogin() {
