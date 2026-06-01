@@ -23,7 +23,7 @@ export function CampaignsPageContent() {
   const [page, setPage] = useState(1);
 
   const campaignQuery = useQuery({
-    queryKey: ['campaigns', appliedFilters, page],
+    queryKey: ['campaigns', appliedFilters, page, CAMPAIGN_PAGE_SIZE],
     queryFn: () =>
       getCampaigns({
         search: appliedFilters.search.trim() || undefined,
@@ -53,10 +53,7 @@ export function CampaignsPageContent() {
       }),
   });
 
-  const campaigns = useMemo(
-    () => (campaignQuery.data?.items ?? []).map(mapCampaignToUiModel),
-    [campaignQuery.data?.items],
-  );
+  const campaigns = (campaignQuery.data?.items ?? []).map(mapCampaignToUiModel);
 
   const stateOptions = useMemo(
     () => [
@@ -76,10 +73,14 @@ export function CampaignsPageContent() {
   }, [appliedFilters]);
 
   useEffect(() => {
+    if (!campaignQuery.data) {
+      return;
+    }
+
     if (page > totalPages) {
       setPage(totalPages);
     }
-  }, [page, totalPages]);
+  }, [campaignQuery.data, page, totalPages]);
 
   const hasActiveFilters =
     appliedFilters.search.trim() !== '' ||
@@ -149,6 +150,7 @@ export function CampaignsPageContent() {
           </section>
         ) : (
           <CampaignListSection
+            key={`campaign-list-${campaignQuery.data?.page ?? page}`}
             campaigns={campaigns}
             hasActiveFilters={hasActiveFilters}
             onPageChange={handlePageChange}

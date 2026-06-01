@@ -134,7 +134,7 @@ export function CampaignListSection({
                 <CampaignCard
                   campaign={campaign}
                   isDeleting={deletingCampaignId === campaign.id}
-                  key={campaign.id}
+                  key={campaign.id || campaign.slug}
                   onDelete={onDeleteCampaign}
                   onEdit={onEditCampaign}
                   showOwnerActions={showOwnerActions}
