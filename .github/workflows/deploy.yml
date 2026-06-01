@@ -1,0 +1,155 @@
+name: Deploy LifeDrop
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      #################################################
+      # BUILD FRONTEND
+      #################################################
+
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Create Frontend Environment
+        working-directory: ./frontend
+        run: |
+          cat > .env.production << EOF
+          NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+          NEXT_PUBLIC_FIREBASE_API_KEY=${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+          EOF
+
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      #################################################
+      # UPLOAD FRONTEND BUILD
+      #################################################
+
+      - name: Upload Frontend Build
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          source: "frontend/.next/**"
+          target: "/tmp/lifedrop-frontend"
+          overwrite: true
+
+      #################################################
+      # DEPLOY TO VPS
+      #################################################
+
+      - name: Deploy Application
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script_stop: true
+          script: |
+            set -e
+
+            APP_ROOT="/var/www/LifeDrop"
+            BACKEND_ROOT="$APP_ROOT/backend"
+
+            echo "=================================="
+            echo "Updating repository"
+            echo "=================================="
+
+            cd "$APP_ROOT"
+
+            git remote set-url origin https://${{ secrets.GH_USERNAME }}:${{ secrets.GH_PAT }}@github.com/SunilSalaria03/LifeDrop.git
+
+            git fetch origin
+            git reset --hard origin/main
+
+            git remote set-url origin https://github.com/SunilSalaria03/LifeDrop.git
+
+            echo "=================================="
+            echo "Creating backend environment"
+            echo "=================================="
+
+            cat > "$BACKEND_ROOT/.env" << EOF
+            NODE_ENV=production
+            PORT=5001
+
+            MONGODB_URI=${{ secrets.MONGODB_URI }}
+
+            JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}
+            JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
+
+            JWT_ACCESS_EXPIRES_IN=15m
+            JWT_REFRESH_EXPIRES_IN=7d
+
+            FRONTEND_ORIGIN=${{ secrets.FRONTEND_ORIGIN }}
+
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+
+            TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}
+            TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}
+            TWILIO_PHONE_NUMBER=${{ secrets.TWILIO_PHONE_NUMBER }}
+            TWILIO_WHATSAPP_NUMBER=${{ secrets.TWILIO_WHATSAPP_NUMBER }}
+            TWILIO_VERIFY_SERVICE_SID=${{ secrets.TWILIO_VERIFY_SERVICE_SID }}
+            EOF
+
+            echo "=================================="
+            echo "Building backend"
+            echo "=================================="
+
+            cd "$BACKEND_ROOT"
+
+            npm ci
+            npm run build
+
+            echo "=================================="
+            echo "Restarting PM2"
+            echo "=================================="
+
+            pm2 describe lifedrop-api > /dev/null 2>&1 \
+              && pm2 reload lifedrop-api --update-env \
+              || pm2 start dist/main.js --name lifedrop-api
+
+            pm2 save
+
+            echo "=================================="
+            echo "Deploying frontend files"
+            echo "=================================="
+
+            sudo mkdir -p /var/www/lifedrop-frontend
+
+            sudo rm -rf /var/www/lifedrop-frontend/*
+
+            sudo cp -r /tmp/lifedrop-frontend/frontend/.next/* \
+              /var/www/lifedrop-frontend/
+
+            echo "=================================="
+            echo "Reloading nginx"
+            echo "=================================="
+
+            sudo nginx -t
+            sudo systemctl reload nginx
+
+            echo "Deployment completed"
