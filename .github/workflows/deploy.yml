@@ -1,5 +1,4 @@
 name: Deploy LifeDrop
-
 on:
   push:
     branches:
