@@ -11,6 +11,7 @@ export type UserRecord = {
   name?: string;
   email?: string;
   phone?: string;
+  avatarUrl?: string;
   authProvider: AuthProvider;
   role: UserRole;
   phoneVerified: boolean;

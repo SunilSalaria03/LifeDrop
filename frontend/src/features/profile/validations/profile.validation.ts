@@ -39,13 +39,6 @@ const getMaxLastDonationDate = () => {
 
 export const profileSetupSchema = yup.object({
   name: yup.string().trim().min(2, 'Enter your full name.').required('Name is required.'),
-  avatarUrl: yup
-    .string()
-    .trim()
-    .url('Enter a valid image URL.')
-    .transform((value) => value || undefined)
-    .optional(),
-  avatarKey: yup.string().trim().max(200, 'Avatar key is too long.').optional(),
   phone: yup
     .string()
     .trim()

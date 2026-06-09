@@ -3,6 +3,8 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  Logger,
+  OnModuleInit,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -17,18 +19,27 @@ import {
 } from './schemas/user.schema';
 import { UserDocument } from './schemas/user.schema.types';
 import { CreateGoogleUserInput, CreatePhoneUserInput } from './users.types';
+import { APP_AVATAR_PATHS, getDefaultAvatar } from './avatar.constants';
 import {
   INDIAN_PHONE_DUPLICATE_MESSAGE,
   normalizeIndianPhoneToE164OrThrow,
 } from '../../common/phone/indian-phone';
 
 @Injectable()
-export class UsersService {
+export class UsersService implements OnModuleInit {
+  private readonly logger = new Logger(UsersService.name);
+  private static readonly EMAIL_DUPLICATE_MESSAGE =
+    'Account already exists with this email address.';
+
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(DonorProfile.name)
     private readonly donorProfileModel: Model<DonorProfileDocument>,
   ) {}
+
+  async onModuleInit(): Promise<void> {
+    await this.backfillMissingAvatarUrls();
+  }
 
   findById(id: string): Promise<UserDocument | null> {
     return this.userModel.findById(id).exec();
@@ -62,6 +73,7 @@ export class UsersService {
 
     return this.userModel.create({
       phone: normalizedPhone,
+      avatarUrl: getDefaultAvatar(input.gender),
       authProvider: AuthProvider.Phone,
       phoneVerified: false,
     });
@@ -72,7 +84,7 @@ export class UsersService {
       googleId: input.googleId,
       email: input.email,
       name: input.name,
-      avatarUrl: input.avatarUrl,
+      avatarUrl: getDefaultAvatar(input.gender),
       authProvider: AuthProvider.Google,
       phoneVerified: false,
     });
@@ -85,7 +97,6 @@ export class UsersService {
     user.googleId = input.googleId;
     user.email = input.email ?? user.email;
     user.name = user.name ?? input.name;
-    user.avatarUrl = user.avatarUrl ?? input.avatarUrl;
     user.authProvider = AuthProvider.Google;
 
     return user.save();
@@ -168,6 +179,8 @@ export class UsersService {
 
     const update: Record<string, unknown> = {};
     const nextName = dto.name;
+    const nextEmail =
+      dto.email !== undefined ? dto.email.trim().toLowerCase() : undefined;
     const nextPhone =
       dto.phone !== undefined
         ? normalizeIndianPhoneToE164OrThrow(dto.phone)
@@ -182,25 +195,31 @@ export class UsersService {
       }
     }
 
-    for (const field of [
-      'email',
-      'avatarUrl',
-      'avatarKey',
-      'pincode',
-      'state',
-      'city',
-      'district',
-      'tehsil',
-    ] as const) {
+    if (nextEmail !== undefined && nextEmail !== user.email) {
+      const existingEmailUser = await this.findByEmail(nextEmail);
+
+      if (existingEmailUser && existingEmailUser.id !== user.id) {
+        throw new ConflictException(UsersService.EMAIL_DUPLICATE_MESSAGE);
+      }
+    }
+
+    for (const field of ['pincode', 'state', 'city', 'district', 'tehsil'] as const) {
       if (dto[field] !== undefined) {
         update[field] = dto[field];
       }
+    }
+
+    if (nextEmail !== undefined) {
+      update.email = nextEmail;
     }
 
     this.applyAddressUpdate(update, dto);
 
     if (dto.gender !== undefined) {
       update.gender = dto.gender;
+      update.avatarUrl = getDefaultAvatar(dto.gender);
+    } else if (!user.avatarUrl?.trim()) {
+      update.avatarUrl = getDefaultAvatar(user.gender);
     }
 
     if (isDonor) {
@@ -256,7 +275,20 @@ export class UsersService {
         { $set: update },
         { new: true, runValidators: true },
       )
-      .exec();
+      .exec()
+      .catch((error: unknown) => {
+        if (this.isMongoDuplicateKeyError(error)) {
+          if (error.keyPattern?.phone) {
+            throw new ConflictException(INDIAN_PHONE_DUPLICATE_MESSAGE);
+          }
+
+          if (error.keyPattern?.email) {
+            throw new ConflictException(UsersService.EMAIL_DUPLICATE_MESSAGE);
+          }
+        }
+
+        throw error;
+      });
 
     if (!updatedUser) {
       throw new BadRequestException('User profile could not be updated.');
@@ -425,5 +457,38 @@ export class UsersService {
 
     update.addressLine = addressLine;
     update.addressText = addressLine;
+  }
+
+  private isMongoDuplicateKeyError(
+    error: unknown,
+  ): error is { code: number; keyPattern?: Record<string, unknown> } {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      error.code === 11000
+    );
+  }
+
+  private async backfillMissingAvatarUrls(): Promise<void> {
+    const result = await this.userModel
+      .updateMany(
+        {
+          $or: [
+            { avatarUrl: { $exists: false } },
+            { avatarUrl: null },
+            { avatarUrl: '' },
+            { avatarUrl: /^\s*$/ },
+          ],
+        },
+        { $set: { avatarUrl: APP_AVATAR_PATHS.other } },
+      )
+      .exec();
+
+    if (result.modifiedCount > 0) {
+      this.logger.log(
+        `Backfilled default avatar for ${result.modifiedCount} users.`,
+      );
+    }
   }
 }

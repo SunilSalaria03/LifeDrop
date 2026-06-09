@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Male avatar">
+  <defs>
+    <linearGradient id="maleBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#DBEAFE" />
+      <stop offset="100%" stop-color="#BFDBFE" />
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="64" fill="url(#maleBg)" />
+  <circle cx="64" cy="45" r="20" fill="#1D4ED8" opacity="0.9" />
+  <path
+    d="M28 106c3-17 18-29 36-29s33 12 36 29"
+    fill="none"
+    stroke="#1E40AF"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="12"
+    opacity="0.9"
+  />
+</svg>

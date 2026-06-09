@@ -3,8 +3,6 @@ import { AuthUser } from '@/features/auth/types/auth.types';
 export type UpdateProfilePayload = {
   name?: string;
   phone?: string;
-  avatarUrl?: string;
-  avatarKey?: string;
   email?: string;
   bloodGroup?: string;
   gender?: 'male' | 'female' | 'other';
