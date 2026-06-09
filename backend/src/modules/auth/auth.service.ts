@@ -73,11 +73,16 @@ export class AuthService {
 
     this.assertCanLogin(user);
     this.assertCanResendOtp(user);
-    await this.sendOtpSms(user.id, normalizedPhone);
-
-    return {
+    const otp = await this.sendOtpSms(user.id, normalizedPhone);
+    const response: { message: string; otp?: string } = {
       message: 'OTP sent successfully',
     };
+
+    if (otp && this.canExposeOtpInResponse()) {
+      response.otp = otp;
+    }
+
+    return response;
   }
 
   async verifyPhoneOtp(
@@ -210,7 +215,6 @@ export class AuthService {
       googleId: firebaseToken.uid,
       email: firebaseToken.email,
       name: firebaseToken.name,
-      avatarUrl: firebaseToken.picture,
     };
   }
 
@@ -240,7 +244,6 @@ export class AuthService {
       googleId: payload.sub,
       email: payload.email,
       name: payload.name,
-      avatarUrl: payload.picture,
     };
   }
 
@@ -514,6 +517,10 @@ export class AuthService {
   }
 
   private shouldUseDevelopmentOtp(): boolean {
+    return this.configService.get<string>('NODE_ENV') !== 'production';
+  }
+
+  private canExposeOtpInResponse(): boolean {
     return this.configService.get<string>('NODE_ENV') !== 'production';
   }
 

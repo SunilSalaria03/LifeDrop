@@ -1,13 +1,9 @@
-import defaultAvatar from "@/assets/images/default.svg";
-import femaleAvatar from "@/assets/images/female.svg";
-import maleAvatar from "@/assets/images/male.svg";
-
 export type AvatarGender = "male" | "female" | "other";
 
-export const DEFAULT_AVATAR_SRC = defaultAvatar.src;
+export const DEFAULT_AVATAR_SRC = "/images/avatar/other.svg";
 
 export const GENDER_AVATAR_SRC_MAP: Record<AvatarGender, string> = {
-  male: maleAvatar.src,
-  female: femaleAvatar.src,
+  male: "/images/avatar/male.svg",
+  female: "/images/avatar/female.svg",
   other: DEFAULT_AVATAR_SRC,
 };

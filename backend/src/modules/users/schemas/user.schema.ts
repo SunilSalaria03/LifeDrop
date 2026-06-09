@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { APP_AVATAR_PATHS } from '../avatar.constants';
 import { GeoPoint } from './user.schema.types';
 
 export enum AuthProvider {
@@ -41,7 +42,7 @@ export class User {
   @Prop({ trim: true })
   phone?: string;
 
-  @Prop({ trim: true })
+  @Prop({ trim: true, default: APP_AVATAR_PATHS.other })
   avatarUrl?: string;
 
   @Prop({ trim: true })

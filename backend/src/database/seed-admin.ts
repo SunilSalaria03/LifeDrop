@@ -3,12 +3,14 @@ import { join } from 'node:path';
 import mongoose, { Schema } from 'mongoose';
 import { normalizeOptional } from './seed-admin.helpers';
 import { AuthProvider, UserRecord, UserRole } from './seed-admin.types';
+import { APP_AVATAR_PATHS } from '../modules/users/avatar.constants';
 
 const userSchema = new Schema<UserRecord>(
   {
     name: { type: String, trim: true },
     email: { type: String, lowercase: true, trim: true },
     phone: { type: String, trim: true },
+    avatarUrl: { type: String, trim: true, default: APP_AVATAR_PATHS.other },
     authProvider: {
       type: String,
       enum: Object.values(AuthProvider),
@@ -60,6 +62,7 @@ async function seedAdmin() {
   const authProvider = adminPhone ? AuthProvider.Phone : AuthProvider.Google;
   const update: Partial<UserRecord> = {
     name: adminName,
+    avatarUrl: APP_AVATAR_PATHS.other,
     authProvider,
     role: UserRole.Admin,
     phoneVerified: Boolean(adminPhone),
